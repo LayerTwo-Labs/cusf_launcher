@@ -10,6 +10,8 @@ config_version=5
 
 [application]
 
-config/name="cusf_launcher"
+config/name="CUSF Launcher"
+run/main_scene="res://scene/main_window.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
-config/icon="res://icon.svg"
+boot_splash/image="res://image/bitcoin.png"
+config/icon="res://image/bitcoin.png"
