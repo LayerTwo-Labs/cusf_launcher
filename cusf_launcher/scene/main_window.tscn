@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://c7xfr6losav1n"]
+[gd_scene load_steps=3 format=3 uid="uid://c7xfr6losav1n"]
 
 [ext_resource type="Script" path="res://script/main_window.gd" id="1_8sbni"]
+[ext_resource type="PackedScene" uid="uid://bdpd4vlv7wtfm" path="res://scene/resource_downloader.tscn" id="2_e34m6"]
 
 [node name="MainWindow" type="Control"]
 layout_mode = 3
@@ -10,3 +11,25 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_8sbni")
+
+[node name="ResourceDownloader" parent="." instance=ExtResource("2_e34m6")]
+layout_mode = 1
+
+[node name="ButtonDownloadCUSF" type="Button" parent="."]
+layout_mode = 0
+offset_left = 443.0
+offset_top = 162.0
+offset_right = 687.0
+offset_bottom = 193.0
+text = "Download everything for CUSF"
+
+[node name="ButtonStartCUSF" type="Button" parent="."]
+layout_mode = 0
+offset_left = 464.0
+offset_top = 209.0
+offset_right = 667.0
+offset_bottom = 240.0
+text = "Start everything for CUSF"
+
+[connection signal="pressed" from="ButtonDownloadCUSF" to="." method="_on_button_download_cusf_pressed"]
+[connection signal="pressed" from="ButtonStartCUSF" to="." method="_on_button_start_cusf_pressed"]

@@ -12,6 +12,8 @@ config_version=5
 
 config/name="CUSF Launcher"
 run/main_scene="res://scene/main_window.tscn"
+config/use_custom_user_dir=true
+config/custom_user_dir_name="cusf_launcher"
 config/features=PackedStringArray("4.3", "Forward Plus")
 boot_splash/image="res://image/bitcoin.png"
 config/icon="res://image/bitcoin.png"
