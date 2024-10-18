@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://c7xfr6losav1n"]
+[gd_scene load_steps=4 format=3 uid="uid://c7xfr6losav1n"]
 
 [ext_resource type="Script" path="res://script/main_window.gd" id="1_8sbni"]
 [ext_resource type="PackedScene" uid="uid://bdpd4vlv7wtfm" path="res://scene/resource_downloader.tscn" id="2_e34m6"]
+[ext_resource type="PackedScene" uid="uid://lbm2fo7bwwvd" path="res://scene/configuration.tscn" id="3_k24qc"]
 
 [node name="MainWindow" type="Control"]
 layout_mode = 3
@@ -15,21 +16,81 @@ script = ExtResource("1_8sbni")
 [node name="ResourceDownloader" parent="." instance=ExtResource("2_e34m6")]
 layout_mode = 1
 
+[node name="Configuration" parent="." instance=ExtResource("3_k24qc")]
+layout_mode = 1
+
 [node name="ButtonDownloadCUSF" type="Button" parent="."]
 layout_mode = 0
-offset_left = 443.0
-offset_top = 162.0
-offset_right = 687.0
-offset_bottom = 193.0
+offset_left = 474.0
+offset_top = 168.0
+offset_right = 718.0
+offset_bottom = 199.0
 text = "Download everything for CUSF"
 
 [node name="ButtonStartCUSF" type="Button" parent="."]
 layout_mode = 0
-offset_left = 464.0
-offset_top = 209.0
-offset_right = 667.0
-offset_bottom = 240.0
+offset_left = 515.0
+offset_top = 474.0
+offset_right = 718.0
+offset_bottom = 505.0
 text = "Start everything for CUSF"
 
+[node name="ButtonConfigure" type="Button" parent="."]
+layout_mode = 0
+offset_left = 637.0
+offset_top = 314.0
+offset_right = 721.0
+offset_bottom = 345.0
+text = "Configure"
+
+[node name="LabelResources" type="Label" parent="."]
+layout_mode = 0
+offset_left = 726.0
+offset_top = 166.0
+offset_right = 844.0
+offset_bottom = 241.0
+text = "Resources:
+resource : false
+resource : false
+resource : false"
+
+[node name="LabelConfiguration" type="Label" parent="."]
+layout_mode = 0
+offset_left = 729.0
+offset_top = 317.0
+offset_right = 840.0
+offset_bottom = 340.0
+text = "Configuration:
+"
+
+[node name="ProgressDownload" type="Control" parent="."]
+visible = false
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="ProgressDownload"]
+layout_mode = 0
+offset_left = 933.0
+offset_top = 165.0
+offset_right = 1049.0
+offset_bottom = 188.0
+text = "Downloading..."
+
+[node name="ProgressBarDownloads" type="ProgressBar" parent="ProgressDownload"]
+layout_mode = 0
+offset_left = 833.0
+offset_top = 163.0
+offset_right = 924.0
+offset_bottom = 190.0
+step = 0.1
+indeterminate = true
+editor_preview_indeterminate = true
+
+[connection signal="resource_bitcoin_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_bitcoin_ready"]
+[connection signal="resource_enforcer_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_enforcer_ready"]
+[connection signal="resource_grpcurl_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_grpcurl_ready"]
+[connection signal="configuration_complete" from="Configuration" to="." method="_on_configuration_complete"]
 [connection signal="pressed" from="ButtonDownloadCUSF" to="." method="_on_button_download_cusf_pressed"]
 [connection signal="pressed" from="ButtonStartCUSF" to="." method="_on_button_start_cusf_pressed"]
+[connection signal="pressed" from="ButtonConfigure" to="." method="_on_button_configure_pressed"]

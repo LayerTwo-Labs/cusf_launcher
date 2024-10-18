@@ -4,7 +4,7 @@ var DEBUG_REQUESTS : bool = false
 
 const URL_GRPCURL : String = "https://github.com/fullstorydev/grpcurl/releases/download/v1.9.1/grpcurl_1.9.1_linux_x86_64.tar.gz"
 const URL_300301_ENFORCER : String = "https://releases.drivechain.info/bip300301-enforcer-latest-x86_64-unknown-linux-gnu.zip"
-const URL_BITCOIN_PATCHED : String = "https://releases.drivechain.info/L1-bitcoin-patched-header-signature-rebase-latest-x86_64-unknown-linux-gnu.zip"
+const URL_BITCOIN_PATCHED : String = "https://releases.drivechain.info/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu.zip"
 
 @onready var http_download_grpcurl: HTTPRequest = $HTTPDownloadGRPCURL
 @onready var http_download_enforcer: HTTPRequest = $HTTPDownloadEnforcer
@@ -13,6 +13,10 @@ const URL_BITCOIN_PATCHED : String = "https://releases.drivechain.info/L1-bitcoi
 var located_grpcurl : bool = false
 var located_enforcer : bool = false
 var located_bitcoin : bool = false
+
+signal resource_grpcurl_ready
+signal resource_bitcoin_ready
+signal resource_enforcer_ready
 
 func have_grpcurl() -> bool:
 	if located_grpcurl:
@@ -40,7 +44,7 @@ func have_bitcoin() -> bool:
 	if located_bitcoin:
 		return true
 	
-	if !FileAccess.file_exists("user://L1-bitcoin-patched-header-signature-rebase-latest-x86_64-unknown-linux-gnu/bitcoind"):
+	if !FileAccess.file_exists("user://L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"):
 		return false
 	
 	located_bitcoin = true
@@ -49,6 +53,7 @@ func have_bitcoin() -> bool:
 
 func download_grpcurl() -> void:
 	if have_grpcurl():
+		resource_grpcurl_ready.emit()
 		return
 		
 	$HTTPDownloadGRPCURL.request(URL_GRPCURL)
@@ -56,6 +61,7 @@ func download_grpcurl() -> void:
 
 func download_enforcer() -> void:
 	if have_enforcer():
+		resource_enforcer_ready.emit()
 		return
 		
 	$HTTPDownloadEnforcer.request(URL_300301_ENFORCER)
@@ -63,6 +69,7 @@ func download_enforcer() -> void:
 
 func download_bitcoin() -> void:
 	if have_bitcoin():
+		resource_bitcoin_ready.emit()
 		return
 		
 	$HTTPDownloadBitcoin.request(URL_BITCOIN_PATCHED)
@@ -73,6 +80,8 @@ func extract_grpcurl() -> void:
 	var ret : int = OS.execute("tar", ["-xzf", str(user_dir, "/grpcurl.tar.gz"), "-C", user_dir])
 	if ret != OK:
 		printerr("Failed to extract grpcurl")
+		
+	resource_grpcurl_ready.emit()
 
 
 func extract_enforcer() -> void:
@@ -80,6 +89,13 @@ func extract_enforcer() -> void:
 	var ret : int = OS.execute("unzip", ["-o", "-d", user_dir, str(user_dir, "/300301enforcer.zip")])
 	if ret != OK:
 		printerr("Failed to extract enforcer")
+		
+	# Make executable
+	ret = OS.execute("chmod", ["+x", str(user_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu")])
+	if ret != OK:
+		printerr("Failed to mark enforcer executable")
+
+	resource_enforcer_ready.emit()
 
 
 func extract_bitcoin() -> void:
@@ -88,10 +104,14 @@ func extract_bitcoin() -> void:
 	if ret != OK:
 		printerr("Failed to extract bitcoin")
 	
+	print("user dir ", user_dir)
+	
 	# Make executable
-	ret = OS.execute("chmod", [str(user_dir, "/L1-bitcoin-patched-header-signature-rebase-latest-x86_64-unknown-linux-gnu/bitcoind"), "+x"])
+	ret = OS.execute("chmod", ["+x", str(user_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt")])
 	if ret != OK:
 		printerr("Failed to mark bitcoin executable")
+	
+	resource_bitcoin_ready.emit()
 	
 	
 func _on_http_download_grpcurl_request_completed(result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
