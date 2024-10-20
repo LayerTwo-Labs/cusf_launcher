@@ -38,9 +38,9 @@ text = "Start everything for CUSF"
 [node name="ButtonConfigure" type="Button" parent="."]
 layout_mode = 0
 offset_left = 637.0
-offset_top = 314.0
+offset_top = 363.0
 offset_right = 721.0
-offset_bottom = 345.0
+offset_bottom = 394.0
 text = "Configure"
 
 [node name="LabelResources" type="Label" parent="."]
@@ -57,9 +57,9 @@ resource : false"
 [node name="LabelConfiguration" type="Label" parent="."]
 layout_mode = 0
 offset_left = 729.0
-offset_top = 317.0
+offset_top = 366.0
 offset_right = 840.0
-offset_bottom = 340.0
+offset_bottom = 389.0
 text = "Configuration:
 "
 
@@ -90,6 +90,7 @@ editor_preview_indeterminate = true
 [connection signal="resource_bitcoin_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_bitcoin_ready"]
 [connection signal="resource_enforcer_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_enforcer_ready"]
 [connection signal="resource_grpcurl_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_grpcurl_ready"]
+[connection signal="resource_thunder_ready" from="ResourceDownloader" to="." method="_on_resource_downloader_resource_thunder_ready"]
 [connection signal="configuration_complete" from="Configuration" to="." method="_on_configuration_complete"]
 [connection signal="pressed" from="ButtonDownloadCUSF" to="." method="_on_button_download_cusf_pressed"]
 [connection signal="pressed" from="ButtonStartCUSF" to="." method="_on_button_start_cusf_pressed"]

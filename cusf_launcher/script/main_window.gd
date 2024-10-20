@@ -3,6 +3,7 @@ extends Control
 var resource_bitcoin_ready : bool = false
 var resource_grpcurl_ready : bool = false
 var resource_enforcer_ready : bool = false
+var resource_thunder_ready : bool = false
 var configuration_complete : bool = false
 
 var started_pid = []
@@ -19,6 +20,7 @@ func _exit_tree() -> void:
 
 func kill_started_pid() -> void:
 	for pid in started_pid:
+		print("Killing pid ", pid)
 		OS.kill(pid)
 
 
@@ -29,6 +31,7 @@ func _on_button_download_cusf_pressed() -> void:
 	$ResourceDownloader.download_grpcurl()
 	$ResourceDownloader.download_enforcer()
 	$ResourceDownloader.download_bitcoin()
+	$ResourceDownloader.download_thunder()
 
 
 func _on_button_configure_pressed() -> void:
@@ -42,13 +45,24 @@ func _on_button_start_cusf_pressed() -> void:
 		printerr("Failed to start bitcoin")
 	else:
 		started_pid.push_back(ret)
+		print("started bitcoin with pid: ", ret)
 		
 	ret = OS.create_process(str(user_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"), ["--node-rpc-addr=127.0.01:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://0.0.0.0:29000"])
 	if ret == -1:
 		printerr("Failed to start enforcer")
 	else:
 		started_pid.push_back(ret)
-		
+		print("started enforcer with pid: ", ret)
+
+			
+	ret = OS.create_process(str(user_dir, "/thunder-latest-x86_64-unknown-linux-gnu"), [""])
+	if ret == -1:
+		printerr("Failed to start enforcer")
+	else:
+		started_pid.push_back(ret)
+		print("started thunder with pid: ", ret)
+
+
 
 func _on_downloader_resource_bitcoin_ready() -> void:
 	resource_bitcoin_ready = true
@@ -64,6 +78,11 @@ func _on_downloader_resource_grpcurl_ready() -> void:
 	resource_grpcurl_ready = true
 	update_resource_status()
 	
+
+func _on_resource_downloader_resource_thunder_ready() -> void:
+	resource_thunder_ready = true
+	update_resource_status()
+
 	
 func _on_configuration_complete() -> void:
 	configuration_complete = true
@@ -88,7 +107,12 @@ func update_resource_status() -> void:
 		resource_label += "\nEnforcer: Ready"
 	else:
 		resource_label += "\nEnforcer: Missing"
-		
+	
+	if resource_thunder_ready:
+		resource_label += "\nThunder: Ready"
+	else:
+		resource_label += "\nThunder: Missing"
+	
 	$LabelResources.text = resource_label
 
 
@@ -105,7 +129,7 @@ func update_configuration_status() -> void:
 	
 	
 func check_ready_to_launch() -> void:
-	if resource_bitcoin_ready && resource_enforcer_ready && resource_grpcurl_ready:
+	if resource_bitcoin_ready && resource_enforcer_ready && resource_grpcurl_ready && resource_thunder_ready:
 		if configuration_complete:
 			$ButtonStartCUSF.disabled = false
 			

@@ -23,6 +23,11 @@ timeout = 10.0
 download_file = "user://bitcoinpatched.zip"
 timeout = 120.0
 
+[node name="HTTPDownloadThunder" type="HTTPRequest" parent="."]
+download_file = "user://thunder.zip"
+timeout = 120.0
+
 [connection signal="request_completed" from="HTTPDownloadGRPCURL" to="." method="_on_http_download_grpcurl_request_completed"]
 [connection signal="request_completed" from="HTTPDownloadEnforcer" to="." method="_on_http_download_enforcer_request_completed"]
 [connection signal="request_completed" from="HTTPDownloadBitcoin" to="." method="_on_http_download_bitcoin_request_completed"]
+[connection signal="request_completed" from="HTTPDownloadThunder" to="." method="_on_http_download_thunder_request_completed"]
