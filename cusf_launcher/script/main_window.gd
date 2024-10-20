@@ -5,10 +5,21 @@ var resource_grpcurl_ready : bool = false
 var resource_enforcer_ready : bool = false
 var configuration_complete : bool = false
 
+var started_pid = []
+
 
 func _ready() -> void:
 	call_deferred("update_resource_status")
 	call_deferred("update_configuration_status")
+
+
+func _exit_tree() -> void:
+	kill_started_pid()
+
+
+func kill_started_pid() -> void:
+	for pid in started_pid:
+		OS.kill(pid)
 
 
 func _on_button_download_cusf_pressed() -> void:
@@ -26,14 +37,18 @@ func _on_button_configure_pressed() -> void:
 
 func _on_button_start_cusf_pressed() -> void:
 	var user_dir : String = OS.get_user_data_dir() 
-	var ret_bitcoin : int = OS.execute(str(user_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"), ["--connect=0", "--signet"])
-	if ret_bitcoin != OK:
+	var ret : int = OS.create_process(str(user_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"), ["--connect=0", "--signet"])
+	if ret == -1:
 		printerr("Failed to start bitcoin")
+	else:
+		started_pid.push_back(ret)
 		
-	var ret_enforcer : int = OS.execute(str(user_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"), ["--", "--node-rpc-port=38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://0.0.0.0:29000"])
-	if ret_enforcer != OK:
+	ret = OS.create_process(str(user_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"), ["--node-rpc-addr=127.0.01:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://0.0.0.0:29000"])
+	if ret == -1:
 		printerr("Failed to start enforcer")
-
+	else:
+		started_pid.push_back(ret)
+		
 
 func _on_downloader_resource_bitcoin_ready() -> void:
 	resource_bitcoin_ready = true
