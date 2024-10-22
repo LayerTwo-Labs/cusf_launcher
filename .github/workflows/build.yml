@@ -49,6 +49,11 @@ jobs:
 
       - name: Setup notarization credentials
         if: ${{ matrix.build == 'macos' }}
+        # important: the --path argument passed to the godot build command
+        # below causes the signing to happen with this as the working directory
+        # that means we have to make sure the notarization key is placed here, 
+        # in order to not fail with a "file not found".
+        working-directory: cusf_launcher
         run: |
           echo ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY }} | base64 --decode > notarization_api_key.p8
 
@@ -82,7 +87,7 @@ jobs:
           xcrun notarytool wait $request_id \
             --issuer ${{ secrets.GODOT_MACOS_NOTARIZATION_API_UUID }} \
             --key-id ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY_ID }} \
-            --key ./notarization_api_key.p8
+            --key ./cusf_launcher/notarization_api_key.p8
 
   upload-artifacts-to-releases-drivechain-info:
     name: Upload artifacts to releases.drivechain.info
