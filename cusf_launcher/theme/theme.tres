@@ -1,0 +1,5 @@
+[gd_resource type="Theme" format=3 uid="uid://bp66o0ssq170d"]
+
+[resource]
+Label/colors/font_outline_color = Color(0, 0, 0, 1)
+Label/colors/font_shadow_color = Color(0, 0, 0, 1)
