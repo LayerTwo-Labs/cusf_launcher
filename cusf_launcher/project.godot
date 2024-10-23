@@ -18,6 +18,11 @@ config/features=PackedStringArray("4.3", "Forward Plus")
 boot_splash/image="res://image/bitcoin.png"
 config/icon="res://image/bitcoin.png"
 
+[display]
+
+window/stretch/mode="canvas_items"
+window/stretch/aspect="ignore"
+
 [rendering]
 
 textures/vram_compression/import_etc2_astc=true
