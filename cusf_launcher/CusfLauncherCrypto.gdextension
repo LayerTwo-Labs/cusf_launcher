@@ -1,0 +1,14 @@
+[configuration]
+entry_symbol = "gdext_rust_init"
+compatibility_minimum = 4.1
+reloadable = true
+
+[libraries]
+linux.debug.x86_64 =     "res://../cusf_launcher_crypto/target/x86_64-unknown-linux-gnu/debug/libcusf_launcher_crypto.so"
+linux.release.x86_64 =   "res://../cusf_launcher_crypto/target/x86_64-unknown-linux-gnu/release/libcusf_launcher_crypto.so"
+windows.debug.x86_64 =   "res://../cusf_launcher_crypto/target/x86_64-pc-windows-gnu/debug/cusf_launcher_crypto.dll"
+windows.release.x86_64 = "res://../cusf_launcher_crypto/target/x86_64-pc-windows-gnu/release/cusf_launcher_crypto.dll"
+macos.debug =            "res://../cusf_launcher_crypto/target/x86_64-apple-darwin/debug/libcusf_launcher_crypto.dylib"
+macos.release =          "res://../cusf_launcher_crypto/target/x86_64-apple-darwin/release/libcusf_launcher_crypto.dylib"
+macos.debug.arm64 =      "res://../cusf_launcher_crypto/target/aarch64-apple-darwin/debug/libcusf_launcher_crypto.dylib"
+macos.release.arm64 =    "res://../cusf_launcher_crypto/target/aarch64-apple-darwin/release/libcusf_launcher_crypto.dylib"
