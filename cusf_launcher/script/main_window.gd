@@ -237,3 +237,16 @@ func _on_rpc_client_thunder_cli_failed() -> void:
 
 func _on_rpc_client_thunder_new_block_count(height: int) -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.text = "Thunder running!"
+
+
+func _on_button_delete_everything_pressed() -> void:
+	kill_started_pid()
+	
+	# Trash L1 and L2 data dirs 
+	OS.move_to_trash($Configuration.get_bitcoin_datadir())
+	
+	# Trash cusf_launcher files
+	OS.move_to_trash(OS.get_user_data_dir())
+	
+	call_deferred("check_resources")
+	call_deferred("display_resource_status")
