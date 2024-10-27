@@ -1,8 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://c7xfr6losav1n"]
+[gd_scene load_steps=12 format=3 uid="uid://c7xfr6losav1n"]
 
 [ext_resource type="Script" path="res://script/main_window.gd" id="1_8sbni"]
 [ext_resource type="PackedScene" uid="uid://bdpd4vlv7wtfm" path="res://scene/resource_downloader.tscn" id="2_e34m6"]
 [ext_resource type="PackedScene" uid="uid://lbm2fo7bwwvd" path="res://scene/configuration.tscn" id="3_k24qc"]
+[ext_resource type="PackedScene" uid="uid://5hlmtsqgims0" path="res://scene/rpc_client.tscn" id="4_0vrr0"]
 [ext_resource type="StyleBox" uid="uid://do3pgd68vga3c" path="res://theme/background_flat_style_box.tres" id="4_kdykr"]
 [ext_resource type="StyleBox" uid="uid://rfjpq81ynq33" path="res://theme/overview_flat_style_box.tres" id="5_i6pkh"]
 
@@ -52,6 +53,9 @@ offset_left = 1213.0
 offset_top = 18.0
 offset_right = 1213.0
 offset_bottom = 18.0
+
+[node name="RPCClient" parent="." instance=ExtResource("4_0vrr0")]
+layout_mode = 1
 
 [node name="ButtonDownloadCUSF" type="Button" parent="."]
 layout_mode = 0
@@ -191,7 +195,6 @@ indeterminate = true
 editor_preview_indeterminate = false
 
 [node name="LabelL1SetupStatus" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
-visible = false
 layout_mode = 2
 text = "Ready to start L1!"
 
@@ -200,7 +203,11 @@ visible = false
 layout_mode = 2
 text = "Start L1 Software"
 
-[node name="LabelL1RunStatus" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
+[node name="LabelL1RunStatusBTC" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="LabelL1RunStatusEnforcer" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
 visible = false
 layout_mode = 2
 
@@ -226,7 +233,6 @@ indeterminate = true
 editor_preview_indeterminate = false
 
 [node name="LabelThunderSetupStatus" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer"]
-visible = false
 layout_mode = 2
 
 [node name="ButtonStartThunder" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer"]
@@ -535,6 +541,12 @@ layout_mode = 2
 [connection signal="resource_grpcurl_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_grpcurl_ready"]
 [connection signal="resource_thunder_ready" from="ResourceDownloader" to="." method="_on_resource_downloader_resource_thunder_ready"]
 [connection signal="configuration_complete" from="Configuration" to="." method="_on_configuration_complete"]
+[connection signal="btc_new_block_count" from="RPCClient" to="." method="_on_rpc_client_btc_new_block_count"]
+[connection signal="btc_rpc_failed" from="RPCClient" to="." method="_on_rpc_client_btc_rpc_failed"]
+[connection signal="cusf_drivechain_new_block_count" from="RPCClient" to="." method="_on_rpc_client_cusf_drivechain_new_block_count"]
+[connection signal="cusf_drivechain_rpc_failed" from="RPCClient" to="." method="_on_rpc_client_cusf_drivechain_rpc_failed"]
+[connection signal="thunder_cli_failed" from="RPCClient" to="." method="_on_rpc_client_thunder_cli_failed"]
+[connection signal="thunder_new_block_count" from="RPCClient" to="." method="_on_rpc_client_thunder_new_block_count"]
 [connection signal="pressed" from="ButtonDownloadCUSF" to="." method="_on_button_download_cusf_pressed"]
 [connection signal="pressed" from="ButtonStartCUSF" to="." method="_on_button_start_cusf_pressed"]
 [connection signal="toggled" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer/ButtonOverview" to="." method="_on_button_overview_toggled"]

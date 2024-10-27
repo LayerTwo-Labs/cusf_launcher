@@ -1,5 +1,7 @@
 extends Control
 
+const RUN_STATUS_UPDATE_DELAY : int = 10
+
 var resource_bitcoin_ready : bool = false
 var resource_grpcurl_ready : bool = false
 var resource_enforcer_ready : bool = false
@@ -8,9 +10,19 @@ var configuration_complete : bool = false
 
 var started_pid = []
 
+var timer_run_status_update = null
+
 
 func _ready() -> void:
-	call_deferred("update_l1_resource_status")
+	# Create timer to check on running state of L1 and L2 software
+	timer_run_status_update = Timer.new()
+	add_child(timer_run_status_update)
+	timer_run_status_update.connect("timeout", check_running_status)
+	
+	timer_run_status_update.start(RUN_STATUS_UPDATE_DELAY)
+	
+	call_deferred("check_resources")
+	call_deferred("display_resource_status")
 
 
 func _exit_tree() -> void:
@@ -21,72 +33,89 @@ func kill_started_pid() -> void:
 	for pid in started_pid:
 		print("Killing pid ", pid)
 		OS.kill(pid)
-		
+
+
+func check_running_status() -> void:
+	$RPCClient.rpc_bitcoin_getblockcount()
+	$RPCClient.grpc_enforcer_getmainblockcount()
+	$RPCClient.cli_thunder_getblockcount()
+
 
 func _on_downloader_resource_bitcoin_ready() -> void:
 	resource_bitcoin_ready = true
-	update_l1_resource_status()
+	display_resource_status()
 
 
 func _on_downloader_resource_enforcer_ready() -> void:
 	resource_enforcer_ready = true
-	update_l1_resource_status()
+	display_resource_status()
 	
 
 func _on_downloader_resource_grpcurl_ready() -> void:
 	resource_grpcurl_ready = true
-	update_l1_resource_status()
+	display_resource_status()
 	
 
 func _on_resource_downloader_resource_thunder_ready() -> void:
 	resource_thunder_ready = true
-	update_thunder_resource_status()
+	display_resource_status()
 
 	
 func _on_configuration_complete() -> void:
 	configuration_complete = true
+	display_resource_status()
 
 
-func update_l1_resource_status() -> void:
-	# Hide setup status and buttons if everything L1 is ready
-	# Show launch L1 button
-	if resource_bitcoin_ready && resource_grpcurl_ready && resource_enforcer_ready:
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1SetupStatus.visible = false
+func check_resources() -> void:
+	# Check for any existing L1 or L2 software that is already setup
+	$ResourceDownloader.have_grpcurl()
+	$ResourceDownloader.have_enforcer()
+	$ResourceDownloader.have_bitcoin()
+	$ResourceDownloader.have_thunder()
+	
+	$Configuration.have_bitcoin_configuration()
+
+
+func display_resource_status() -> void:
+	# Update the displayed status of L1 & L2 resources
+
+	# Hide l1 setup buttons if everything L1 is ready
+	if resource_bitcoin_ready && resource_grpcurl_ready && resource_enforcer_ready && configuration_complete:
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/L1ProgressBar.visible = false
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonSetupL1.visible = false
 		
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = true
 		
-		return
-	
-	# Otherwise show progress of getting L1 ready
-	var status_text : String = ""
+	var l1_status_text : String = ""
 	
 	if resource_bitcoin_ready:
-		status_text += "\nBitcoin: Ready!"
+		l1_status_text += "\nBitcoin: Ready!"
 	else:
-		status_text += "\nBitcoin: Downloading..."
+		l1_status_text += "\nBitcoin: Downloading..."
 		
 	if resource_grpcurl_ready:
-		status_text += "\nGRPCURL: Ready!"
+		l1_status_text += "\nGRPCURL: Ready!"
 	else:
-		status_text += "\nGRPCURL: Downloading..."
+		l1_status_text += "\nGRPCURL: Downloading..."
 		
 	if resource_enforcer_ready:
-		status_text += "\nEnforcer: Ready!"
+		l1_status_text += "\nEnforcer: Ready!"
 	else:
-		status_text += "\nEnforcer: Downloading..."
+		l1_status_text += "\nEnforcer: Downloading..."
+		
+	if configuration_complete:
+		l1_status_text += "\nConfiguration: Complete!"
+	else:
+		l1_status_text += "\nConfiguration: Not configured!"
 	
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1SetupStatus.text = status_text
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1SetupStatus.text = l1_status_text
 
-
-func update_thunder_resource_status() -> void:
+	# Hide thunder setup buttons and show launch button if ready
 	if resource_thunder_ready:
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonSetupThunder.visible = false
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ThunderProgressBar.visible = false
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderSetupStatus.visible = false
-
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonStartThunder.visible = true
+		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderSetupStatus.text = "Ready!"
 
 
 func _on_button_overview_toggled(toggled_on: bool) -> void:
@@ -153,6 +182,11 @@ func _on_button_start_l1_pressed() -> void:
 		print("started enforcer with pid: ", ret)
 		
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = false
+	
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.visible = true
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.visible = true
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = "Starting Bitcoin Core..."
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.text = "Starting Drivechain Enforcer..."
 
 
 func _on_button_setup_thunder_pressed() -> void:
@@ -171,9 +205,35 @@ func _on_button_start_thunder_pressed() -> void:
 	if ret == -1:
 		printerr("Failed to start enforcer")
 		return
-	else:
-		started_pid.push_back(ret)
-		print("started thunder with pid: ", ret)
-		
+	
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonStartThunder.visible = false
-		
+	
+	started_pid.push_back(ret)
+	print("started thunder with pid: ", ret)
+	
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.visible = true
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.text = "Starting Thunder..."
+
+
+func _on_rpc_client_btc_new_block_count(height: int) -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = "BTC Running!"
+
+
+func _on_rpc_client_btc_rpc_failed() -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = "Failed to contact BTC!"
+
+
+func _on_rpc_client_cusf_drivechain_new_block_count(height: int) -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.text = "Drivechain Enforcer Running!"
+
+
+func _on_rpc_client_cusf_drivechain_rpc_failed() -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.text = "Failed to contact Drivechain Enforcer!"
+
+
+func _on_rpc_client_thunder_cli_failed() -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.text = "Failed to contact Thunder!"
+
+
+func _on_rpc_client_thunder_new_block_count(height: int) -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.text = "Thunder running!"
