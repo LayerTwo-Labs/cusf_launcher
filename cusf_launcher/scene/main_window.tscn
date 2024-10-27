@@ -392,69 +392,21 @@ offset_bottom = 40.0
 layout_mode = 2
 text = "Settings"
 
-[node name="HBoxContainer4" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
+[node name="LabelDeleteEverything" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
 layout_mode = 2
+text = "If you press \"DeleteEverything\":
+- All L1 & L2 software will stop
 
-[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/HBoxContainer4"]
-layout_mode = 2
-text = "Bitcoin Data Directory:
-"
+All of this will be moved to trash:
+-All L1 & L2 data directories 
+-All CUSF Launcher downloads
+-All CUSF Launcher data
 
-[node name="LineEditCoreDataDir" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/HBoxContainer4"]
-custom_minimum_size = Vector2(365, 0)
-layout_mode = 2
-placeholder_text = "/home/.bitcoin"
+If you have trash disabled everything will be deleted"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
+[node name="ButtonDeleteEverything" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
 layout_mode = 2
-
-[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-text = "Bitcoin RPC Port:
-"
-
-[node name="SpinBoxBitcoinRPCPort" type="SpinBox" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-max_value = 999999.0
-value = 18443.0
-
-[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
-layout_mode = 2
-
-[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/HBoxContainer2"]
-layout_mode = 2
-text = "Wallet RPC Port:
-"
-
-[node name="SpinBoxWalletRPCPort" type="SpinBox" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/HBoxContainer2"]
-layout_mode = 2
-max_value = 999999.0
-value = 18443.0
-
-[node name="HBoxContainer3" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
-layout_mode = 2
-
-[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/HBoxContainer3"]
-layout_mode = 2
-text = "Drivechain CUSF Client gRPC Port:
-"
-
-[node name="SpinBoxCUSFCATPort" type="SpinBox" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/HBoxContainer3"]
-layout_mode = 2
-max_value = 999999.0
-value = 50051.0
-
-[node name="HBoxContainer5" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
-layout_mode = 2
-
-[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/HBoxContainer5"]
-layout_mode = 2
-text = "OP_CAT CUSF Client RPC Port:
-"
-
-[node name="SpinBoxCUSFDRIVECHAINPort" type="SpinBox" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/HBoxContainer5"]
-layout_mode = 2
-max_value = 999999.0
+text = "Delete Everything"
 
 [node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(1140, 0)
@@ -557,3 +509,4 @@ layout_mode = 2
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1" to="." method="_on_button_start_l1_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonSetupThunder" to="." method="_on_button_setup_thunder_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonStartThunder" to="." method="_on_button_start_thunder_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/ButtonDeleteEverything" to="." method="_on_button_delete_everything_pressed"]
