@@ -29,6 +29,8 @@ func have_grpcurl() -> bool:
 	if !FileAccess.file_exists("user://grpcurl"):
 		return false
 	
+	resource_grpcurl_ready.emit()
+	
 	located_grpcurl = true
 	return true
 
@@ -40,6 +42,8 @@ func have_enforcer() -> bool:
 	if !FileAccess.file_exists("user://bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"):
 		return false
 	
+	resource_enforcer_ready.emit()
+	
 	located_enforcer = true
 	return true
 	
@@ -50,6 +54,8 @@ func have_bitcoin() -> bool:
 	
 	if !FileAccess.file_exists("user://L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"):
 		return false
+		
+	resource_bitcoin_ready.emit()
 	
 	located_bitcoin = true
 	return true
@@ -62,13 +68,14 @@ func have_thunder() -> bool:
 	if !FileAccess.file_exists("user://thunder-latest-x86_64-unknown-linux-gnu"):
 		return false
 	
+	resource_thunder_ready.emit()
+	
 	located_thunder = true
 	return true
 	
 	
 func download_grpcurl() -> void:
 	if have_grpcurl():
-		resource_grpcurl_ready.emit()
 		return
 		
 	$HTTPDownloadGRPCURL.request(URL_GRPCURL)
@@ -76,7 +83,6 @@ func download_grpcurl() -> void:
 
 func download_enforcer() -> void:
 	if have_enforcer():
-		resource_enforcer_ready.emit()
 		return
 		
 	$HTTPDownloadEnforcer.request(URL_300301_ENFORCER)
@@ -84,7 +90,6 @@ func download_enforcer() -> void:
 
 func download_bitcoin() -> void:
 	if have_bitcoin():
-		resource_bitcoin_ready.emit()
 		return
 		
 	$HTTPDownloadBitcoin.request(URL_BITCOIN_PATCHED)
@@ -92,7 +97,6 @@ func download_bitcoin() -> void:
 
 func download_thunder() -> void:
 	if have_thunder():
-		resource_thunder_ready.emit()
 		return
 		
 	$HTTPDownloadThunder.request(URL_THUNDER)

@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://5hlmtsqgims0"]
+
+[ext_resource type="Script" path="res://script/rpc_client.gd" id="1_ywa47"]
+
+[node name="RPCClient" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ywa47")
+
+[node name="BitcoinCoreRPC" type="Node" parent="."]
+
+[node name="HTTPRPCBTCGetBlockCount" type="HTTPRequest" parent="BitcoinCoreRPC"]
+
+[connection signal="request_completed" from="BitcoinCoreRPC/HTTPRPCBTCGetBlockCount" to="." method="_on_http_rpc_btc_get_block_count_request_completed"]
