@@ -392,6 +392,14 @@ offset_bottom = 40.0
 layout_mode = 2
 text = "Settings"
 
+[node name="LabelOSInfo" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
+layout_mode = 2
+text = "OS: 
+Version:
+Data:
+
+"
+
 [node name="LabelDeleteEverything" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
 layout_mode = 2
 text = "If you press \"DeleteEverything\":
