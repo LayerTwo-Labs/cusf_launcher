@@ -2,10 +2,26 @@ extends Control
 
 var DEBUG_REQUESTS : bool = false
 
-const URL_GRPCURL : String = "https://github.com/fullstorydev/grpcurl/releases/download/v1.9.1/grpcurl_1.9.1_linux_x86_64.tar.gz"
-const URL_300301_ENFORCER : String = "https://releases.drivechain.info/bip300301-enforcer-latest-x86_64-unknown-linux-gnu.zip"
-const URL_BITCOIN_PATCHED : String = "https://releases.drivechain.info/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu.zip"
-const URL_THUNDER : String = "https://releases.drivechain.info/L2-S9-Thunder-latest-x86_64-unknown-linux-gnu.zip"
+const URL_GRPCURL_LIN : String = "https://github.com/fullstorydev/grpcurl/releases/download/v1.9.1/grpcurl_1.9.1_linux_x86_64.tar.gz"
+const URL_GRPCURL_WIN : String = "https://github.com/fullstorydev/grpcurl/releases/download/v1.9.1/grpcurl_1.9.1_windows_x86_64.zip"
+const URL_GRPCURL_OSX : String = "https://github.com/fullstorydev/grpcurl/releases/download/v1.9.1/grpcurl_1.9.1_osx_x86_64.tar.gz"
+
+const URL_300301_ENFORCER_LIN  : String = "https://releases.drivechain.info/bip300301-enforcer-latest-x86_64-unknown-linux-gnu.zip"
+const URL_300301_ENFORCER_WIN : String = "https://releases.drivechain.info/bip300301-enforcer-latest-x86_64-pc-windows-gnu.zip"
+const URL_300301_ENFORCER_OSX : String = "https://releases.drivechain.info/bip300301-enforcer-latest-x86_64-apple-darwin.zip"
+
+# TODO this is the wrong version for the enforcer, but I'm not sure what is correct anymore.
+const URL_BITCOIN_PATCHED_LIN : String = "https://releases.drivechain.info/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu.zip"
+const URL_BITCOIN_PATCHED_WIN : String = "https://releases.drivechain.info/L1-bitcoin-patched-latest-x86_64-w64-mingw32.zip"
+const URL_BITCOIN_PATCHED_OSX : String = "https://releases.drivechain.info/L1-bitcoin-patched-latest-x86_64-apple-darwin.zip"
+
+const URL_THUNDER_LIN : String = "https://releases.drivechain.info/L2-S9-Thunder-latest-x86_64-unknown-linux-gnu.zip"
+const URL_THUNDER_WIN : String = "https://releases.drivechain.info/L2-S9-Thunder-latest-x86_64-pc-windows-gnu.zip"
+const URL_THUNDER_OSX : String = "https://releases.drivechain.info/L2-S9-Thunder-latest-x86_64-apple-darwin.zip"
+
+# GRPCURL is released as a .zip for windows and .tar.gz for anything else:
+const DOWNLOAD_PATH_GRPCURL_LIN_OSX = "user://grpcurl.tar.gz"
+const DOWNLOAD_PATH_GRPCURL_WIN = "user://grpcurl.zip"
 
 @onready var http_download_grpcurl: HTTPRequest = $HTTPDownloadGRPCURL
 @onready var http_download_enforcer: HTTPRequest = $HTTPDownloadEnforcer
@@ -52,9 +68,18 @@ func have_bitcoin() -> bool:
 	if located_bitcoin:
 		return true
 	
-	if !FileAccess.file_exists("user://L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"):
-		return false
-		
+	match OS.get_name():
+		"Linux":
+			if !FileAccess.file_exists("user://L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"):
+				return false
+		"Windows":
+			if !FileAccess.file_exists("user://L1-bitcoin-patched-latest-x86_64-pc-windows-gnu/qt/bitcoin-qt"):
+				return false
+		"macOS":
+			# TODO correct path
+			if !FileAccess.file_exists("user://L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"):
+				return false
+
 	resource_bitcoin_ready.emit()
 	
 	located_bitcoin = true
@@ -65,9 +90,18 @@ func have_thunder() -> bool:
 	if located_thunder:
 		return true
 	
-	if !FileAccess.file_exists("user://thunder-latest-x86_64-unknown-linux-gnu"):
-		return false
-	
+	match OS.get_name():
+		"Linux":
+			if !FileAccess.file_exists("user://thunder-latest-x86_64-unknown-linux-gnu"):
+				return false
+		"Windows":
+			if !FileAccess.file_exists("user://thunder-latest-x86_64-pc-windows-gnu"):
+				return false
+		"macOS":
+			# TODO correct path
+			if !FileAccess.file_exists("user://thunder-latest-x86_64-unknown-linux-gnu"):
+				return false
+
 	resource_thunder_ready.emit()
 	
 	located_thunder = true
@@ -78,85 +112,159 @@ func download_grpcurl() -> void:
 	if have_grpcurl():
 		return
 		
-	$HTTPDownloadGRPCURL.request(URL_GRPCURL)
+	match OS.get_name():
+		"Linux":
+			$HTTPDownloadGRPCURL.download_file = DOWNLOAD_PATH_GRPCURL_LIN_OSX
+			$HTTPDownloadGRPCURL.request(URL_GRPCURL_LIN)
+		"Windows":
+			$HTTPDownloadGRPCURL.download_file = DOWNLOAD_PATH_GRPCURL_WIN
+			$HTTPDownloadGRPCURL.request(URL_GRPCURL_WIN)
+		"macOS":
+			$HTTPDownloadGRPCURL.download_file = DOWNLOAD_PATH_GRPCURL_LIN_OSX
+			$HTTPDownloadGRPCURL.request(URL_GRPCURL_OSX)
 
 
 func download_enforcer() -> void:
 	if have_enforcer():
 		return
-		
-	$HTTPDownloadEnforcer.request(URL_300301_ENFORCER)
+	
+	match OS.get_name():
+		"Linux":
+			$HTTPDownloadEnforcer.request(URL_300301_ENFORCER_LIN)
+		"Windows":
+			$HTTPDownloadEnforcer.request(URL_300301_ENFORCER_WIN)
+		"macOS":
+			$HTTPDownloadEnforcer.request(URL_300301_ENFORCER_OSX)
 
 
 func download_bitcoin() -> void:
 	if have_bitcoin():
 		return
 		
-	$HTTPDownloadBitcoin.request(URL_BITCOIN_PATCHED)
+	match OS.get_name():
+		"Linux":
+			$HTTPDownloadBitcoin.request(URL_BITCOIN_PATCHED_LIN)
+		"Windows":
+			$HTTPDownloadBitcoin.request(URL_BITCOIN_PATCHED_WIN)
+		"macOS":
+			$HTTPDownloadBitcoin.request(URL_BITCOIN_PATCHED_OSX)
 
 
 func download_thunder() -> void:
 	if have_thunder():
 		return
 		
-	$HTTPDownloadThunder.request(URL_THUNDER)
-	
-	
+	match OS.get_name():
+		"Linux":
+			$HTTPDownloadThunder.request(URL_THUNDER_LIN)
+		"Windows":
+			$HTTPDownloadThunder.request(URL_THUNDER_WIN)
+		"macOS":
+			$HTTPDownloadThunder.request(URL_THUNDER_OSX)
+
+
 func extract_grpcurl() -> void:
 	var user_dir : String = OS.get_user_data_dir() 
-	var ret : int = OS.execute("tar", ["-xzf", str(user_dir, "/grpcurl.tar.gz"), "-C", user_dir])
+	
+	var ret : int = -1 
+	match OS.get_name():
+		"Linux":
+			ret = OS.execute("tar", ["-xzf", str(user_dir, "/grpcurl.tar.gz"), "-C", user_dir])
+		"Windows":
+			ret = OS.execute("tar", ["-C", user_dir, "-xf", str(user_dir, "/grpcurl.zip")])
+		"macOS":
+			ret = OS.execute("tar", ["-xzf", str(user_dir, "/grpcurl.tar.gz"), "-C", user_dir])
+
 	if ret != OK:
 		printerr("Failed to extract grpcurl")
+		return
 		
 	resource_grpcurl_ready.emit()
 
 
 func extract_enforcer() -> void:
 	var user_dir : String = OS.get_user_data_dir() 
-	var ret : int = OS.execute("unzip", ["-o", "-d", user_dir, str(user_dir, "/300301enforcer.zip")])
+	
+	var ret : int = -1
+	match OS.get_name():
+		"Linux":
+			ret = OS.execute("unzip", ["-o", "-d", user_dir, str(user_dir, "/300301enforcer.zip")])
+		"Windows":
+			ret = OS.execute("tar", ["-C", user_dir, "-xf", str(user_dir, "/300301enforcer.zip")])
+		"macOS":
+			ret = OS.execute("unzip", ["-o", "-d", user_dir, str(user_dir, "/300301enforcer.zip")])
+
 	if ret != OK:
 		printerr("Failed to extract enforcer")
-		
-	# Make executable
-	ret = OS.execute("chmod", ["+x", str(user_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu")])
-	if ret != OK:
-		printerr("Failed to mark enforcer executable")
+		return
+
+	# Make executable for linux # TODO osx?
+	if OS.get_name() == "Linux":
+		ret = OS.execute("chmod", ["+x", str(user_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu")])
+		if ret != OK:
+			printerr("Failed to mark enforcer executable")
+			return
 
 	resource_enforcer_ready.emit()
 
 
 func extract_bitcoin() -> void:
 	var user_dir : String = OS.get_user_data_dir() 
-	var ret : int = OS.execute("unzip", ["-o", "-d", user_dir, str(user_dir, "/bitcoinpatched.zip")])
+	
+	var ret : int = -1
+	match OS.get_name():
+		"Linux":
+			ret = OS.execute("unzip", ["-o", "-d", user_dir, str(user_dir, "/bitcoinpatched.zip")])
+		"Windows":
+			ret = OS.execute("tar", ["-C", user_dir, "-xf", str(user_dir, "/bitcoinpatched.zip")])
+		"macOS":
+			ret = OS.execute("unzip", ["-o", "-d", user_dir, str(user_dir, "/bitcoinpatched.zip")])
+
 	if ret != OK:
 		printerr("Failed to extract bitcoin")
+		return
 		
-	# Make executable
-	ret = OS.execute("chmod", ["+x", str(user_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt")])
-	if ret != OK:
-		printerr("Failed to mark bitcoin executable")
+	# Make executable for linux # TODO osx?
+	if OS.get_name() == "Linux":
+		ret = OS.execute("chmod", ["+x", str(user_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt")])
+		if ret != OK:
+			printerr("Failed to mark bitcoin executable")
+			return
 	
 	resource_bitcoin_ready.emit()
 
 
 func extract_thunder() -> void:
 	var user_dir : String = OS.get_user_data_dir() 
-	var ret : int = OS.execute("unzip", ["-o", "-d", user_dir, str(user_dir, "/thunder.zip")])
+	
+	var ret : int = -1
+	match OS.get_name():
+		"Linux":
+			ret = OS.execute("unzip", ["-o", "-d", user_dir, str(user_dir, "/thunder.zip")])
+		"Windows":
+			ret = OS.execute("tar", ["-C", user_dir, "-xf", str(user_dir, "/thunder.zip")])
+		"macOS":
+			ret = OS.execute("unzip", ["-o", "-d", user_dir, str(user_dir, "/thunder.zip")])
+
 	if ret != OK:
 		printerr("Failed to extract thunder")
-		
-	# Make executable
-	ret = OS.execute("chmod", ["+x", str(user_dir, "/thunder-latest-x86_64-unknown-linux-gnu")])
-	if ret != OK:
-		printerr("Failed to mark thunder executable")
-	
-	ret = OS.execute("chmod", ["+x", str(user_dir, "/thunder-cli-latest-x86_64-unknown-linux-gnu")])
-	if ret != OK:
-		printerr("Failed to mark thunder-cli executable")
+		return
+
+	# Make executable for linux # TODO osx?
+	if OS.get_name() == "Linux":
+		ret = OS.execute("chmod", ["+x", str(user_dir, "/thunder-cli-latest-x86_64-unknown-linux-gnu")])
+		if ret != OK:
+			printerr("Failed to mark thunder-cli executable")
+			return
+			
+		ret = OS.execute("chmod", ["+x", str(user_dir, "/thunder-latest-x86_64-unknown-linux-gnu")])
+		if ret != OK:
+			printerr("Failed to mark thunder executable")
+			return
 	
 	resource_thunder_ready.emit()
-	
-	
+
+
 func _on_http_download_grpcurl_request_completed(result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
 	if result != OK:
 		printerr("Failed to download grpcurl")

@@ -1,8 +1,9 @@
 extends Control
 
-# TODO duplicated in configuration.gd
 const DEFAULT_BITCOIN_RPC_PORT : int = 38332
-#const DEFAULT_BITCOIN_RPC_PORT : int = 18443
+const DEFAULT_WALLET_RPC_PORT : int = 38332
+const DEFAULT_CUSF_CAT_RPC_PORT : int = -1 # TODO currently unknown
+const DEFAULT_CUSF_DRIVECHAIN_RPC_PORT : int = 50051 
 
 const DEBUG_REQUESTS : bool = true
 

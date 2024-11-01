@@ -23,6 +23,7 @@ func _ready() -> void:
 	
 	call_deferred("check_resources")
 	call_deferred("display_resource_status")
+	call_deferred("update_os_info")
 
 
 func _exit_tree() -> void:
@@ -36,6 +37,9 @@ func kill_started_pid() -> void:
 
 
 func check_running_status() -> void:
+	# TODO re - enable
+	return
+	
 	$RPCClient.rpc_bitcoin_getblockcount()
 	$RPCClient.grpc_enforcer_getmainblockcount()
 	$RPCClient.cli_thunder_getblockcount()
@@ -250,3 +254,15 @@ func _on_button_delete_everything_pressed() -> void:
 	
 	call_deferred("check_resources")
 	call_deferred("display_resource_status")
+
+
+# Settings page OS info
+func update_os_info() -> void:
+	var os_version = str("Operating System: ", OS.get_name(),
+	 ":", OS.get_distribution_name(), ":", OS.get_version()) 
+	
+	var data_dir = str("User Data Directory: ", OS.get_user_data_dir())
+	
+	var os_info = str(os_version, "\n", data_dir, "\n\n")
+ 
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/LabelOSInfo.text = os_info

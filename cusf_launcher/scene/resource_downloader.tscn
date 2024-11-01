@@ -13,19 +13,15 @@ script = ExtResource("1_6gijx")
 
 [node name="HTTPDownloadGRPCURL" type="HTTPRequest" parent="."]
 download_file = "user://grpcurl.tar.gz"
-timeout = 10.0
 
 [node name="HTTPDownloadEnforcer" type="HTTPRequest" parent="."]
 download_file = "user://300301enforcer.zip"
-timeout = 10.0
 
 [node name="HTTPDownloadBitcoin" type="HTTPRequest" parent="."]
 download_file = "user://bitcoinpatched.zip"
-timeout = 120.0
 
 [node name="HTTPDownloadThunder" type="HTTPRequest" parent="."]
 download_file = "user://thunder.zip"
-timeout = 120.0
 
 [connection signal="request_completed" from="HTTPDownloadGRPCURL" to="." method="_on_http_download_grpcurl_request_completed"]
 [connection signal="request_completed" from="HTTPDownloadEnforcer" to="." method="_on_http_download_enforcer_request_completed"]
