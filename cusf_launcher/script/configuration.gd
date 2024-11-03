@@ -48,9 +48,19 @@ func have_bitcoin_configuration() -> bool:
 	
 
 func write_bitcoin_configuration() -> void:
-	DirAccess.make_dir_absolute(get_bitcoin_datadir())
+	# Check if the directory exists or create it
+	if not DirAccess.dir_exists_absolute(get_bitcoin_datadir()):
+		DirAccess.make_dir_recursive_absolute(get_bitcoin_datadir())
 	
+	# Open the file for writing
 	var file = FileAccess.open(str(get_bitcoin_datadir(), "/bitcoin.conf"), FileAccess.WRITE_READ)
-	file.store_string(DEFAULT_CONFIG_BITCOIN)
 	
-	configuration_complete.emit()
+	# Check if file was opened successfully
+	if file != null:
+		file.store_string(DEFAULT_CONFIG_BITCOIN)
+		file.close()
+		
+		# Emit signal after successful configuration
+		configuration_complete.emit()
+	else:
+		push_error("Failed to open or create the bitcoin.conf file.")
