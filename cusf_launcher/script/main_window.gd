@@ -37,11 +37,8 @@ func kill_started_pid() -> void:
 
 
 func check_running_status() -> void:
-	# TODO re - enable
-	return
-	
 	$RPCClient.rpc_bitcoin_getblockcount()
-	$RPCClient.grpc_enforcer_getmainblockcount()
+	$RPCClient.grpc_enforcer_gettip()
 	$RPCClient.cli_thunder_getblockcount()
 
 
@@ -168,7 +165,7 @@ func _on_button_start_l1_pressed() -> void:
 	var user_dir : String = OS.get_user_data_dir() 
 	
 	# Start bitcoin
-	var ret : int = OS.create_process(str(user_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"), ["--connect=0", "--signet"])
+	var ret : int = OS.create_process(str(user_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"), [])
 	if ret == -1:
 		printerr("Failed to start bitcoin")
 		return
@@ -176,8 +173,10 @@ func _on_button_start_l1_pressed() -> void:
 		started_pid.push_back(ret)
 		print("started bitcoin with pid: ", ret)
 	
+	await get_tree().create_timer(5).timeout
+	
 	# Start bip300-301 enforcer
-	ret = OS.create_process(str(user_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"), ["--node-rpc-addr=127.0.01:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://0.0.0.0:29000"])
+	ret = OS.create_process(str(user_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"), ["--node-rpc-addr=localhost:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://0.0.0.0:29000"])
 	if ret == -1:
 		printerr("Failed to start enforcer")
 		return
@@ -227,7 +226,7 @@ func _on_rpc_client_btc_rpc_failed() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = "Failed to contact BTC!"
 
 
-func _on_rpc_client_cusf_drivechain_new_block_count(height: int) -> void:
+func _on_rpc_client_cusf_drivechain_responded() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.text = "Drivechain Enforcer Running!"
 
 

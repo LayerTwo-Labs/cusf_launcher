@@ -503,7 +503,7 @@ layout_mode = 2
 [connection signal="configuration_complete" from="Configuration" to="." method="_on_configuration_complete"]
 [connection signal="btc_new_block_count" from="RPCClient" to="." method="_on_rpc_client_btc_new_block_count"]
 [connection signal="btc_rpc_failed" from="RPCClient" to="." method="_on_rpc_client_btc_rpc_failed"]
-[connection signal="cusf_drivechain_new_block_count" from="RPCClient" to="." method="_on_rpc_client_cusf_drivechain_new_block_count"]
+[connection signal="cusf_drivechain_responded" from="RPCClient" to="." method="_on_rpc_client_cusf_drivechain_responded"]
 [connection signal="cusf_drivechain_rpc_failed" from="RPCClient" to="." method="_on_rpc_client_cusf_drivechain_rpc_failed"]
 [connection signal="thunder_cli_failed" from="RPCClient" to="." method="_on_rpc_client_thunder_cli_failed"]
 [connection signal="thunder_new_block_count" from="RPCClient" to="." method="_on_rpc_client_thunder_new_block_count"]

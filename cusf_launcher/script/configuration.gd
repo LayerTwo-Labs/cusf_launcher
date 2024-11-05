@@ -8,6 +8,7 @@ signetchallenge=00141f61d57873d70d28bd28b3c9f9d6bf818b5a0d6a
 zmqpubsequence=tcp://0.0.0.0:29000
 txindex=1
 server=1
+signet=1
 '''
 
 signal configuration_complete
