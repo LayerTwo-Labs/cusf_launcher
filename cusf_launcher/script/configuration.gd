@@ -12,21 +12,19 @@ server=1
 
 signal configuration_complete
 
-
+# Function to get the Bitcoin data directory based on the OS
 func get_bitcoin_datadir() -> String:
 	var user : String = get_username()
-	
 	match OS.get_name():
 		"Linux":
 			return str("/home/", user, "/.bitcoin")
 		"Windows":
 			return str("C:\\Users\\", user, "\\AppData\\Roaming\\Bitcoin")
 		"macOS":
-			return str("/home/", user, "/Library/Application Support/Bitcoin/")
-	
+			return str("/Users/", user, "/Library/Application Support/Bitcoin/")
 	return ""
 
-
+# Function to get the username from environment variables
 func get_username() -> String:
 	var user : String = ""
 	if OS.has_environment("USERNAME"):
@@ -35,32 +33,31 @@ func get_username() -> String:
 	elif OS.has_environment("USER"):
 		# Everything else
 		user = OS.get_environment("USER")
-	
 	return user
 
-
+# Check if bitcoin.conf already exists
 func have_bitcoin_configuration() -> bool:
 	if FileAccess.file_exists(str(get_bitcoin_datadir(), "/bitcoin.conf")):
 		configuration_complete.emit()
 		return true
-	
 	return false
-	
 
+# Function to write the Bitcoin configuration file
 func write_bitcoin_configuration() -> void:
-	# Check if the directory exists or create it
-	if not DirAccess.dir_exists_absolute(get_bitcoin_datadir()):
-		DirAccess.make_dir_recursive_absolute(get_bitcoin_datadir())
+	var bitcoin_datadir = get_bitcoin_datadir()
 	
-	# Open the file for writing
-	var file = FileAccess.open(str(get_bitcoin_datadir(), "/bitcoin.conf"), FileAccess.WRITE_READ)
-	
-	# Check if file was opened successfully
+	# Check if the directory exists; if not, create it
+	if not DirAccess.dir_exists_absolute(bitcoin_datadir):
+		DirAccess.make_dir_recursive_absolute(bitcoin_datadir)
+
+	# Open the bitcoin.conf file for writing
+	var file_path = str(bitcoin_datadir, "/bitcoin.conf")
+	var file = FileAccess.open(file_path, FileAccess.WRITE_READ)
+
+	# Check if the file was opened successfully
 	if file != null:
 		file.store_string(DEFAULT_CONFIG_BITCOIN)
 		file.close()
-		
-		# Emit signal after successful configuration
-		configuration_complete.emit()
+		configuration_complete.emit()  # Emit signal after successful configuration
 	else:
 		push_error("Failed to open or create the bitcoin.conf file.")

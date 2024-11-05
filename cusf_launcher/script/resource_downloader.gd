@@ -77,7 +77,7 @@ func have_bitcoin() -> bool:
 				return false
 		"macOS":
 			# TODO correct path
-			if !FileAccess.file_exists("user://L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"):
+			if !FileAccess.file_exists("user:///L1-bitcoin-patched-latest-x86_64-apple-darwin/qt/bitcoin-qt"):
 				return false
 
 	resource_bitcoin_ready.emit()
@@ -183,7 +183,7 @@ func extract_grpcurl() -> void:
 
 
 func extract_enforcer() -> void:
-	var user_dir : String = OS.get_user_data_dir() 
+	var user_dir : String = OS.get_user_data_dir()
 	
 	var ret : int = -1
 	match OS.get_name():
@@ -198,18 +198,23 @@ func extract_enforcer() -> void:
 		printerr("Failed to extract enforcer")
 		return
 
-	# Make executable for linux # TODO osx?
+	# Make executable for Linux and macOS
 	if OS.get_name() == "Linux":
 		ret = OS.execute("chmod", ["+x", str(user_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu")])
 		if ret != OK:
-			printerr("Failed to mark enforcer executable")
+			printerr("Failed to mark enforcer executable on Linux")
+			return
+	elif OS.get_name() == "macOS":
+		ret = OS.execute("chmod", ["+x", str(user_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.0-x86_64-apple-darwin")])
+		if ret != OK:
+			printerr("Failed to mark enforcer executable on macOS")
 			return
 
 	resource_enforcer_ready.emit()
 
 
 func extract_bitcoin() -> void:
-	var user_dir : String = OS.get_user_data_dir() 
+	var user_dir : String = OS.get_user_data_dir()
 	
 	var ret : int = -1
 	match OS.get_name():
@@ -224,18 +229,23 @@ func extract_bitcoin() -> void:
 		printerr("Failed to extract bitcoin")
 		return
 		
-	# Make executable for linux # TODO osx?
+	# Make executable for Linux and macOS
 	if OS.get_name() == "Linux":
 		ret = OS.execute("chmod", ["+x", str(user_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt")])
 		if ret != OK:
-			printerr("Failed to mark bitcoin executable")
+			printerr("Failed to mark bitcoin executable on Linux")
+			return
+	elif OS.get_name() == "macOS":
+		ret = OS.execute("chmod", ["+x", str(user_dir, "/L1-bitcoin-patched-latest-x86_64-apple-darwin/qt/bitcoin-qt")])
+		if ret != OK:
+			printerr("Failed to mark bitcoin executable on macOS")
 			return
 	
 	resource_bitcoin_ready.emit()
 
 
 func extract_thunder() -> void:
-	var user_dir : String = OS.get_user_data_dir() 
+	var user_dir : String = OS.get_user_data_dir()
 	
 	var ret : int = -1
 	match OS.get_name():
@@ -250,20 +260,29 @@ func extract_thunder() -> void:
 		printerr("Failed to extract thunder")
 		return
 
-	# Make executable for linux # TODO osx?
+	# Make executable for Linux and macOS
 	if OS.get_name() == "Linux":
 		ret = OS.execute("chmod", ["+x", str(user_dir, "/thunder-cli-latest-x86_64-unknown-linux-gnu")])
 		if ret != OK:
-			printerr("Failed to mark thunder-cli executable")
+			printerr("Failed to mark thunder-cli executable on Linux")
 			return
 			
 		ret = OS.execute("chmod", ["+x", str(user_dir, "/thunder-latest-x86_64-unknown-linux-gnu")])
 		if ret != OK:
-			printerr("Failed to mark thunder executable")
+			printerr("Failed to mark thunder executable on Linux")
+			return
+	elif OS.get_name() == "macOS":
+		ret = OS.execute("chmod", ["+x", str(user_dir, "/thunder-cli-latest-x86_64-apple-darwin")])
+		if ret != OK:
+			printerr("Failed to mark thunder-cli executable on macOS")
+			return
+			
+		ret = OS.execute("chmod", ["+x", str(user_dir, "/thunder-latest-x86_64-apple-darwin")])
+		if ret != OK:
+			printerr("Failed to mark thunder executable on macOS")
 			return
 	
 	resource_thunder_ready.emit()
-
 
 func _on_http_download_grpcurl_request_completed(result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
 	if result != OK:

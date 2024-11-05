@@ -165,33 +165,48 @@ func _on_button_setup_l1_pressed() -> void:
 
 
 func _on_button_start_l1_pressed() -> void:
-	var user_dir : String = OS.get_user_data_dir() 
+	var user_dir : String = OS.get_user_data_dir()
 	
-	# Start bitcoin
-	var ret : int = OS.create_process(str(user_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"), ["--connect=0", "--signet"])
+	# Start Bitcoin
+	var ret : int = -1
+	match OS.get_name():
+		"Linux":
+			ret = OS.create_process(str(user_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"), ["--connect=0", "--signet"])
+		"Windows":
+			ret = OS.create_process(str(user_dir, "/L1-bitcoin-patched-latest-x86_64-pc-windows-gnu/qt/bitcoin-qt"), ["--connect=0", "--signet"])
+		"macOS":
+			ret = OS.create_process(str(user_dir, "/L1-bitcoin-patched-latest-x86_64-apple-darwin/qt/bitcoin-qt"), ["--connect=0", "--signet"])
+
 	if ret == -1:
-		printerr("Failed to start bitcoin")
+		printerr("Failed to start Bitcoin")
 		return
 	else:
 		started_pid.push_back(ret)
-		print("started bitcoin with pid: ", ret)
+		print("Started Bitcoin with PID: ", ret)
 	
-	# Start bip300-301 enforcer
-	ret = OS.create_process(str(user_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"), ["--node-rpc-addr=127.0.01:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://0.0.0.0:29000"])
+	# Start BIP300-301 Enforcer
+	match OS.get_name():
+		"Linux":
+			ret = OS.create_process(str(user_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"), ["--node-rpc-addr=127.0.0.1:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://0.0.0.0:29000"])
+		"Windows":
+			ret = OS.create_process(str(user_dir, "/bip300301-enforcer-latest-x86_64-pc-windows-gnu/bip300301_enforcer-0.1.0-x86_64-pc-windows-gnu.exe"), ["--node-rpc-addr=127.0.0.1:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://0.0.0.0:29000"])
+		"macOS":
+			ret = OS.create_process(str(user_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.0-x86_64-apple-darwin"), ["--node-rpc-addr=127.0.0.1:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://0.0.0.0:29000"])
+
 	if ret == -1:
-		printerr("Failed to start enforcer")
+		printerr("Failed to start Enforcer")
 		return
 	else:
 		started_pid.push_back(ret)
-		print("started enforcer with pid: ", ret)
+		print("Started Enforcer with PID: ", ret)
 		
+	# Update UI
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = false
 	
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.visible = true
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.visible = true
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = "Starting Bitcoin Core..."
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.text = "Starting Drivechain Enforcer..."
-
 
 func _on_button_setup_thunder_pressed() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonSetupThunder.visible = false
