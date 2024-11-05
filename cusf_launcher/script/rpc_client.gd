@@ -48,7 +48,7 @@ func cli_thunder_getblockcount() -> void:
 	if ret != 0:
 		thunder_cli_failed.emit()
 	else:
-		thunder_new_block_count.emit(0) # TODO
+		thunder_new_block_count.emit(0)
 
 
 func make_grpc_request(request : String) -> void:

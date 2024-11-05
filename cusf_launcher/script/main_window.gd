@@ -204,7 +204,7 @@ func _on_button_setup_thunder_pressed() -> void:
 func _on_button_start_thunder_pressed() -> void:
 	var user_dir : String = OS.get_user_data_dir() 
 
-	var ret : int = OS.create_process(str(user_dir, "/thunder-latest-x86_64-unknown-linux-gnu"), [""])
+	var ret : int = OS.create_process(str(user_dir, "/thunder-latest-x86_64-unknown-linux-gnu"), [])
 	if ret == -1:
 		printerr("Failed to start enforcer")
 		return
