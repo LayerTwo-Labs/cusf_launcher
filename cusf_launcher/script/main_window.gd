@@ -37,11 +37,8 @@ func kill_started_pid() -> void:
 
 
 func check_running_status() -> void:
-	# TODO re - enable
-	return
-	
 	$RPCClient.rpc_bitcoin_getblockcount()
-	$RPCClient.grpc_enforcer_getmainblockcount()
+	$RPCClient.grpc_enforcer_gettip()
 	$RPCClient.cli_thunder_getblockcount()
 
 
@@ -242,7 +239,7 @@ func _on_rpc_client_btc_rpc_failed() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = "Failed to contact BTC!"
 
 
-func _on_rpc_client_cusf_drivechain_new_block_count(height: int) -> void:
+func _on_rpc_client_cusf_drivechain_responded() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.text = "Drivechain Enforcer Running!"
 
 

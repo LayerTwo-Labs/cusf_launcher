@@ -7,11 +7,11 @@ const DEFAULT_CUSF_DRIVECHAIN_RPC_PORT : int = 50051
 
 const DEBUG_REQUESTS : bool = true
 
-const GRPC_CUSF_DRIVECHAIN_GET_HEIGHT : String = "validator.Validator/GetMainBlockHeight"
+const GRPC_CUSF_DRIVECHAIN_GET_TIP : String = "cusf.mainchain.v1.ValidatorService.GetChainTip"
 
 # Signals that should be emitted regularly if connections are working
 signal btc_new_block_count(height : int)
-signal cusf_drivechain_new_block_count(height : int)
+signal cusf_drivechain_responded()
 signal thunder_new_block_count(height : int)
 
 # Signals that indicate connection failure to one of the backend softwares 
@@ -25,13 +25,12 @@ var core_auth_cookie : String = "user:password"
 
 @onready var http_rpc_btc_get_block_count: HTTPRequest = $BitcoinCoreRPC/HTTPRPCBTCGetBlockCount
 
-
 func rpc_bitcoin_getblockcount() -> void:
 	make_rpc_request(DEFAULT_BITCOIN_RPC_PORT, "getblockcount", [], http_rpc_btc_get_block_count)
 
 
-func grpc_enforcer_getmainblockcount() -> void:
-	make_grpc_request(GRPC_CUSF_DRIVECHAIN_GET_HEIGHT) 
+func grpc_enforcer_gettip() -> void:
+	make_grpc_request(GRPC_CUSF_DRIVECHAIN_GET_TIP) 
 
 
 func cli_thunder_getblockcount() -> void:
@@ -56,12 +55,8 @@ func make_grpc_request(request : String) -> void:
 	var user_dir = OS.get_user_data_dir()
 	var output = []
 	var ret : int = OS.execute(str(user_dir, "/grpcurl"),
-		["--plaintext",
-	 	"--import-path",
-	 	user_dir,
-	 	"--proto",
-	 	str(user_dir, "/validator.proto"),
-	 	"[::1]:50051",
+		["-plaintext",
+	 	"localhost:50051",
 	 	request],
 	 	output,
 	 	true)
@@ -70,8 +65,10 @@ func make_grpc_request(request : String) -> void:
 		print("ret ", ret)
 		print("output ", output)
 		
-	# TODO check ret code
-	cusf_drivechain_rpc_failed.emit()
+	if ret != 0:
+		cusf_drivechain_rpc_failed.emit()
+	else:
+		cusf_drivechain_responded.emit()
 
 
 func make_rpc_request(port : int, method: String, params: Variant, http_request: HTTPRequest) -> void:	
