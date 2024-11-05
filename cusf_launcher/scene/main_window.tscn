@@ -416,6 +416,11 @@ If you have trash disabled everything will be deleted"
 layout_mode = 2
 text = "Delete Everything"
 
+[node name="DeleteEverythingConfirmationDialog" type="ConfirmationDialog" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
+initial_position = 2
+size = Vector2i(640, 480)
+ok_button_text = "Delete Everything"
+
 [node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(1140, 0)
 layout_mode = 2
@@ -518,3 +523,4 @@ layout_mode = 2
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonSetupThunder" to="." method="_on_button_setup_thunder_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonStartThunder" to="." method="_on_button_start_thunder_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/ButtonDeleteEverything" to="." method="_on_button_delete_everything_pressed"]
+[connection signal="confirmed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteEverythingConfirmationDialog" to="." method="_on_delete_everything_confirmation_dialog_confirmed"]

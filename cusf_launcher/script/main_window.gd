@@ -243,16 +243,13 @@ func _on_rpc_client_thunder_new_block_count(height: int) -> void:
 
 
 func _on_button_delete_everything_pressed() -> void:
-	kill_started_pid()
+	var delete_text = str("The following will be moved to trash or deleted:\n\n",
+		$Configuration.get_bitcoin_datadir(), "\n\n",
+		$Configuration.get_thunder_datadir(), "\n\n",
+		OS.get_user_data_dir(), "\n")
 	
-	# Trash L1 and L2 data dirs 
-	OS.move_to_trash($Configuration.get_bitcoin_datadir())
-	
-	# Trash cusf_launcher files
-	OS.move_to_trash(OS.get_user_data_dir())
-	
-	call_deferred("check_resources")
-	call_deferred("display_resource_status")
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteEverythingConfirmationDialog.dialog_text = delete_text 
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteEverythingConfirmationDialog.show()
 
 
 # Settings page OS info
@@ -265,3 +262,22 @@ func update_os_info() -> void:
 	var os_info = str(os_version, "\n", data_dir, "\n\n")
  
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/LabelOSInfo.text = os_info
+
+
+func _on_delete_everything_confirmation_dialog_confirmed() -> void:
+	kill_started_pid()
+	
+	# Trash L1 and L2 data dirs 
+	OS.move_to_trash($Configuration.get_bitcoin_datadir())
+	
+	# Trash cusf_launcher files
+	OS.move_to_trash(OS.get_user_data_dir())
+	
+	# Trash thunder files
+	OS.move_to_trash($Configuration.get_thunder_datadir())
+	
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage.visible = false
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage.visible = true
+	
+	call_deferred("check_resources")
+	call_deferred("display_resource_status")
