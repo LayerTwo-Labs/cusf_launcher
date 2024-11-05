@@ -13,7 +13,21 @@ signet=1
 
 signal configuration_complete
 
-# Function to get the Bitcoin data directory based on the OS
+
+func get_thunder_datadir() -> String:
+	var user : String = get_username()
+	
+	match OS.get_name():
+		"Linux":
+			return str("/home/", user, "/.local/share/thunder/")
+		"Windows":
+			return str("C:\\Users\\", user, "\\AppData\\Roaming\\thunder")
+		"macOS":
+			return str("/home/", user, "/Library/Application Support/thunder/")
+	
+	return ""
+
+
 func get_bitcoin_datadir() -> String:
 	var user : String = get_username()
 	match OS.get_name():
