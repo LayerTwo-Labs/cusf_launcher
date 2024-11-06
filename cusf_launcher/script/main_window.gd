@@ -22,7 +22,6 @@ func _ready() -> void:
 	timer_run_status_update = Timer.new()
 	add_child(timer_run_status_update)
 	timer_run_status_update.connect("timeout", check_running_status)
-	
 	timer_run_status_update.start(RUN_STATUS_UPDATE_DELAY)
 	
 	call_deferred("check_resources")
@@ -89,24 +88,17 @@ func check_resources() -> void:
 	$ResourceDownloader.have_enforcer()
 	$ResourceDownloader.have_bitcoin()
 	$ResourceDownloader.have_thunder()
-	
 	$Configuration.have_bitcoin_configuration()
 
 
 func display_resource_status() -> void:
 	# L1 resource status
-	
-	# Update the displayed status of L1 & L2 resources
-
-	# Hide l1 setup buttons if everything L1 is ready
 	if resource_bitcoin_ready && resource_grpcurl_ready && resource_enforcer_ready && configuration_complete:
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/L1ProgressBar.visible = false
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonSetupL1.visible = false
-		
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = true
-		
-	var l1_status_text : String = ""
 	
+	var l1_status_text : String = ""
 	var l1_downloading : bool = $MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/L1ProgressBar.visible
 	
 	if resource_bitcoin_ready:
@@ -138,12 +130,9 @@ func display_resource_status() -> void:
 		l1_status_text += "\nConfiguration: Not Configured"
 		
 	l1_status_text += "\n\n"
-	
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1SetupStatus.text = l1_status_text
 
 	# L2 resource status
-
-	# Hide l1 setup buttons if everything L1 is ready
 	if resource_thunder_ready:
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ThunderProgressBar.visible = false
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonSetupThunder.visible = false
@@ -151,7 +140,6 @@ func display_resource_status() -> void:
 
 	var thunder_downloading : bool = $MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ThunderProgressBar.visible
 
-	# Hide thunder setup buttons and show launch button if ready
 	var l2_thunder_text : String = ""
 	if resource_thunder_ready:
 		l2_thunder_text = "Thunder: Ready!"
@@ -164,258 +152,51 @@ func display_resource_status() -> void:
 	
 
 func _on_button_overview_toggled(toggled_on: bool) -> void:
-	if toggled_on:
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage.visible = true
-	else:
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage.visible = false
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage.visible = toggled_on
 
 
 func _on_button_wallets_toggled(toggled_on: bool) -> void:
-	if toggled_on:
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/WalletPage.visible = true
-	else:
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/WalletPage.visible = false
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/WalletPage.visible = toggled_on
 
 
 func _on_button_tools_toggled(toggled_on: bool) -> void:
-	if toggled_on:
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/ToolsPage.visible = true
-	else:
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/ToolsPage.visible = false
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/ToolsPage.visible = toggled_on
 
 
 func _on_button_settings_toggled(toggled_on: bool) -> void:
-	if toggled_on:
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage.visible = true
-	else:
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage.visible = false
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage.visible = toggled_on
 
 
 func setup_l1() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonSetupL1.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/L1ProgressBar.visible = true
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1SetupStatus.visible = true
-	
-	# Download everything required to run L1
 	$ResourceDownloader.download_grpcurl()
 	$ResourceDownloader.download_enforcer()
 	$ResourceDownloader.download_bitcoin()
-	
-	# Configure L1 software
 	$Configuration.write_bitcoin_configuration()
-	
 	display_resource_status()
-
-
-<<<<<<< HEAD
-func _on_button_start_l1_pressed() -> void:
-	var user_dir : String = OS.get_user_data_dir()
-	
-	# Start Bitcoin
-	var ret : int = -1
-	match OS.get_name():
-		"Linux":
-			ret = OS.create_process(str(user_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"), ["--connect=0", "--signet"])
-		"Windows":
-			ret = OS.create_process(str(user_dir, "/L1-bitcoin-patched-latest-x86_64-pc-windows-gnu/qt/bitcoin-qt"), ["--connect=0", "--signet"])
-		"macOS":
-			ret = OS.create_process(str(user_dir, "/L1-bitcoin-patched-latest-x86_64-apple-darwin/qt/bitcoin-qt"), ["--connect=0", "--signet"])
-
-	if ret == -1:
-		printerr("Failed to start Bitcoin")
-		return
-	else:
-		started_pid.push_back(ret)
-		print("Started Bitcoin with PID: ", ret)
-	
-	# Start BIP300-301 Enforcer
-	match OS.get_name():
-		"Linux":
-			ret = OS.create_process(str(user_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"), ["--node-rpc-addr=127.0.0.1:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://0.0.0.0:29000"])
-		"Windows":
-			ret = OS.create_process(str(user_dir, "/bip300301-enforcer-latest-x86_64-pc-windows-gnu/bip300301_enforcer-0.1.0-x86_64-pc-windows-gnu.exe"), ["--node-rpc-addr=127.0.0.1:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://0.0.0.0:29000"])
-		"macOS":
-			ret = OS.create_process(str(user_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.0-x86_64-apple-darwin"), ["--node-rpc-addr=127.0.0.1:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://0.0.0.0:29000"])
-
-	if ret == -1:
-		printerr("Failed to start Enforcer")
-		return
-	else:
-		started_pid.push_back(ret)
-		print("Started Enforcer with PID: ", ret)
-		
-	# Update UI
-=======
-func _on_button_setup_l1_pressed() -> void:
-	setup_l1()
-
-
-func start_l1() -> void:
-	var downloads_dir : String = str(OS.get_user_data_dir(), "/downloads")
-
->>>>>>> dc91da6 (Make sure L1 is setup before starting any L2)
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = false
-	
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.visible = true
-<<<<<<< HEAD
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.visible = true
-=======
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = "Starting Bitcoin Core.."
-	
-	# Start bitcoin
-	var ret : int = OS.create_process(str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"), [])
-	if ret == -1:
-		printerr("Failed to start bitcoin")
-		return
-	else:
-		started_pid.push_back(ret)
-		pid_bitcoin = ret
-		print("started bitcoin with pid: ", ret)
-	
->>>>>>> dc91da6 (Make sure L1 is setup before starting any L2)
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = "Starting Bitcoin Core..."
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.text = "Starting Drivechain Enforcer..."
-
-<<<<<<< HEAD
-=======
-	# Start bip300-301 enforcer
-	ret = OS.create_process(str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"), ["--node-rpc-addr=localhost:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://0.0.0.0:29000"])
-	if ret == -1:
-		printerr("Failed to start enforcer")
-		return
-	else:
-		started_pid.push_back(ret)
-		pid_enforcer = ret
-		print("started enforcer with pid: ", ret)
 
 
 func _on_button_start_l1_pressed() -> void:
 	start_l1()
 
 
->>>>>>> dc91da6 (Make sure L1 is setup before starting any L2)
-func _on_button_setup_thunder_pressed() -> void:
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonSetupThunder.visible = false
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ThunderProgressBar.visible = true
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderSetupStatus.visible = true
-	
-	$ResourceDownloader.download_thunder()
-	
-	display_resource_status()
-
-
-func _on_button_start_thunder_pressed() -> void:
-	# Don't start any L2 if we didn't setup L1
-	if !resource_bitcoin_ready || !resource_grpcurl_ready || !resource_enforcer_ready || !configuration_complete:
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/ConfirmationDialogL2SetupL1.show()
-		return
-
-	# Don't start any L2 if we didn't start L1
-	if pid_bitcoin == -1 || pid_enforcer == -1:
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/ConfirmationDialogL2StartL1.show()
-		return
-		
+func start_l1() -> void:
 	var downloads_dir : String = str(OS.get_user_data_dir(), "/downloads")
-
-	var ret : int = OS.create_process(str(downloads_dir, "/thunder-latest-x86_64-unknown-linux-gnu"), [])
-	if ret == -1:
-		printerr("Failed to start thunder")
-		return
-	
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonStartThunder.visible = false
-	
-	started_pid.push_back(ret)
-	pid_thunder = ret
-	print("started thunder with pid: ", ret)
-	
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.visible = true
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.text = "Starting Thunder..."
-
-
-func _on_rpc_client_btc_new_block_count(height: int) -> void:
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = "BTC Running!"
-
-
-func _on_rpc_client_btc_rpc_failed() -> void:
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = "Failed to contact BTC!"
-
-
-func _on_rpc_client_cusf_drivechain_responded() -> void:
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.text = "Drivechain Enforcer Running!"
-
-
-func _on_rpc_client_cusf_drivechain_rpc_failed() -> void:
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.text = "Failed to contact Drivechain Enforcer!"
-
-
-func _on_rpc_client_thunder_cli_failed() -> void:
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.text = "Failed to contact Thunder!"
-
-
-func _on_rpc_client_thunder_new_block_count(height: int) -> void:
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.text = "Thunder running!"
-
-
-# Settings page OS info
-func update_os_info() -> void:
-	var os_version = str("Operating System: ", OS.get_name(),
-	 ":", OS.get_distribution_name(), ":", OS.get_version()) 
-	
-	var data_dir = str("User Data Directory: ", OS.get_user_data_dir())
-	
-	var os_info = str(os_version, "\n", data_dir, "\n\n")
- 
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/LabelOSInfo.text = os_info
-
-
-func _on_button_delete_everything_pressed() -> void:
-	var delete_text = str("The following will be moved to trash or deleted:\n\n",
-		$Configuration.get_bitcoin_datadir(), "\n\n",
-		$Configuration.get_thunder_datadir(), "\n\n",
-		str(OS.get_user_data_dir(), "/downloads"), "\n")
-	
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteEverythingConfirmationDialog.dialog_text = delete_text 
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteEverythingConfirmationDialog.show()
-
-
-func _on_delete_everything_confirmation_dialog_confirmed() -> void:
-	kill_started_pid()
-	
-	# Trash L1 data dir 
-	OS.move_to_trash($Configuration.get_bitcoin_datadir())
-	
-	# Trash cusf_launcher files
-	OS.move_to_trash(str(OS.get_user_data_dir(), "/downloads"))
-	
-	# Trash thunder files
-	OS.move_to_trash($Configuration.get_thunder_datadir())
-	
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = false
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonSetupL1.visible = true
 	
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonStartThunder.visible = false
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonSetupThunder.visible = true
+	# Set UI status labels
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.visible = true
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = "Starting Bitcoin Core..."
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.text = "Starting Drivechain Enforcer..."
 	
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.visible = false
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.visible = false
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.visible = false
-	
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer/ButtonOverview.button_pressed = true
-	
-	resource_bitcoin_ready = false
-	resource_grpcurl_ready = false
-	resource_enforcer_ready = false
-	resource_thunder_ready = false
-	configuration_complete = false
-	
-	call_deferred("check_resources")
-	call_deferred("display_resource_status")
-
-
-func _on_confirmation_dialog_l2_start_l1_confirmed() -> void:
-	if resource_bitcoin_ready && resource_grpcurl_ready && resource_enforcer_ready && configuration_complete:
-		start_l1()
-
-
-func _on_confirmation_dialog_l2_setup_l1_confirmed() -> void:
-	setup_l1()
+	# Start Bitcoin Core
+	var btc_bin_path : String = ""
+	match OS.get_name():
+		"Linux":
+			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt")
+		"Windows":
+			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-pc-windows-gnu/qt/bitcoin-qt.exe")
+		"macOS":
+			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-apple-darwin

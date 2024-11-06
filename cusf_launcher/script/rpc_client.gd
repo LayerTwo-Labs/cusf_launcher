@@ -36,7 +36,18 @@ func grpc_enforcer_gettip() -> void:
 func cli_thunder_getblockcount() -> void:
 	var user_dir = OS.get_user_data_dir()
 	var output = []
-	var ret : int = OS.execute(str(user_dir, "/downloads/thunder-cli-latest-x86_64-unknown-linux-gnu"),
+	
+	var bin_path : String = ""
+	match OS.get_name():
+		"Linux":
+			bin_path = str(user_dir, "/downloads/thunder-cli-latest-x86_64-unknown-linux-gnu")
+		"Windows":
+			bin_path = str(user_dir, "/downloads/thunder-cli-latest-x86_64-pc-windows-gnu.exe")
+		"macOS":
+			# TODO
+			bin_path = str(user_dir, "/downloads/thunder-cli-latest-x86_64-unknown-linux-gnu")
+	
+	var ret : int = OS.execute(bin_path,
 		["get-blockcount"],
 	 	output,
 	 	true)
@@ -54,7 +65,18 @@ func cli_thunder_getblockcount() -> void:
 func make_grpc_request(request : String) -> void:
 	var user_dir = OS.get_user_data_dir()
 	var output = []
-	var ret : int = OS.execute(str(user_dir, "/downloads/grpcurl"),
+	
+	var bin_path : String = ""
+	match OS.get_name():
+		"Linux":
+			bin_path = str(user_dir, "/downloads/grpcurl")
+		"Windows":
+			bin_path = str(user_dir, "/downloads/grpcurl.exe")
+		"macOS":
+			# TODO
+			bin_path = str(user_dir, "/downloads/grpcurl")
+			
+	var ret : int = OS.execute(bin_path,
 		["-plaintext",
 	 	"localhost:50051",
 	 	request],
@@ -90,6 +112,8 @@ func make_rpc_request(port : int, method: String, params: Variant, http_request:
 
 
 func get_bitcoin_core_cookie() -> String:
+	# TODO until I know if we are using cookies, I have set a value for
+	# core_auth_cookie so that this always returns user:password
 	if !core_auth_cookie.is_empty():
 		return core_auth_cookie
 	
