@@ -35,7 +35,7 @@ func get_bitcoin_datadir() -> String:
 		"Linux":
 			return str("/home/", user, "/.bitcoin")
 		"Windows":
-			return str("C:\\Users\\", user, "\\AppData\\Roaming\\Bitcoin")
+			return str("C:\\Users\\", user, "\\AppData\\Local\\Bitcoin")
 		"macOS":
 			return str("/home/", user, "/Library/Application Support/Bitcoin/")
 	

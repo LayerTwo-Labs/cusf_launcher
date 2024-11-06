@@ -40,10 +40,19 @@ signal resource_thunder_ready
 func have_grpcurl() -> bool:
 	if located_grpcurl:
 		return true
-	
-	if !FileAccess.file_exists("user://downloads/grpcurl"):
-		return false
-	
+		
+	match OS.get_name():
+		"Linux":
+			if !FileAccess.file_exists("user://downloads/grpcurl"):
+				return false
+		"Windows":
+			if !FileAccess.file_exists("user://downloads/grpcurl.exe"):
+				return false
+		"macOS":
+			# TODO correct path
+			if !FileAccess.file_exists("user://downloads/grpcurl"):
+				return false
+				
 	resource_grpcurl_ready.emit()
 	
 	located_grpcurl = true
@@ -54,8 +63,17 @@ func have_enforcer() -> bool:
 	if located_enforcer:
 		return true
 	
-	if !FileAccess.file_exists("user://downloads/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"):
-		return false
+	match OS.get_name():
+		"Linux":
+			if !FileAccess.file_exists("user://downloads/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"):
+				return false
+		"Windows":
+			if !FileAccess.file_exists("user://downloads/bip300301-enforcer-latest-x86_64-pc-windows-gnu/bip300301_enforcer-0.1.0-x86_64-pc-windows-gnu.exe"):
+				return false
+		"macOS":
+			# TODO correct path
+			if !FileAccess.file_exists("user://downloads/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"):
+				return false
 	
 	resource_enforcer_ready.emit()
 	
@@ -72,7 +90,7 @@ func have_bitcoin() -> bool:
 			if !FileAccess.file_exists("user://downloads/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"):
 				return false
 		"Windows":
-			if !FileAccess.file_exists("user://downloads/L1-bitcoin-patched-latest-x86_64-pc-windows-gnu/qt/bitcoin-qt"):
+			if !FileAccess.file_exists("user://downloads/L1-bitcoin-patched-latest-x86_64-pc-windows-gnu/qt/bitcoin-qt.exe"):
 				return false
 		"macOS":
 			# TODO correct path
@@ -94,7 +112,7 @@ func have_thunder() -> bool:
 			if !FileAccess.file_exists("user://downloads/thunder-latest-x86_64-unknown-linux-gnu"):
 				return false
 		"Windows":
-			if !FileAccess.file_exists("user://downloads/thunder-latest-x86_64-pc-windows-gnu"):
+			if !FileAccess.file_exists("user://downloads/thunder-latest-x86_64-pc-windows-gnu.exe"):
 				return false
 		"macOS":
 			# TODO correct path

@@ -216,8 +216,18 @@ func start_l1() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.visible = true
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = "Starting Bitcoin Core.."
 	
+	var btc_bin_path : String = ""
+	match OS.get_name():
+		"Linux":
+			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt")
+		"Windows":
+			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-pc-windows-gnu/qt/bitcoin-qt.exe")
+		"macOS":
+			# TODO
+			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt")
+
 	# Start bitcoin
-	var ret : int = OS.create_process(str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"), [])
+	var ret : int = OS.create_process(btc_bin_path, [])
 	if ret == -1:
 		printerr("Failed to start bitcoin")
 		return
@@ -237,8 +247,18 @@ func start_l1() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.visible = true
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.text = "Starting Drivechain Enforcer..."
 
+	var enforcer_bin_path : String = ""
+	match OS.get_name():
+		"Linux":
+			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu")
+		"Windows":
+			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-pc-windows-gnu/bip300301_enforcer-0.1.0-x86_64-pc-windows-gnu.exe")
+		"macOS":
+			# TODO
+			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu")
+
 	# Start bip300-301 enforcer
-	ret = OS.create_process(str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"), ["--node-rpc-addr=localhost:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://0.0.0.0:29000"])
+	ret = OS.create_process(enforcer_bin_path, ["--node-rpc-addr=localhost:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://0.0.0.0:29000"])
 	if ret == -1:
 		printerr("Failed to start enforcer")
 		return
@@ -275,7 +295,17 @@ func _on_button_start_thunder_pressed() -> void:
 		
 	var downloads_dir : String = str(OS.get_user_data_dir(), "/downloads")
 
-	var ret : int = OS.create_process(str(downloads_dir, "/thunder-latest-x86_64-unknown-linux-gnu"), [])
+	var thunder_bin_path : String = ""
+	match OS.get_name():
+		"Linux":
+			thunder_bin_path = str(downloads_dir, "/thunder-latest-x86_64-unknown-linux-gnu")
+		"Windows":
+			thunder_bin_path = str(downloads_dir, "/thunder-latest-x86_64-pc-windows-gnu.exe")
+		"macOS":
+			thunder_bin_path = str(downloads_dir, "/thunder-latest-x86_64-unknown-linux-gnu")
+	
+
+	var ret : int = OS.create_process(thunder_bin_path, [])
 	if ret == -1:
 		printerr("Failed to start thunder")
 		return
