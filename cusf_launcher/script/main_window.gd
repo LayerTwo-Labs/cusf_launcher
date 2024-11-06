@@ -8,6 +8,10 @@ var resource_enforcer_ready : bool = false
 var resource_thunder_ready : bool = false
 var configuration_complete : bool = false
 
+var pid_bitcoin : int = -1
+var pid_enforcer : int = -1
+var pid_thunder : int = -1
+
 var started_pid = []
 
 var timer_run_status_update = null
@@ -34,12 +38,21 @@ func kill_started_pid() -> void:
 	for pid in started_pid:
 		print("Killing pid ", pid)
 		OS.kill(pid)
+		
+	pid_bitcoin = -1
+	pid_enforcer = -1
+	pid_thunder = -1
 
 
 func check_running_status() -> void:
-	$RPCClient.rpc_bitcoin_getblockcount()
-	$RPCClient.grpc_enforcer_gettip()
-	$RPCClient.cli_thunder_getblockcount()
+	if pid_bitcoin != -1:
+		$RPCClient.rpc_bitcoin_getblockcount()
+		
+	if pid_enforcer != -1:
+		$RPCClient.grpc_enforcer_gettip()
+	
+	if pid_thunder != -1:
+		$RPCClient.cli_thunder_getblockcount()
 
 
 func _on_downloader_resource_bitcoin_ready() -> void:
@@ -175,7 +188,7 @@ func _on_button_settings_toggled(toggled_on: bool) -> void:
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage.visible = false
 
 
-func _on_button_setup_l1_pressed() -> void:
+func setup_l1() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonSetupL1.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/L1ProgressBar.visible = true
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1SetupStatus.visible = true
@@ -191,10 +204,13 @@ func _on_button_setup_l1_pressed() -> void:
 	display_resource_status()
 
 
-func _on_button_start_l1_pressed() -> void:
+func _on_button_setup_l1_pressed() -> void:
+	setup_l1()
+
+
+func start_l1() -> void:
 	var downloads_dir : String = str(OS.get_user_data_dir(), "/downloads")
 
-	
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = false
 
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.visible = true
@@ -207,6 +223,7 @@ func _on_button_start_l1_pressed() -> void:
 		return
 	else:
 		started_pid.push_back(ret)
+		pid_bitcoin = ret
 		print("started bitcoin with pid: ", ret)
 	
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = "Starting Bitcoin Core..."
@@ -227,7 +244,12 @@ func _on_button_start_l1_pressed() -> void:
 		return
 	else:
 		started_pid.push_back(ret)
+		pid_enforcer = ret
 		print("started enforcer with pid: ", ret)
+
+
+func _on_button_start_l1_pressed() -> void:
+	start_l1()
 
 
 func _on_button_setup_thunder_pressed() -> void:
@@ -241,6 +263,16 @@ func _on_button_setup_thunder_pressed() -> void:
 
 
 func _on_button_start_thunder_pressed() -> void:
+	# Don't start any L2 if we didn't setup L1
+	if !resource_bitcoin_ready || !resource_grpcurl_ready || !resource_enforcer_ready || !configuration_complete:
+		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/ConfirmationDialogL2SetupL1.show()
+		return
+
+	# Don't start any L2 if we didn't start L1
+	if pid_bitcoin == -1 || pid_enforcer == -1:
+		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/ConfirmationDialogL2StartL1.show()
+		return
+		
 	var downloads_dir : String = str(OS.get_user_data_dir(), "/downloads")
 
 	var ret : int = OS.create_process(str(downloads_dir, "/thunder-latest-x86_64-unknown-linux-gnu"), [])
@@ -251,6 +283,7 @@ func _on_button_start_thunder_pressed() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonStartThunder.visible = false
 	
 	started_pid.push_back(ret)
+	pid_thunder = ret
 	print("started thunder with pid: ", ret)
 	
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.visible = true
@@ -315,9 +348,6 @@ func _on_delete_everything_confirmation_dialog_confirmed() -> void:
 	# Trash thunder files
 	OS.move_to_trash($Configuration.get_thunder_datadir())
 	
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage.visible = false
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage.visible = true
-	
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonSetupL1.visible = true
 	
@@ -328,6 +358,8 @@ func _on_delete_everything_confirmation_dialog_confirmed() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.visible = false
 	
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer/ButtonOverview.button_pressed = true
+	
 	resource_bitcoin_ready = false
 	resource_grpcurl_ready = false
 	resource_enforcer_ready = false
@@ -336,3 +368,12 @@ func _on_delete_everything_confirmation_dialog_confirmed() -> void:
 	
 	call_deferred("check_resources")
 	call_deferred("display_resource_status")
+
+
+func _on_confirmation_dialog_l2_start_l1_confirmed() -> void:
+	if resource_bitcoin_ready && resource_grpcurl_ready && resource_enforcer_ready && configuration_complete:
+		start_l1()
+
+
+func _on_confirmation_dialog_l2_setup_l1_confirmed() -> void:
+	setup_l1()
