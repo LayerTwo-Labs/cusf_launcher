@@ -171,15 +171,14 @@ func download_thunder() -> void:
 
 
 func extract_grpcurl() -> void:
-	var user_dir : String = OS.get_user_data_dir() 
-	var downloads_dir = str(user_dir, "/downloads")
+	var downloads_dir = str(OS.get_user_data_dir(), "/downloads")
 	
 	var ret : int = -1 
 	match OS.get_name():
 		"Linux":
 			ret = OS.execute("tar", ["-xzf", str(downloads_dir, "/grpcurl.tar.gz"), "-C", downloads_dir])
 		"Windows":
-			ret = OS.execute("tar", ["-C", downloads_dir, "-xf", str(user_dir, "/grpcurl.zip")])
+			ret = OS.execute("tar", ["-C", downloads_dir, "-xf", str(downloads_dir, "/grpcurl.zip")])
 		"macOS":
 			ret = OS.execute("tar", ["-xzf", str(downloads_dir, "/grpcurl.tar.gz"), "-C", downloads_dir])
 
@@ -191,8 +190,7 @@ func extract_grpcurl() -> void:
 
 
 func extract_enforcer() -> void:
-	var user_dir : String = OS.get_user_data_dir() 
-	var downloads_dir = str(user_dir, "/downloads")
+	var downloads_dir = str(OS.get_user_data_dir(), "/downloads")
 
 	var ret : int = -1
 	match OS.get_name():
@@ -218,8 +216,7 @@ func extract_enforcer() -> void:
 
 
 func extract_bitcoin() -> void:
-	var user_dir : String = OS.get_user_data_dir() 
-	var downloads_dir = str(user_dir, "/downloads")
+	var downloads_dir = str(OS.get_user_data_dir(), "/downloads")
 
 	var ret : int = -1
 	match OS.get_name():
@@ -245,8 +242,7 @@ func extract_bitcoin() -> void:
 
 
 func extract_thunder() -> void:
-	var user_dir : String = OS.get_user_data_dir()
-	var downloads_dir = str(user_dir, "/downloads")
+	var downloads_dir = str(OS.get_user_data_dir(), "/downloads")
 	
 	var ret : int = -1
 	match OS.get_name():
