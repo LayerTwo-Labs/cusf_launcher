@@ -36,7 +36,7 @@ func grpc_enforcer_gettip() -> void:
 func cli_thunder_getblockcount() -> void:
 	var user_dir = OS.get_user_data_dir()
 	var output = []
-	var ret : int = OS.execute(str(user_dir, "/thunder-cli-latest-x86_64-unknown-linux-gnu"),
+	var ret : int = OS.execute(str(user_dir, "/downloads/thunder-cli-latest-x86_64-unknown-linux-gnu"),
 		["get-blockcount"],
 	 	output,
 	 	true)
@@ -54,7 +54,7 @@ func cli_thunder_getblockcount() -> void:
 func make_grpc_request(request : String) -> void:
 	var user_dir = OS.get_user_data_dir()
 	var output = []
-	var ret : int = OS.execute(str(user_dir, "/grpcurl"),
+	var ret : int = OS.execute(str(user_dir, "/downloads/grpcurl"),
 		["-plaintext",
 	 	"localhost:50051",
 	 	request],

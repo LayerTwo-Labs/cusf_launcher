@@ -184,9 +184,9 @@ custom_minimum_size = Vector2(400, 0)
 layout_mode = 2
 text = "Layer 1 Software:"
 
-[node name="ButtonSetupL1" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
+[node name="LabelL1SetupStatus" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
 layout_mode = 2
-text = "Setup L1"
+text = "Ready to start L1!"
 
 [node name="L1ProgressBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
 visible = false
@@ -194,9 +194,9 @@ layout_mode = 2
 indeterminate = true
 editor_preview_indeterminate = false
 
-[node name="LabelL1SetupStatus" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
+[node name="ButtonSetupL1" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
 layout_mode = 2
-text = "Ready to start L1!"
+text = "Setup L1"
 
 [node name="ButtonStartL1" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
 visible = false
@@ -222,9 +222,8 @@ layout_mode = 2
 layout_mode = 2
 text = "Layer 2 Software:"
 
-[node name="ButtonSetupThunder" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer"]
+[node name="LabelThunderSetupStatus" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer"]
 layout_mode = 2
-text = "Setup Thunder"
 
 [node name="ThunderProgressBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer"]
 visible = false
@@ -232,13 +231,14 @@ layout_mode = 2
 indeterminate = true
 editor_preview_indeterminate = false
 
-[node name="LabelThunderSetupStatus" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer"]
-layout_mode = 2
-
 [node name="ButtonStartThunder" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer"]
 visible = false
 layout_mode = 2
 text = "Start Thunder"
+
+[node name="ButtonSetupThunder" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer"]
+layout_mode = 2
+text = "Setup Thunder"
 
 [node name="LabelThunderRunStatus" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer"]
 visible = false
@@ -520,7 +520,7 @@ layout_mode = 2
 [connection signal="toggled" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer/ButtonSettings" to="." method="_on_button_settings_toggled"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonSetupL1" to="." method="_on_button_setup_l1_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1" to="." method="_on_button_start_l1_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonSetupThunder" to="." method="_on_button_setup_thunder_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonStartThunder" to="." method="_on_button_start_thunder_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonSetupThunder" to="." method="_on_button_setup_thunder_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/ButtonDeleteEverything" to="." method="_on_button_delete_everything_pressed"]
 [connection signal="confirmed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteEverythingConfirmationDialog" to="." method="_on_delete_everything_confirmation_dialog_confirmed"]
