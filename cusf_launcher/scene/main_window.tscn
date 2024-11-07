@@ -155,6 +155,14 @@ toggle_mode = true
 button_group = SubResource("ButtonGroup_ltl0q")
 text = "Settings"
 
+[node name="Control" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ButtonMasterWallet" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer"]
+layout_mode = 2
+text = "WAL"
+
 [node name="PanelContainerPages" type="PanelContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons"]
 clip_contents = true
 custom_minimum_size = Vector2(900, 598)

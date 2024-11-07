@@ -28,6 +28,9 @@ func _ready() -> void:
 	call_deferred("check_resources")
 	call_deferred("display_resource_status")
 	call_deferred("update_os_info")
+	
+	var wallet_creator = preload("res://script/wallet_starter.gd").new()
+	add_child(wallet_creator)
 
 
 func _exit_tree() -> void:
