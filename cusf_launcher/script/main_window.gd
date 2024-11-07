@@ -221,7 +221,7 @@ func start_l1() -> void:
 		"Linux":
 			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt")
 		"Windows":
-			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-pc-windows-gnu/qt/bitcoin-qt.exe")
+			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-w64-mingw32/qt/bitcoin-qt.exe")
 		"macOS":
 			# TODO
 			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt")
@@ -252,7 +252,7 @@ func start_l1() -> void:
 		"Linux":
 			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu")
 		"Windows":
-			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-pc-windows-gnu/bip300301_enforcer-0.1.0-x86_64-pc-windows-gnu.exe")
+			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-pc-windows-gnu.exe/bip300301_enforcer-0.1.0-x86_64-pc-windows-gnu.exe")
 		"macOS":
 			# TODO
 			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu")

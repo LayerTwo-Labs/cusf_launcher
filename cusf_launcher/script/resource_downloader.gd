@@ -68,7 +68,9 @@ func have_enforcer() -> bool:
 			if !FileAccess.file_exists("user://downloads/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"):
 				return false
 		"Windows":
-			if !FileAccess.file_exists("user://downloads/bip300301-enforcer-latest-x86_64-pc-windows-gnu/bip300301_enforcer-0.1.0-x86_64-pc-windows-gnu.exe"):
+			# TODO the folder name has .exe which is probably an accident. 
+			# Maybe an issue with the github actions?
+			if !FileAccess.file_exists("user://downloads/bip300301-enforcer-latest-x86_64-pc-windows-gnu.exe/bip300301_enforcer-0.1.0-x86_64-pc-windows-gnu.exe"):
 				return false
 		"macOS":
 			# TODO correct path
@@ -90,7 +92,7 @@ func have_bitcoin() -> bool:
 			if !FileAccess.file_exists("user://downloads/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"):
 				return false
 		"Windows":
-			if !FileAccess.file_exists("user://downloads/L1-bitcoin-patched-latest-x86_64-pc-windows-gnu/qt/bitcoin-qt.exe"):
+			if !FileAccess.file_exists("user://downloads/L1-bitcoin-patched-latest-x86_64-w64-mingw32/qt/bitcoin-qt.exe"):
 				return false
 		"macOS":
 			# TODO correct path
