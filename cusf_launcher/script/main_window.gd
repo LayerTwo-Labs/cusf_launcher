@@ -242,11 +242,6 @@ func start_l1() -> void:
 		pid_enforcer = ret
 		print("started enforcer with pid: ", ret)
 
-
-func _on_button_start_l1_pressed() -> void:
-	start_l1()
-
-
 func _on_button_setup_thunder_pressed() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonSetupThunder.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ThunderProgressBar.visible = true
