@@ -208,10 +208,9 @@ func extract_grpcurl() -> void:
 		
 	resource_grpcurl_ready.emit()
 
-
 func extract_enforcer() -> void:
+	var user_dir = str(OS.get_user_data_dir())
 	var downloads_dir = str(OS.get_user_data_dir(), "/downloads")
-
 	var ret : int = -1
 	match OS.get_name():
 		"Linux":
@@ -241,8 +240,9 @@ func extract_enforcer() -> void:
 
 
 func extract_bitcoin() -> void:
+	
 	var downloads_dir = str(OS.get_user_data_dir(), "/downloads")
-
+	var user_dir = str(OS.get_user_data_dir())
 	var ret : int = -1
 	match OS.get_name():
 		"Linux":
@@ -273,6 +273,7 @@ func extract_bitcoin() -> void:
 
 func extract_thunder() -> void:
 	var downloads_dir = str(OS.get_user_data_dir(), "/downloads")
+	var user_dir = str(OS.get_user_data_dir())
 	
 	var ret : int = -1
 	match OS.get_name():
