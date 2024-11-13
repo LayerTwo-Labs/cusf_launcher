@@ -9,6 +9,8 @@ zmqpubsequence=tcp://0.0.0.0:29000
 txindex=1
 server=1
 signet=1
+fallbackfee=0.00021
+addnode=drivechain.live:8383
 '''
 
 signal configuration_complete
