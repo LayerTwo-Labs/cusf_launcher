@@ -411,7 +411,9 @@ func update_os_info() -> void:
 func _on_button_delete_everything_pressed() -> void:
 	var delete_text = str("The following will be moved to trash or deleted:\n\n",
 		$Configuration.get_bitcoin_datadir(), "\n\n",
+		$Configuration.get_enforcer_datadir(), "\n\n",
 		$Configuration.get_bitwindow_datadir(), "\n\n",
+		$Configuration.get_bitwindowd_datadir(), "\n\n",
 		$Configuration.get_thunder_datadir(), "\n\n",
 		str(OS.get_user_data_dir(), "/downloads"), "\n")
 	
@@ -424,6 +426,15 @@ func _on_delete_everything_confirmation_dialog_confirmed() -> void:
 	
 	# Trash L1 data dir 
 	OS.move_to_trash($Configuration.get_bitcoin_datadir())
+	
+	# Trash enforcer data dir 
+	OS.move_to_trash($Configuration.get_enforcer_datadir())
+	
+	# Trash bitwindow data dir
+	OS.move_to_trash($Configuration.get_bitwindow_datadir())
+	
+	# Trash bitwindowd data dir
+	OS.move_to_trash($Configuration.get_bitwindowd_datadir())
 	
 	# Trash cusf_launcher files
 	OS.move_to_trash(str(OS.get_user_data_dir(), "/downloads"))

@@ -42,6 +42,22 @@ func get_bitcoin_datadir() -> String:
 	return ""
 
 
+func get_enforcer_datadir() -> String:
+	var user : String = get_username()
+	
+	match OS.get_name():
+		"Linux":
+			return str("/home/", user, "/.local/share/bip300301_enforcer/")
+		"Windows":
+			# TODO
+			return str("C:\\Users\\", user, "\\AppData\\Roaming\\bip300301_enforcer")
+		"macOS":
+			# TODO
+			return str("/home/", user, "/Library/Application Support/bip300301_enforcer/")
+	
+	return ""
+	
+	
 func get_bitwindow_datadir() -> String:
 	var user : String = get_username()
 	
@@ -54,6 +70,22 @@ func get_bitwindow_datadir() -> String:
 		"macOS":
 			# TODO
 			return str("/home/", user, "/Library/Application Support/bitwindow/")
+	
+	return ""
+	
+	
+func get_bitwindowd_datadir() -> String:
+	var user : String = get_username()
+	
+	match OS.get_name():
+		"Linux":
+			return str("/home/", user, "/.local/share/bitwindowd/")
+		"Windows":
+			# TODO
+			return str("C:\\Users\\", user, "\\AppData\\Roaming\\bitwindowd")
+		"macOS":
+			# TODO
+			return str("/home/", user, "/Library/Application Support/bitwindowd/")
 	
 	return ""
 	
