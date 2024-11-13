@@ -518,6 +518,7 @@ expand_mode = 3
 layout_mode = 2
 
 [connection signal="resource_bitcoin_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_bitcoin_ready"]
+[connection signal="resource_bitwindow_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_bitwindow_ready"]
 [connection signal="resource_enforcer_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_enforcer_ready"]
 [connection signal="resource_grpcurl_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_grpcurl_ready"]
 [connection signal="resource_thunder_ready" from="ResourceDownloader" to="." method="_on_resource_downloader_resource_thunder_ready"]

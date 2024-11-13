@@ -42,6 +42,22 @@ func get_bitcoin_datadir() -> String:
 	return ""
 
 
+func get_bitwindow_datadir() -> String:
+	var user : String = get_username()
+	
+	match OS.get_name():
+		"Linux":
+			return str("/home/", user, "/.local/share/bitwindow/")
+		"Windows":
+			# TODO
+			return str("C:\\Users\\", user, "\\AppData\\Roaming\\bitwindow")
+		"macOS":
+			# TODO
+			return str("/home/", user, "/Library/Application Support/bitwindow/")
+	
+	return ""
+	
+	
 func get_username() -> String:
 	var user : String = ""
 	if OS.has_environment("USERNAME"):
