@@ -118,10 +118,10 @@ func have_bitwindow() -> bool:
 	
 	match OS.get_name():
 		"Linux":
-			if !FileAccess.file_exists("user://downloads/BitWindow-latest-x86_64-unknown-linux-gnu/bitwindow"):
+			if !FileAccess.file_exists("user://downloads/bitwindow/bitwindow"):
 				return false
 		"Windows":
-			if !FileAccess.file_exists("user://downloads/BitWindow-latest-x86_64-pc-windows-msvc/bitwindow.exe"):
+			if !FileAccess.file_exists("user://downloads/bitwindow/bitwindow.exe"):
 				return false
 		"macOS":
 			# TODO correct path
@@ -311,11 +311,11 @@ func extract_bitwindow() -> void:
 	var ret : int = -1
 	match OS.get_name():
 		"Linux":
-			ret = OS.execute("unzip", ["-o", "-d", downloads_dir, str(downloads_dir, "/bitwindow.zip")])
+			ret = OS.execute("unzip", ["-o", "-d", str(downloads_dir / "bitwindow"), str(downloads_dir, "/bitwindow.zip")])
 		"Windows":
-			ret = OS.execute("tar", ["-C", downloads_dir, "-xf", str(downloads_dir, "/bitwindow.zip")])
+			ret = OS.execute("tar", ["-C", str(downloads_dir / "bitwindow"), "-xf", str(downloads_dir, "/bitwindow.zip")])
 		"macOS":
-			ret = OS.execute("unzip", ["-o", "-d", downloads_dir, str(downloads_dir, "/bitwindow.zip")])
+			ret = OS.execute("unzip", ["-o", "-d", str(downloads_dir / "bitwindow"), str(downloads_dir, "/bitwindow.zip")])
 
 	if ret != OK:
 		printerr("Failed to extract bitwindow")
@@ -323,7 +323,7 @@ func extract_bitwindow() -> void:
 		
 	# Make executable for linux # TODO osx?
 	if OS.get_name() == "Linux":
-		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/BitWindow-latest-x86_64-unknown-linux-gnu/bitwindow")])
+		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bitwindow/bitwindow")])
 		if ret != OK:
 			printerr("Failed to mark bitwindow executable")
 			return

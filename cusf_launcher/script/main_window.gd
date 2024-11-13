@@ -302,12 +302,12 @@ func start_l1() -> void:
 	var bitwindow_bin_path : String = ""
 	match OS.get_name():
 		"Linux":
-			bitwindow_bin_path = str(downloads_dir, "/BitWindow-latest-x86_64-unknown-linux-gnu/bitwindow")
+			bitwindow_bin_path = str(downloads_dir, "/bitwindow/bitwindow")
 		"Windows":
-			bitwindow_bin_path = str(downloads_dir, "/BitWindow-latest-x86_64-pc-windows-msvc/bitwindow.exe")
+			bitwindow_bin_path = str(downloads_dir, "/bitwindow/bitwindow.exe")
 		"macOS":
 			# TODO
-			bitwindow_bin_path = str(downloads_dir, "/BitWindow-latest-???/bitwindow")
+			bitwindow_bin_path = str(downloads_dir, "/bitwindow/bitwindow")
 
 	# Start BitWindow
 	ret = OS.create_process(bitwindow_bin_path, [])
