@@ -275,7 +275,7 @@ func extract_enforcer() -> void:
 			printerr("Failed to mark enforcer executable on Linux")
 			return
 	elif OS.get_name() == "macOS":
-		ret = OS.execute("chmod", ["+x", str(user_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.0-x86_64-apple-darwin")])
+		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.0-x86_64-apple-darwin")])
 		if ret != OK:
 			printerr("Failed to mark enforcer executable on macOS")
 			return
@@ -306,7 +306,7 @@ func extract_bitcoin() -> void:
 			printerr("Failed to mark bitcoin executable on Linux")
 			return
 	elif OS.get_name() == "macOS":
-		ret = OS.execute("chmod", ["+x", str(user_dir, "/L1-bitcoin-patched-latest-x86_64-apple-darwin/qt/bitcoin-qt")])
+		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-apple-darwin/qt/bitcoin-qt")])
 		if ret != OK:
 			printerr("Failed to mark bitcoin executable on macOS")
 			return
@@ -368,12 +368,12 @@ func extract_thunder() -> void:
 			printerr("Failed to mark thunder executable on Linux")
 			return
 	elif OS.get_name() == "macOS":
-		ret = OS.execute("chmod", ["+x", str(user_dir, "/thunder-cli-latest-x86_64-apple-darwin")])
+		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/thunder-cli-latest-x86_64-apple-darwin")])
 		if ret != OK:
 			printerr("Failed to mark thunder-cli executable on macOS")
 			return
 			
-		ret = OS.execute("chmod", ["+x", str(user_dir, "/thunder-latest-x86_64-apple-darwin")])
+		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/thunder-latest-x86_64-apple-darwin")])
 		if ret != OK:
 			printerr("Failed to mark thunder executable on macOS")
 			return

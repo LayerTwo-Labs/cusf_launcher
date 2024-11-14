@@ -25,7 +25,7 @@ func get_thunder_datadir() -> String:
 		"Windows":
 			return str("C:\\Users\\", user, "\\AppData\\Roaming\\thunder")
 		"macOS":
-			return str("/home/", user, "/Library/Application Support/thunder/")
+			return str("/Users/", user, "/Library/Application Support/thunder/")
 	
 	return ""
 
@@ -39,7 +39,7 @@ func get_bitcoin_datadir() -> String:
 		"Windows":
 			return str("C:\\Users\\", user, "\\AppData\\Local\\Bitcoin")
 		"macOS":
-			return str("/home/", user, "/Library/Application Support/Bitcoin/")
+			return str("/Users/", user, "/Library/Application Support/Bitcoin/")
 	
 	return ""
 
@@ -55,7 +55,7 @@ func get_enforcer_datadir() -> String:
 			return str("C:\\Users\\", user, "\\AppData\\Roaming\\bip300301_enforcer")
 		"macOS":
 			# TODO
-			return str("/home/", user, "/Library/Application Support/bip300301_enforcer/")
+			return str("/Users/", user, "/Library/Application Support/bip300301_enforcer/")
 	
 	return ""
 	
@@ -71,7 +71,7 @@ func get_bitwindow_datadir() -> String:
 			return str("C:\\Users\\", user, "\\AppData\\Roaming\\bitwindow")
 		"macOS":
 			# TODO
-			return str("/home/", user, "/Library/Application Support/bitwindow/")
+			return str("/Users/", user, "/Library/Application Support/bitwindow/")
 	
 	return ""
 	
@@ -87,7 +87,7 @@ func get_bitwindowd_datadir() -> String:
 			return str("C:\\Users\\", user, "\\AppData\\Roaming\\bitwindowd")
 		"macOS":
 			# TODO
-			return str("/home/", user, "/Library/Application Support/bitwindowd/")
+			return str("/Users/", user, "/Library/Application Support/bitwindowd/")
 	
 	return ""
 	
@@ -112,10 +112,22 @@ func have_bitcoin_configuration() -> bool:
 	return false
 	
 
+# Function to write the Bitcoin configuration file
 func write_bitcoin_configuration() -> void:
-	DirAccess.make_dir_absolute(get_bitcoin_datadir())
+	var bitcoin_datadir = get_bitcoin_datadir()
 	
-	var file = FileAccess.open(str(get_bitcoin_datadir(), "/bitcoin.conf"), FileAccess.WRITE_READ)
-	file.store_string(DEFAULT_CONFIG_BITCOIN)
-	
-	configuration_complete.emit()
+	# Check if the directory exists; if not, create it
+	if not DirAccess.dir_exists_absolute(bitcoin_datadir):
+		DirAccess.make_dir_recursive_absolute(bitcoin_datadir)
+
+	# Open the bitcoin.conf file for writing
+	var file_path = str(bitcoin_datadir, "/bitcoin.conf")
+	var file = FileAccess.open(file_path, FileAccess.WRITE_READ)
+
+	# Check if the file was opened successfully
+	if file != null:
+		file.store_string(DEFAULT_CONFIG_BITCOIN)
+		file.close()
+		configuration_complete.emit()  # Emit signal after successful configuration
+	else:
+		push_error("Failed to open or create the bitcoin.conf file.")
