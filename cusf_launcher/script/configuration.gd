@@ -100,18 +100,6 @@ func get_username() -> String:
 	elif OS.has_environment("USER"):
 		# Everything else
 		user = OS.get_environment("USER")
-	return user
-
-# Check if bitcoin.conf already exists
-func have_bitcoin_configuration() -> bool:
-	if FileAccess.file_exists(str(get_bitcoin_datadir(), "/bitcoin.conf")):
-		configuration_complete.emit()
-		return true
-	return false
-
-# Function to write the Bitcoin configuration file
-func write_bitcoin_configuration() -> void:
-	var bitcoin_datadir = get_bitcoin_datadir()
 	
 	return user
 
