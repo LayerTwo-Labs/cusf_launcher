@@ -11,8 +11,12 @@ const URL_300301_ENFORCER_WIN : String = "https://releases.drivechain.info/bip30
 const URL_300301_ENFORCER_OSX : String = "https://releases.drivechain.info/bip300301-enforcer-latest-x86_64-apple-darwin.zip"
 
 const URL_BITCOIN_PATCHED_LIN : String = "https://releases.drivechain.info/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu.zip"
-const URL_BITCOIN_PATCHED_WIN : String = "https://releases.drivechain.info/L1-bitcoin-patched-latest-x86_64-w64-mingw32.zip"
+const URL_BITCOIN_PATCHED_WIN : String = "https://releases.drivechain.info/L1-bitcoin-patched-latest-x86_64-w64-msvc.zip"
 const URL_BITCOIN_PATCHED_OSX : String = "https://releases.drivechain.info/L1-bitcoin-patched-latest-x86_64-apple-darwin.zip"
+
+const URL_BITWINDOW_LIN : String = "https://releases.drivechain.info/BitWindow-latest-x86_64-unknown-linux-gnu.zip"
+const URL_BITWINDOW_WIN : String = "https://releases.drivechain.info/BitWindow-latest-x86_64-pc-windows-msvc.zip"
+const URL_BITWINDOW_OSX : String = "https://releases.drivechain.info/BitWindow-latest-x86_64-apple-darwin.zip"
 
 const URL_THUNDER_LIN : String = "https://releases.drivechain.info/L2-S9-Thunder-latest-x86_64-unknown-linux-gnu.zip"
 const URL_THUNDER_WIN : String = "https://releases.drivechain.info/L2-S9-Thunder-latest-x86_64-pc-windows-gnu.zip"
@@ -26,14 +30,17 @@ const DOWNLOAD_PATH_GRPCURL_WIN = "user://downloads/grpcurl.zip"
 @onready var http_download_enforcer: HTTPRequest = $HTTPDownloadEnforcer
 @onready var http_download_bitcoin: HTTPRequest = $HTTPDownloadBitcoin
 @onready var http_download_thunder: HTTPRequest = $HTTPDownloadThunder
+@onready var http_download_bit_window: HTTPRequest = $HTTPDownloadBitWindow
 
 var located_grpcurl : bool = false
 var located_enforcer : bool = false
 var located_bitcoin : bool = false
+var located_bitwindow : bool = false
 var located_thunder : bool = false
 
 signal resource_grpcurl_ready
 signal resource_bitcoin_ready
+signal resource_bitwindow_ready
 signal resource_enforcer_ready
 signal resource_thunder_ready
 
@@ -96,12 +103,34 @@ func have_bitcoin() -> bool:
 				return false
 		"macOS":
 			# TODO correct path
-			if !FileAccess.file_exists("user:///L1-bitcoin-patched-latest-x86_64-apple-darwin/qt/bitcoin-qt"):
+			if !FileAccess.file_exists("user://downloads/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"):
 				return false
 
 	resource_bitcoin_ready.emit()
 	
 	located_bitcoin = true
+	return true
+
+
+func have_bitwindow() -> bool:
+	if located_bitwindow:
+		return true
+	
+	match OS.get_name():
+		"Linux":
+			if !FileAccess.file_exists("user://downloads/bitwindow/bitwindow"):
+				return false
+		"Windows":
+			if !FileAccess.file_exists("user://downloads/bitwindow/bitwindow.exe"):
+				return false
+		"macOS":
+			# TODO correct path
+			if !FileAccess.file_exists("user://downloads/BitWindow-latest-???/bitwindow"):
+				return false
+
+	resource_bitwindow_ready.emit()
+	
+	located_bitwindow = true
 	return true
 
 
@@ -175,6 +204,21 @@ func download_bitcoin() -> void:
 			$HTTPDownloadBitcoin.request(URL_BITCOIN_PATCHED_OSX)
 
 
+func download_bitwindow() -> void:
+	if have_bitwindow():
+		return
+
+	DirAccess.make_dir_absolute("user://downloads/")
+
+	match OS.get_name():
+		"Linux":
+			$HTTPDownloadBitWindow.request(URL_BITWINDOW_LIN)
+		"Windows":
+			$HTTPDownloadBitWindow.request(URL_BITWINDOW_WIN)
+		"macOS":
+			$HTTPDownloadBitWindow.request(URL_BITWINDOW_OSX)
+
+
 func download_thunder() -> void:
 	if have_thunder():
 		return
@@ -209,8 +253,8 @@ func extract_grpcurl() -> void:
 	resource_grpcurl_ready.emit()
 
 func extract_enforcer() -> void:
-	var user_dir = str(OS.get_user_data_dir())
 	var downloads_dir = str(OS.get_user_data_dir(), "/downloads")
+
 	var ret : int = -1
 	match OS.get_name():
 		"Linux":
@@ -240,9 +284,8 @@ func extract_enforcer() -> void:
 
 
 func extract_bitcoin() -> void:
-	
 	var downloads_dir = str(OS.get_user_data_dir(), "/downloads")
-	var user_dir = str(OS.get_user_data_dir())
+
 	var ret : int = -1
 	match OS.get_name():
 		"Linux":
@@ -271,9 +314,34 @@ func extract_bitcoin() -> void:
 	resource_bitcoin_ready.emit()
 
 
+func extract_bitwindow() -> void:
+	var downloads_dir = str(OS.get_user_data_dir(), "/downloads")
+
+	var ret : int = -1
+	match OS.get_name():
+		"Linux":
+			ret = OS.execute("unzip", ["-o", "-d", str(downloads_dir, "/bitwindow"), str(downloads_dir, "/bitwindow.zip")])
+		"Windows":
+			ret = OS.execute("tar", ["-C", str(downloads_dir, "/bitwindow"), "-xf", str(downloads_dir, "/bitwindow.zip")])
+		"macOS":
+			ret = OS.execute("unzip", ["-o", "-d", str(downloads_dir, "/bitwindow"), str(downloads_dir, "/bitwindow.zip")])
+
+	if ret != OK:
+		printerr("Failed to extract bitwindow")
+		return
+		
+	# Make executable for linux # TODO osx?
+	if OS.get_name() == "Linux":
+		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bitwindow/bitwindow")])
+		if ret != OK:
+			printerr("Failed to mark bitwindow executable")
+			return
+	
+	resource_bitwindow_ready.emit()
+
+
 func extract_thunder() -> void:
 	var downloads_dir = str(OS.get_user_data_dir(), "/downloads")
-	var user_dir = str(OS.get_user_data_dir())
 	
 	var ret : int = -1
 	match OS.get_name():
@@ -288,11 +356,11 @@ func extract_thunder() -> void:
 		printerr("Failed to extract thunder")
 		return
 
-	# Make executable for Linux and macOS
+	# Make executable for linux # TODO osx?
 	if OS.get_name() == "Linux":
 		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/thunder-cli-latest-x86_64-unknown-linux-gnu")])
 		if ret != OK:
-			printerr("Failed to mark thunder-cli executable on Linux")
+			printerr("Failed to mark thunder-cli executable")
 			return
 			
 		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/thunder-latest-x86_64-unknown-linux-gnu")])
@@ -363,3 +431,17 @@ func _on_http_download_thunder_request_completed(result: int, response_code: int
 		print("Downloaded thunder zip")
 	
 	extract_thunder()
+
+
+func _on_http_download_bit_window_request_completed(result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
+	if result != OK:
+		printerr("Failed to download bitwindow")
+		return 
+	
+	if DEBUG_REQUESTS:
+		print("res ", result)
+		print("code ", response_code)
+		print("Downloaded bitwindow zip")
+	
+	# TODO extract in thread so window doesn't freeze
+	extract_bitwindow()
