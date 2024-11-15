@@ -295,7 +295,7 @@ func start_l1() -> void:
 			bitwindow_bin_path = str(downloads_dir, "/bitwindow/bitwindow.exe")
 		"macOS":
 			# TODO
-			bitwindow_bin_path = str(downloads_dir, "/bitwindow/bitwindow")
+			bitwindow_bin_path = str(downloads_dir, "/bitwindow/bitwindow.app")
 
 	# Start BitWindow
 	ret = OS.create_process(bitwindow_bin_path, [])
