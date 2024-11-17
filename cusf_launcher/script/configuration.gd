@@ -35,11 +35,11 @@ func get_bitcoin_datadir() -> String:
 	
 	match OS.get_name():
 		"Linux":
-			return str("/home/", user, "/.bitcoin")
+			return str("/home/", user, "/.drivechain")
 		"Windows":
-			return str("C:\\Users\\", user, "\\AppData\\Local\\Bitcoin")
+			return str("C:\\Users\\", user, "\\AppData\\Local\\drivechain")
 		"macOS":
-			return str("/home/", user, "/Library/Application Support/Bitcoin/")
+			return str("/Users/", user, "/Library/Application Support/drivechain/")
 	
 	return ""
 
