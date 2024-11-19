@@ -26,6 +26,8 @@ const URL_THUNDER_OSX : String = "https://releases.drivechain.info/L2-S9-Thunder
 const DOWNLOAD_PATH_GRPCURL_LIN_OSX = "user://downloads/grpcurl.tar.gz"
 const DOWNLOAD_PATH_GRPCURL_WIN = "user://downloads/grpcurl.zip"
 
+const DOWNLOAD_PROGRESS_UPDATE_DELAY : float = 0.1
+
 @onready var http_download_grpcurl: HTTPRequest = $HTTPDownloadGRPCURL
 @onready var http_download_enforcer: HTTPRequest = $HTTPDownloadEnforcer
 @onready var http_download_bitcoin: HTTPRequest = $HTTPDownloadBitcoin
@@ -38,11 +40,88 @@ var located_bitcoin : bool = false
 var located_bitwindow : bool = false
 var located_thunder : bool = false
 
+var timer_l1_download_progress_update = null
+# TODO this will be per L2 but for now just thunder
+var timer_l2_download_progress_update = null
+
 signal resource_grpcurl_ready
 signal resource_bitcoin_ready
 signal resource_bitwindow_ready
 signal resource_enforcer_ready
 signal resource_thunder_ready
+
+signal resource_grpcurl_download_progress(percent : int)
+signal resource_bitcoin_download_progress(percent : int)
+signal resource_bitwindow_download_progress(percent : int)
+signal resource_enforcer_download_progress(percent : int)
+signal resource_thunder_download_progress(percent : int)
+
+# Check on L1 software download progress periodically
+func track_l1_download_progress() -> void:
+	# Don't create a new timer if we already started tracking progress
+	if timer_l1_download_progress_update != null:
+		return
+		
+	# Create timer to check on donwload progress of L1 software
+	timer_l1_download_progress_update = Timer.new()
+	add_child(timer_l1_download_progress_update)
+	timer_l1_download_progress_update.connect("timeout", check_l1_download_progress)
+	
+	timer_l1_download_progress_update.start(DOWNLOAD_PROGRESS_UPDATE_DELAY)
+
+
+func check_l1_download_progress() -> void:
+	# Display the current download progress for all L1 software
+	
+	var bytesBody : int = 0
+	var bytesHave : int = 0
+	var percent : int = 0
+	
+	var downloads_complete : bool = true
+	
+	# GRPCURL download progress
+	bytesBody = $HTTPDownloadGRPCURL.get_body_size()
+	bytesHave = $HTTPDownloadGRPCURL.get_downloaded_bytes()
+	percent = int(bytesHave * 100 / bytesBody)
+	resource_grpcurl_download_progress.emit(percent)
+	
+	if percent != 100:
+		downloads_complete = false
+	
+	# Enforcer download progress
+	bytesBody = $HTTPDownloadEnforcer.get_body_size()
+	bytesHave = $HTTPDownloadEnforcer.get_downloaded_bytes()
+	percent = int(bytesHave * 100 / bytesBody)
+	resource_enforcer_download_progress.emit(percent)
+
+	if percent != 100:
+		downloads_complete = false
+
+	# Bitcoin download progress
+	bytesBody = $HTTPDownloadBitcoin.get_body_size()
+	bytesHave = $HTTPDownloadBitcoin.get_downloaded_bytes()
+	percent = int(bytesHave * 100 / bytesBody)
+	resource_bitcoin_download_progress.emit(percent)
+	
+	if percent != 100:
+		downloads_complete = false
+	
+	# BitWindow download progress
+	bytesBody = $HTTPDownloadBitWindow.get_body_size()
+	bytesHave = $HTTPDownloadBitWindow.get_downloaded_bytes()
+	percent = int(bytesHave * 100 / bytesBody)
+	resource_bitwindow_download_progress.emit(percent)
+	
+	if percent != 100:
+		downloads_complete = false
+	
+	# If everything is done, stop the timer
+	if downloads_complete:
+		timer_l1_download_progress_update.queue_free()
+	
+	# TODO If user deletes everything during download, main window will need
+	# to tell the resource downloader to stop & free the timer
+
 
 func have_grpcurl() -> bool:
 	if located_grpcurl:
@@ -160,6 +239,8 @@ func download_grpcurl() -> void:
 	if have_grpcurl():
 		return
 		
+	track_l1_download_progress()
+		
 	DirAccess.make_dir_absolute("user://downloads/")
 		
 	match OS.get_name():
@@ -177,7 +258,9 @@ func download_grpcurl() -> void:
 func download_enforcer() -> void:
 	if have_enforcer():
 		return
-		
+	
+	track_l1_download_progress()
+	
 	DirAccess.make_dir_absolute("user://downloads/")
 
 	match OS.get_name():
@@ -192,7 +275,9 @@ func download_enforcer() -> void:
 func download_bitcoin() -> void:
 	if have_bitcoin():
 		return
-
+		
+	track_l1_download_progress()
+	
 	DirAccess.make_dir_absolute("user://downloads/")
 
 	match OS.get_name():
@@ -208,6 +293,8 @@ func download_bitwindow() -> void:
 	if have_bitwindow():
 		return
 
+	track_l1_download_progress()
+	
 	DirAccess.make_dir_absolute("user://downloads/")
 
 	match OS.get_name():

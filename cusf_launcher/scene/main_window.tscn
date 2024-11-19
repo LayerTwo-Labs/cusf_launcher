@@ -188,11 +188,74 @@ text = "Layer 1 Software:"
 layout_mode = 2
 text = "L1 STATUS LABEL"
 
-[node name="L1ProgressBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
+[node name="LabelDownloadProgress" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
 visible = false
 layout_mode = 2
-indeterminate = true
-editor_preview_indeterminate = false
+text = "
+Download Progress:"
+
+[node name="HBoxContainerBitcoinDownload" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerBitcoinDownload"]
+layout_mode = 2
+text = "Bitcoin:"
+
+[node name="Spacer" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerBitcoinDownload"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+
+[node name="ProgressL1BTC" type="ProgressBar" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerBitcoinDownload"]
+custom_minimum_size = Vector2(333, 0)
+layout_mode = 2
+
+[node name="HBoxContainerBitWindowDownload" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerBitWindowDownload"]
+layout_mode = 2
+text = "BitWindow:"
+
+[node name="Spacer2" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerBitWindowDownload"]
+layout_mode = 2
+
+[node name="ProgressL1BitWindow" type="ProgressBar" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerBitWindowDownload"]
+custom_minimum_size = Vector2(333, 0)
+layout_mode = 2
+
+[node name="HBoxContainerEnforcerDownload" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerEnforcerDownload"]
+layout_mode = 2
+text = "Enforcer:"
+
+[node name="Spacer3" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerEnforcerDownload"]
+custom_minimum_size = Vector2(18, 0)
+layout_mode = 2
+
+[node name="ProgressL1Enforcer" type="ProgressBar" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerEnforcerDownload"]
+custom_minimum_size = Vector2(333, 0)
+layout_mode = 2
+
+[node name="HBoxContainerGRPCCurlDownload" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerGRPCCurlDownload"]
+layout_mode = 2
+text = "GRPCurl:"
+
+[node name="Spacer4" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerGRPCCurlDownload"]
+custom_minimum_size = Vector2(22, 0)
+layout_mode = 2
+
+[node name="ProgressL1GRPCurl" type="ProgressBar" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerGRPCCurlDownload"]
+custom_minimum_size = Vector2(333, 0)
+layout_mode = 2
 
 [node name="ButtonSetupL1" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
 layout_mode = 2
@@ -517,10 +580,15 @@ expand_mode = 3
 [node name="ConnectionLights" type="Control" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainerBottomStatus"]
 layout_mode = 2
 
+[connection signal="resource_bitcoin_download_progress" from="ResourceDownloader" to="." method="_on_resource_downloader_bitcoin_progress"]
 [connection signal="resource_bitcoin_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_bitcoin_ready"]
+[connection signal="resource_bitwindow_download_progress" from="ResourceDownloader" to="." method="_on_resource_downloader_bitwindow_progress"]
 [connection signal="resource_bitwindow_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_bitwindow_ready"]
+[connection signal="resource_enforcer_download_progress" from="ResourceDownloader" to="." method="_on_resource_downloader_enforcer_progress"]
 [connection signal="resource_enforcer_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_enforcer_ready"]
+[connection signal="resource_grpcurl_download_progress" from="ResourceDownloader" to="." method="_on_resource_downloader_grpcurl_progress"]
 [connection signal="resource_grpcurl_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_grpcurl_ready"]
+[connection signal="resource_thunder_download_progress" from="ResourceDownloader" to="." method="_on_resource_downloader_thunder_progress"]
 [connection signal="resource_thunder_ready" from="ResourceDownloader" to="." method="_on_resource_downloader_resource_thunder_ready"]
 [connection signal="configuration_complete" from="Configuration" to="." method="_on_configuration_complete"]
 [connection signal="btc_new_block_count" from="RPCClient" to="." method="_on_rpc_client_btc_new_block_count"]
