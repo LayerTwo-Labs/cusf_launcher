@@ -2,16 +2,18 @@ extends Control
 
 const RUN_STATUS_UPDATE_DELAY : int = 10
 
+# For now we track L1 resource status here, and L2 resource status 
+# individually per L2 using L2Status scene
 var resource_bitcoin_ready : bool = false
 var resource_bitwindow_ready : bool = false
 var resource_grpcurl_ready : bool = false
 var resource_enforcer_ready : bool = false
-var resource_thunder_ready : bool = false
 var configuration_complete : bool = false
 
 var pid_bitcoin : int = -1
 var pid_bitwindow : int = -1
 var pid_enforcer : int = -1
+# TODO maybe move this to L2Status
 var pid_thunder : int = -1
 
 var started_pid = []
@@ -26,6 +28,8 @@ func _ready() -> void:
 	timer_run_status_update.connect("timeout", check_running_status)
 	
 	timer_run_status_update.start(RUN_STATUS_UPDATE_DELAY)
+	
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.set_l2_info("Thunder", "LN Support Chain")
 	
 	call_deferred("check_resources")
 	call_deferred("display_resource_status")
@@ -80,27 +84,26 @@ func _on_downloader_resource_enforcer_ready() -> void:
 func _on_downloader_resource_grpcurl_ready() -> void:
 	resource_grpcurl_ready = true
 	display_resource_status()
-	
 
-func _on_resource_downloader_resource_thunder_ready() -> void:
-	resource_thunder_ready = true
-	display_resource_status()
 
-	
 func _on_configuration_complete() -> void:
 	configuration_complete = true
 	display_resource_status()
 
 
 func check_resources() -> void:
-	# Check for any existing L1 or L2 software that is already setup
+	# Check for any existing L1 software that is already setup
 	$ResourceDownloader.have_grpcurl()
 	$ResourceDownloader.have_enforcer()
 	$ResourceDownloader.have_bitcoin()
 	$ResourceDownloader.have_bitwindow()
-	$ResourceDownloader.have_thunder()
 	
+	# Do we have a bitcoin conf file?
 	$Configuration.have_bitcoin_configuration()
+	
+	# Check for any existing L2 software that is already setup
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.update_setup_status()
+
 
 func hide_l1_download_progress() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelDownloadProgress.visible = false
@@ -132,6 +135,8 @@ func display_resource_status() -> void:
 		hide_l1_download_progress()
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonSetupL1.visible = false
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = true
+		# Tell all L2's that L1 is setup
+		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.set_l1_ready()
 		
 	var l1_status_text : String = ""
 	
@@ -177,26 +182,8 @@ func display_resource_status() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1SetupStatus.text = l1_status_text
 
 	# L2 resource status
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.update_setup_status()
 
-	# Hide l1 setup buttons if everything L1 is ready
-	if resource_thunder_ready:
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ThunderProgressBar.visible = false
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonSetupThunder.visible = false
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonStartThunder.visible = true
-
-	var thunder_downloading : bool = $MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ThunderProgressBar.visible
-
-	# Hide thunder setup buttons and show launch button if ready
-	var l2_thunder_text : String = ""
-	if resource_thunder_ready:
-		l2_thunder_text = "Thunder: Ready!"
-	elif thunder_downloading:
-		l2_thunder_text = "Thunder: Downloading..."
-	else:
-		l2_thunder_text = "Thunder: Not Found"
-		
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderSetupStatus.text = l2_thunder_text
-	
 
 func _on_button_overview_toggled(toggled_on: bool) -> void:
 	if toggled_on:
@@ -249,7 +236,7 @@ func _on_button_setup_l1_pressed() -> void:
 	setup_l1()
 
 
-# Start bitcoin and wait, 
+# Start bitcoind and wait, 
 # then start enforcer and wait,
 # then start BitWindow
 func start_l1() -> void:
@@ -284,7 +271,6 @@ func start_l1() -> void:
 
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.visible = true
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.text = "Waiting for Bitcoin before starting Drivechain Enforcer..."
-	
 	
 	# Wait for bitcoin to start before starting enforcer
 	await get_tree().create_timer(5).timeout
@@ -335,58 +321,13 @@ func start_l1() -> void:
 		started_pid.push_back(ret)
 		pid_bitwindow = ret
 		print("started bitwindow with pid: ", ret)
+		
+	# Tell L2's that L1 is running
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.set_l1_running()
 
 
 func _on_button_start_l1_pressed() -> void:
 	start_l1()
-
-
-func _on_button_setup_thunder_pressed() -> void:
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonSetupThunder.visible = false
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ThunderProgressBar.visible = true
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderSetupStatus.visible = true
-	
-	$ResourceDownloader.download_thunder()
-	
-	display_resource_status()
-
-
-func _on_button_start_thunder_pressed() -> void:
-	# Don't start any L2 if we didn't setup L1
-	if !resource_bitcoin_ready || !resource_grpcurl_ready || !resource_enforcer_ready || !configuration_complete:
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/ConfirmationDialogL2SetupL1.show()
-		return
-
-	# Don't start any L2 if we didn't start L1
-	if pid_bitcoin == -1 || pid_enforcer == -1:
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/ConfirmationDialogL2StartL1.show()
-		return
-		
-	var downloads_dir : String = str(OS.get_user_data_dir(), "/downloads")
-
-	var thunder_bin_path : String = ""
-	match OS.get_name():
-		"Linux":
-			thunder_bin_path = str(downloads_dir, "/thunder-latest-x86_64-unknown-linux-gnu")
-		"Windows":
-			thunder_bin_path = str(downloads_dir, "/thunder-latest-x86_64-pc-windows-gnu.exe")
-		"macOS":
-			thunder_bin_path = str(downloads_dir, "/thunder-latest-x86_64-unknown-linux-gnu")
-	
-
-	var ret : int = OS.create_process(thunder_bin_path, [])
-	if ret == -1:
-		printerr("Failed to start thunder")
-		return
-	
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonStartThunder.visible = false
-	
-	started_pid.push_back(ret)
-	pid_thunder = ret
-	print("started thunder with pid: ", ret)
-	
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.visible = true
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.text = "Starting Thunder..."
 
 
 func _on_rpc_client_btc_new_block_count(height: int) -> void:
@@ -406,11 +347,15 @@ func _on_rpc_client_cusf_drivechain_rpc_failed() -> void:
 
 
 func _on_rpc_client_thunder_cli_failed() -> void:
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.text = "Failed to contact Thunder!"
+	# TODO move to l2status scene
+	#$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.text = "Failed to contact Thunder!"
+	printerr("Failed to connect to thunder")
 
 
 func _on_rpc_client_thunder_new_block_count(height: int) -> void:
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.text = "Thunder running!"
+	# TODO move to l2status scene
+	#$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.text = "Thunder running!"
+	pass
 
 
 # Settings page OS info
@@ -459,26 +404,25 @@ func _on_delete_everything_confirmation_dialog_confirmed() -> void:
 	# Trash thunder files
 	OS.move_to_trash($Configuration.get_thunder_datadir())
 	
+	# Reset L1 resource status
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonSetupL1.visible = true
-	
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonStartThunder.visible = false
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonSetupThunder.visible = true
-	
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.visible = false
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.visible = false
-	
+
+	# Reset L2 resource status
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.update_setup_status()
+
+	# Go back to overview page
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer/ButtonOverview.button_pressed = true
 	
 	resource_bitcoin_ready = false
 	resource_bitwindow_ready = false
 	resource_grpcurl_ready = false
 	resource_enforcer_ready = false
-	resource_thunder_ready = false
 	configuration_complete = false
 	
-	call_deferred("check_resources")
+	call_deferred("check_l1_resources")
 	call_deferred("display_resource_status")
 
 
@@ -509,5 +453,14 @@ func _on_resource_downloader_grpcurl_progress(percent: int) -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerGRPCCurlDownload/ProgressL1GRPCurl.value = percent
 
 
-func _on_resource_downloader_thunder_progress(percent: int) -> void:
-	pass # Replace with function body.
+func _on_l2_status_thunder_setup_l1_message_requested() -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/ConfirmationDialogL2SetupL1.show()
+
+
+func _on_l2_status_thunder_start_l1_message_requested() -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/ConfirmationDialogL2StartL1.show()
+
+
+func _on_l2_status_thunder_started(pid: int) -> void:
+	started_pid.push_back(pid)
+	pid_thunder = pid

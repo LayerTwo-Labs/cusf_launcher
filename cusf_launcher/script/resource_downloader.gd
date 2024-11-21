@@ -34,11 +34,11 @@ const DOWNLOAD_PROGRESS_UPDATE_DELAY : float = 0.1
 @onready var http_download_thunder: HTTPRequest = $HTTPDownloadThunder
 @onready var http_download_bit_window: HTTPRequest = $HTTPDownloadBitWindow
 
+# TODO remove these
 var located_grpcurl : bool = false
 var located_enforcer : bool = false
 var located_bitcoin : bool = false
 var located_bitwindow : bool = false
-var located_thunder : bool = false
 
 var timer_l1_download_progress_update = null
 # TODO this will be per L2 but for now just thunder
@@ -79,6 +79,8 @@ func check_l1_download_progress() -> void:
 	
 	var downloads_complete : bool = true
 	
+	# TODO ignore and don't show progress for L1s that are already downloaded
+	
 	# GRPCURL download progress
 	bytesBody = $HTTPDownloadGRPCURL.get_body_size()
 	bytesHave = $HTTPDownloadGRPCURL.get_downloaded_bytes()
@@ -118,6 +120,47 @@ func check_l1_download_progress() -> void:
 	# If everything is done, stop the timer
 	if downloads_complete:
 		timer_l1_download_progress_update.queue_free()
+	
+	# TODO If user deletes everything during download, main window will need
+	# to tell the resource downloader to stop & free the timer
+
+# Check on L2 software download progress periodically
+func track_l2_download_progress() -> void:
+	# Don't create a new timer if we already started tracking progress
+	if timer_l2_download_progress_update != null:
+		return
+		
+	# Create timer to check on donwload progress of L2 software
+	timer_l2_download_progress_update = Timer.new()
+	add_child(timer_l2_download_progress_update)
+	timer_l2_download_progress_update.connect("timeout", check_l2_download_progress)
+	
+	timer_l2_download_progress_update.start(DOWNLOAD_PROGRESS_UPDATE_DELAY)
+
+
+func check_l2_download_progress() -> void:
+	# Display the current download progress for all L2 software
+
+	var bytesBody : int = 0
+	var bytesHave : int = 0
+	var percent : int = 0
+	
+	var downloads_complete : bool = true
+	
+	# TODO ignore and don't show progress for L2s that are already downloaded
+
+	# Thunder download progress
+	bytesBody = $HTTPDownloadThunder.get_body_size()
+	bytesHave = $HTTPDownloadThunder.get_downloaded_bytes()
+	percent = int(bytesHave * 100 / bytesBody)
+	resource_thunder_download_progress.emit(percent)
+	
+	if percent != 100:
+		downloads_complete = false
+	
+	# If everything is done, stop the timer
+	if downloads_complete:
+		timer_l2_download_progress_update.queue_free()
 	
 	# TODO If user deletes everything during download, main window will need
 	# to tell the resource downloader to stop & free the timer
@@ -213,10 +256,7 @@ func have_bitwindow() -> bool:
 	return true
 
 
-func have_thunder() -> bool:
-	if located_thunder:
-		return true
-	
+func have_thunder() -> bool:	
 	match OS.get_name():
 		"Linux":
 			if !FileAccess.file_exists("user://downloads/thunder-latest-x86_64-unknown-linux-gnu"):
@@ -229,9 +269,6 @@ func have_thunder() -> bool:
 			if !FileAccess.file_exists("user://downloads/thunder-latest-x86_64-unknown-linux-gnu"):
 				return false
 
-	resource_thunder_ready.emit()
-	
-	located_thunder = true
 	return true
 	
 	
@@ -309,6 +346,8 @@ func download_bitwindow() -> void:
 func download_thunder() -> void:
 	if have_thunder():
 		return
+
+	track_l2_download_progress()
 
 	DirAccess.make_dir_absolute("user://downloads/")
 

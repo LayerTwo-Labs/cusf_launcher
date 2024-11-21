@@ -59,8 +59,8 @@ func get_enforcer_datadir() -> String:
 			return str("/home/", user, "/Library/Application Support/bip300301_enforcer/")
 	
 	return ""
-	
-	
+
+
 func get_bitwindow_datadir() -> String:
 	var user : String = get_username()
 	
@@ -75,8 +75,8 @@ func get_bitwindow_datadir() -> String:
 			return str("/home/", user, "/Library/Application Support/bitwindow/")
 	
 	return ""
-	
-	
+
+
 func get_bitwindowd_datadir() -> String:
 	var user : String = get_username()
 	
@@ -91,8 +91,8 @@ func get_bitwindowd_datadir() -> String:
 			return str("/home/", user, "/Library/Application Support/bitwindowd/")
 	
 	return ""
-	
-	
+
+
 func get_username() -> String:
 	var user : String = ""
 	if OS.has_environment("USERNAME"):

@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://c7xfr6losav1n"]
+[gd_scene load_steps=13 format=3 uid="uid://c7xfr6losav1n"]
 
 [ext_resource type="Script" path="res://script/main_window.gd" id="1_8sbni"]
 [ext_resource type="PackedScene" uid="uid://bdpd4vlv7wtfm" path="res://scene/resource_downloader.tscn" id="2_e34m6"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://5hlmtsqgims0" path="res://scene/rpc_client.tscn" id="4_0vrr0"]
 [ext_resource type="StyleBox" uid="uid://do3pgd68vga3c" path="res://theme/background_flat_style_box.tres" id="4_kdykr"]
 [ext_resource type="StyleBox" uid="uid://rfjpq81ynq33" path="res://theme/overview_flat_style_box.tres" id="5_i6pkh"]
+[ext_resource type="PackedScene" uid="uid://dh0sbeesm4c5m" path="res://scene/l2_status.tscn" id="7_er7gt"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_ltl0q"]
 
@@ -275,6 +276,7 @@ visible = false
 layout_mode = 2
 
 [node name="PanelContainerL2" type="PanelContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer"]
+custom_minimum_size = Vector2(450, 250)
 layout_mode = 2
 theme_override_styles/panel = ExtResource("5_i6pkh")
 
@@ -285,27 +287,7 @@ layout_mode = 2
 layout_mode = 2
 text = "Layer 2 Software:"
 
-[node name="LabelThunderSetupStatus" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer"]
-layout_mode = 2
-text = "L2 STATUS LABEL"
-
-[node name="ThunderProgressBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer"]
-visible = false
-layout_mode = 2
-indeterminate = true
-editor_preview_indeterminate = false
-
-[node name="ButtonStartThunder" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer"]
-visible = false
-layout_mode = 2
-text = "Start Thunder"
-
-[node name="ButtonSetupThunder" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer"]
-layout_mode = 2
-text = "Setup Thunder"
-
-[node name="LabelThunderRunStatus" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer"]
-visible = false
+[node name="L2StatusThunder" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer" instance=ExtResource("7_er7gt")]
 layout_mode = 2
 
 [node name="ConfirmationDialogL2StartL1" type="ConfirmationDialog" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2"]
@@ -588,8 +570,6 @@ layout_mode = 2
 [connection signal="resource_enforcer_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_enforcer_ready"]
 [connection signal="resource_grpcurl_download_progress" from="ResourceDownloader" to="." method="_on_resource_downloader_grpcurl_progress"]
 [connection signal="resource_grpcurl_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_grpcurl_ready"]
-[connection signal="resource_thunder_download_progress" from="ResourceDownloader" to="." method="_on_resource_downloader_thunder_progress"]
-[connection signal="resource_thunder_ready" from="ResourceDownloader" to="." method="_on_resource_downloader_resource_thunder_ready"]
 [connection signal="configuration_complete" from="Configuration" to="." method="_on_configuration_complete"]
 [connection signal="btc_new_block_count" from="RPCClient" to="." method="_on_rpc_client_btc_new_block_count"]
 [connection signal="btc_rpc_failed" from="RPCClient" to="." method="_on_rpc_client_btc_rpc_failed"]
@@ -605,8 +585,9 @@ layout_mode = 2
 [connection signal="toggled" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer/ButtonSettings" to="." method="_on_button_settings_toggled"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonSetupL1" to="." method="_on_button_setup_l1_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1" to="." method="_on_button_start_l1_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonStartThunder" to="." method="_on_button_start_thunder_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/ButtonSetupThunder" to="." method="_on_button_setup_thunder_pressed"]
+[connection signal="l2_setup_l1_message_requested" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder" to="." method="_on_l2_status_thunder_setup_l1_message_requested"]
+[connection signal="l2_start_l1_message_requested" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder" to="." method="_on_l2_status_thunder_start_l1_message_requested"]
+[connection signal="l2_started" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder" to="." method="_on_l2_status_thunder_started"]
 [connection signal="confirmed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/ConfirmationDialogL2StartL1" to="." method="_on_confirmation_dialog_l2_start_l1_confirmed"]
 [connection signal="confirmed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/ConfirmationDialogL2SetupL1" to="." method="_on_confirmation_dialog_l2_setup_l1_confirmed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/ButtonDeleteEverything" to="." method="_on_button_delete_everything_pressed"]

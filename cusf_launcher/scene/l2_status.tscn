@@ -1,0 +1,76 @@
+[gd_scene load_steps=3 format=3 uid="uid://dh0sbeesm4c5m"]
+
+[ext_resource type="Script" path="res://script/l2_status.gd" id="1_du2j0"]
+[ext_resource type="PackedScene" uid="uid://bdpd4vlv7wtfm" path="res://scene/resource_downloader.tscn" id="2_e0iuv"]
+
+[node name="L2Status" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_du2j0")
+
+[node name="ResourceDownloader" parent="." instance=ExtResource("2_e0iuv")]
+layout_mode = 1
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_right = 304.0
+offset_bottom = 143.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="LabelTitle" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "LAYERTWO"
+
+[node name="LabelDescription" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Description of LAYERTWO"
+
+[node name="LabelSetupStatus" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Status of LAYERTWO"
+
+[node name="DownloadProgress" type="ProgressBar" parent="PanelContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+indeterminate = true
+editor_preview_indeterminate = false
+
+[node name="ButtonStartL2" type="Button" parent="PanelContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+text = "Start LAYERTWO"
+
+[node name="ButtonSetupL2" type="Button" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Setup LAYERTWO"
+
+[node name="LabelRunStatus" type="Label" parent="PanelContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="HBoxContainerDownloadStatus" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="LabelDownloadTitle" type="Label" parent="PanelContainer/VBoxContainer/HBoxContainerDownloadStatus"]
+layout_mode = 2
+text = "LAYERTWO:"
+
+[node name="Spacer" type="Control" parent="PanelContainer/VBoxContainer/HBoxContainerDownloadStatus"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+
+[node name="ProgressL2" type="ProgressBar" parent="PanelContainer/VBoxContainer/HBoxContainerDownloadStatus"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[connection signal="resource_thunder_download_progress" from="ResourceDownloader" to="." method="_on_resource_downloader_resource_thunder_download_progress"]
+[connection signal="resource_thunder_ready" from="ResourceDownloader" to="." method="_on_resource_downloader_resource_thunder_ready"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/ButtonStartL2" to="." method="_on_button_start_pressed"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/ButtonSetupL2" to="." method="_on_button_setup_pressed"]
