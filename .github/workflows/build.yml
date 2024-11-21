@@ -101,7 +101,7 @@ jobs:
 
       - name: Create zip files for releases.drivechain.info
         run: |
-          mv cusf_launcher_linux drivechain-launcher-latest-x86_64-unknown-linux-gnu.zip
+          mv cusf_launcher_linux drivechain-launcher-latest-x86_64-unknown-linux-gnu
           zip -r drivechain-launcher-latest-x86_64-unknown-linux-gnu.zip drivechain-launcher-latest-x86_64-unknown-linux-gnu.zip/*
 
           mv cusf_launcher_macos drivechain-launcher-latest-x86_64-apple-darwin
