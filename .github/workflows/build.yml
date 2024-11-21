@@ -118,4 +118,4 @@ jobs:
           pass: ${{ secrets.RELEASES_SERVER_PW }}
           port: 22
           scp: |
-            'cusf-launcher-latest-*.zip' => '/var/www/html/'
+            'drivechain-launcher-latest-*.zip' => '/var/www/html/'
