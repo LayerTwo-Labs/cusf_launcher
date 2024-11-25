@@ -307,7 +307,7 @@ func start_l1() -> void:
 		"Linux":
 			bitwindow_bin_path = str(downloads_dir, "/bitwindow/bitwindow")
 		"Windows":
-			bitwindow_bin_path = str(downloads_dir, "/bitwindow/bitwindow.exe")
+			bitwindow_bin_path = str(downloads_dir, "/bitwindow.exe")
 		"macOS":
 			# TODO
 			bitwindow_bin_path = str(downloads_dir, "/bitwindow/bitwindow")

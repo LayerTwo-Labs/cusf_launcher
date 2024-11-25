@@ -244,7 +244,7 @@ func have_bitwindow() -> bool:
 			if !FileAccess.file_exists("user://downloads/bitwindow/bitwindow"):
 				return false
 		"Windows":
-			if !FileAccess.file_exists("user://downloads/bitwindow/bitwindow.exe"):
+			if !FileAccess.file_exists("user://downloads/bitwindow.exe"):
 				return false
 		"macOS":
 			# TODO correct path
