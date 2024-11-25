@@ -140,6 +140,7 @@ text = "Overview"
 
 [node name="ButtonWallets" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer"]
 layout_mode = 2
+disabled = true
 toggle_mode = true
 button_group = SubResource("ButtonGroup_ltl0q")
 text = "Wallets"
@@ -487,6 +488,7 @@ size = Vector2i(640, 480)
 ok_button_text = "Delete Everything"
 
 [node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
+visible = false
 custom_minimum_size = Vector2(1140, 0)
 layout_mode = 2
 size_flags_horizontal = 3
