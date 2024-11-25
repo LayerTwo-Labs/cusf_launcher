@@ -58,9 +58,6 @@ func check_running_status() -> void:
 	if pid_enforcer != -1:
 		$RPCClient.grpc_enforcer_gettip()
 	
-	if pid_thunder != -1:
-		$RPCClient.cli_thunder_getblockcount()
-		
 	if pid_bitwindow != -1:
 		pass
 		# TODO check on bitwindow somehow
@@ -272,10 +269,12 @@ func start_l1() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.visible = true
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.text = "Waiting for Bitcoin before starting Drivechain Enforcer..."
 	
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBitWindow.visible = true
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBitWindow.text = "Waiting for Bitcoin and Enforcer before starting BitWindow..."
+
 	# Wait for bitcoin to start before starting enforcer
 	await get_tree().create_timer(5).timeout
 	
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.visible = true
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.text = "Starting Drivechain Enforcer..."
 
 	var enforcer_bin_path : String = ""
@@ -298,9 +297,10 @@ func start_l1() -> void:
 		pid_enforcer = ret
 		print("started enforcer with pid: ", ret)
 	
-	
 	# Wait for enforcer to start before starting BitWindow
 	await get_tree().create_timer(5).timeout
+
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBitWindow.text = "Starting BitWindow..."
 
 	var bitwindow_bin_path : String = ""
 	match OS.get_name():
@@ -322,6 +322,8 @@ func start_l1() -> void:
 		pid_bitwindow = ret
 		print("started bitwindow with pid: ", ret)
 		
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBitWindow.text = "BitWindow Started"
+
 	# Tell L2's that L1 is running
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.set_l1_running()
 
@@ -350,12 +352,6 @@ func _on_rpc_client_thunder_cli_failed() -> void:
 	# TODO move to l2status scene
 	#$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.text = "Failed to contact Thunder!"
 	printerr("Failed to connect to thunder")
-
-
-func _on_rpc_client_thunder_new_block_count(height: int) -> void:
-	# TODO move to l2status scene
-	#$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/LabelThunderRunStatus.text = "Thunder running!"
-	pass
 
 
 # Settings page OS info
@@ -409,9 +405,10 @@ func _on_delete_everything_confirmation_dialog_confirmed() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonSetupL1.visible = true
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.visible = false
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBitWindow.visible = false
 
 	# Reset L2 resource status
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.update_setup_status()
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.handle_reset()
 
 	# Go back to overview page
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer/ButtonOverview.button_pressed = true
@@ -422,7 +419,7 @@ func _on_delete_everything_confirmation_dialog_confirmed() -> void:
 	resource_enforcer_ready = false
 	configuration_complete = false
 	
-	call_deferred("check_l1_resources")
+	call_deferred("check_resources")
 	call_deferred("display_resource_status")
 
 

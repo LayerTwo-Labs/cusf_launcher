@@ -1,5 +1,8 @@
 extends Control
 
+const RUN_STATUS_UPDATE_DELAY : int = 10
+
+
 var l2_title : String = "LAYERTWOTITLE"
 var l2_description : String = "LAYERTWODESC"
 
@@ -9,6 +12,8 @@ var l1_software_running: bool = false
 signal l2_started(pid : int)
 signal l2_start_l1_message_requested()
 signal l2_setup_l1_message_requested()
+
+var timer_run_status_update = null
 
 
 # TODO if user resets everything while L2 is downloading, the download
@@ -28,6 +33,7 @@ func set_l2_info(title : String, description : String) -> void:
 
 func update_setup_status() -> void:
 	var l2_ready : bool = $ResourceDownloader.have_thunder()
+	var l2_downloading : bool = $PanelContainer/VBoxContainer/DownloadProgress.visible
 	
 	# Hide setup buttons if everything is ready
 	if l2_ready:
@@ -35,10 +41,9 @@ func update_setup_status() -> void:
 		$PanelContainer/VBoxContainer/ButtonSetupL2.visible = false
 		$PanelContainer/VBoxContainer/ButtonStartL2.visible = true
 	else:
-		$PanelContainer/VBoxContainer/ButtonSetupL2.visible = true
+		if !l2_downloading:
+			$PanelContainer/VBoxContainer/ButtonSetupL2.visible = true
 		$PanelContainer/VBoxContainer/ButtonStartL2.visible = false
-		
-	var l2_downloading : bool = $PanelContainer/VBoxContainer/DownloadProgress.visible
 
 	# Show status text
 	var l2_status_text : String = ""
@@ -98,6 +103,20 @@ func _on_button_start_pressed() -> void:
 	
 	$PanelContainer/VBoxContainer/LabelRunStatus.visible = true
 	$PanelContainer/VBoxContainer/LabelRunStatus.text = str("Starting ", l2_title, "...")
+	
+	if timer_run_status_update != null:
+		timer_run_status_update.queue_free()
+	
+	# Create timer to check on running state of L1 and L2 software
+	timer_run_status_update = Timer.new()
+	add_child(timer_run_status_update)
+	timer_run_status_update.connect("timeout", check_running_status)
+	
+	timer_run_status_update.start(RUN_STATUS_UPDATE_DELAY)
+
+
+func check_running_status() -> void:
+	$RPCClient.cli_thunder_getblockcount()
 
 
 # TODO _on_resource_downloader_resource_thunder_download_progress
@@ -118,3 +137,19 @@ func set_l1_ready() -> void:
 
 func set_l1_running() -> void:
 	l1_software_running = true
+
+
+func handle_reset() -> void:
+	l1_software_running = false
+	l1_software_ready = false
+	$PanelContainer/VBoxContainer/LabelRunStatus.visible = false
+	update_setup_status()
+	
+
+# TODO make new block count and rpc failed general instead of thunder specific
+func _on_rpc_client_thunder_new_block_count(height: int) -> void:
+	$PanelContainer/VBoxContainer/LabelRunStatus.text = str("Blocks: ", height)
+
+
+func _on_rpc_client_thunder_cli_failed() -> void:
+	$PanelContainer/VBoxContainer/LabelRunStatus.text = str("Error: Thunder not responding!")

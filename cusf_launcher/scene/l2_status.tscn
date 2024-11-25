@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://dh0sbeesm4c5m"]
+[gd_scene load_steps=4 format=3 uid="uid://dh0sbeesm4c5m"]
 
 [ext_resource type="Script" path="res://script/l2_status.gd" id="1_du2j0"]
 [ext_resource type="PackedScene" uid="uid://bdpd4vlv7wtfm" path="res://scene/resource_downloader.tscn" id="2_e0iuv"]
+[ext_resource type="PackedScene" uid="uid://5hlmtsqgims0" path="res://scene/rpc_client.tscn" id="3_sp0f7"]
 
 [node name="L2Status" type="Control"]
 layout_mode = 3
@@ -13,6 +14,9 @@ grow_vertical = 2
 script = ExtResource("1_du2j0")
 
 [node name="ResourceDownloader" parent="." instance=ExtResource("2_e0iuv")]
+layout_mode = 1
+
+[node name="RPCClient" parent="." instance=ExtResource("3_sp0f7")]
 layout_mode = 1
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
@@ -72,5 +76,7 @@ size_flags_horizontal = 3
 
 [connection signal="resource_thunder_download_progress" from="ResourceDownloader" to="." method="_on_resource_downloader_resource_thunder_download_progress"]
 [connection signal="resource_thunder_ready" from="ResourceDownloader" to="." method="_on_resource_downloader_resource_thunder_ready"]
+[connection signal="thunder_cli_failed" from="RPCClient" to="." method="_on_rpc_client_thunder_cli_failed"]
+[connection signal="thunder_new_block_count" from="RPCClient" to="." method="_on_rpc_client_thunder_new_block_count"]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/ButtonStartL2" to="." method="_on_button_start_pressed"]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/ButtonSetupL2" to="." method="_on_button_setup_pressed"]

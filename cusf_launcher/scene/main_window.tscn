@@ -275,6 +275,10 @@ layout_mode = 2
 visible = false
 layout_mode = 2
 
+[node name="LabelL1RunStatusBitWindow" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
+visible = false
+layout_mode = 2
+
 [node name="PanelContainerL2" type="PanelContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer"]
 custom_minimum_size = Vector2(450, 250)
 layout_mode = 2
