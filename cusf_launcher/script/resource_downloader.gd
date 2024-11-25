@@ -440,7 +440,7 @@ func extract_bitwindow() -> void:
 		"Linux":
 			ret = OS.execute("unzip", ["-o", "-d", str(downloads_dir, "/bitwindow"), str(downloads_dir, "/bitwindow.zip")])
 		"Windows":
-			ret = OS.execute("tar", ["-C", str(downloads_dir, "/bitwindow"), "-xf", str(downloads_dir, "/bitwindow.zip")])
+			ret = OS.execute("tar", ["-C", downloads_dir, "-xf", str(downloads_dir, "/bitwindow.zip")])
 		"macOS":
 			ret = OS.execute("unzip", ["-o", "-d", str(downloads_dir, "/bitwindow"), str(downloads_dir, "/bitwindow.zip")])
 
