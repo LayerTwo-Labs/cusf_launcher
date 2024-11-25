@@ -250,12 +250,12 @@ func start_l1() -> void:
 	var btc_bin_path : String = ""
 	match OS.get_name():
 		"Linux":
-			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt")
+			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/bitcoind")
 		"Windows":
-			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-w64-mingw32/qt/bitcoin-qt.exe")
+			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-w64-msvc/Release/bitcoind.exe")
 		"macOS":
 			# TODO
-			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt")
+			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/bitcoind")
 
 	# Start bitcoin
 	var ret : int = OS.create_process(btc_bin_path, [])

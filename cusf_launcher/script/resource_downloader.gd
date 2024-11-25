@@ -124,6 +124,7 @@ func check_l1_download_progress() -> void:
 	# TODO If user deletes everything during download, main window will need
 	# to tell the resource downloader to stop & free the timer
 
+
 # Check on L2 software download progress periodically
 func track_l2_download_progress() -> void:
 	# Don't create a new timer if we already started tracking progress
@@ -218,14 +219,14 @@ func have_bitcoin() -> bool:
 	
 	match OS.get_name():
 		"Linux":
-			if !FileAccess.file_exists("user://downloads/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"):
+			if !FileAccess.file_exists("user://downloads/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/bitcoind"):
 				return false
 		"Windows":
-			if !FileAccess.file_exists("user://downloads/L1-bitcoin-patched-latest-x86_64-w64-mingw32/qt/bitcoin-qt.exe"):
+			if !FileAccess.file_exists("user://downloads/L1-bitcoin-patched-latest-x86_64-w64-msvc/Release/bitcoind.exe"):
 				return false
 		"macOS":
 			# TODO correct path
-			if !FileAccess.file_exists("user://downloads/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt"):
+			if !FileAccess.file_exists("user://downloads/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/bitcoind"):
 				return false
 
 	resource_bitcoin_ready.emit()
@@ -423,7 +424,7 @@ func extract_bitcoin() -> void:
 		
 	# Make executable for linux # TODO osx?
 	if OS.get_name() == "Linux":
-		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/qt/bitcoin-qt")])
+		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/bitcoind")])
 		if ret != OK:
 			printerr("Failed to mark bitcoin executable")
 			return
