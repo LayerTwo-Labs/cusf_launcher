@@ -84,8 +84,10 @@ func get_bitwindowd_datadir() -> String:
 		"Linux":
 			return str("/home/", user, "/.local/share/bitwindowd/")
 		"Windows":
-			# TODO
-			return str("C:\\Users\\", user, "\\AppData\\Roaming\\bitwindowd")
+			# TODO https://github.com/LayerTwo-Labs/drivechain-frontends/commit/555bf2150dda05484ddbdcb6d990bae35f94c534#diff-d8bdb3901387e22af53ddc1e25f7ef6ac23d9d71dec26ffbaee38fe4fa47fcdeR11
+			# The commit setting this path says "add correct path on windows, i think"
+			# So I am not very confident that this is correct...
+			return str("C:\\Users\\", user, "\\AppData\\Roaming\\com.layertwolabs.bitwindow")
 		"macOS":
 			# TODO
 			return str("/home/", user, "/Library/Application Support/bitwindowd/")
