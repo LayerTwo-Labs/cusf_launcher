@@ -78,7 +78,7 @@ func make_grpc_request(request : String) -> void:
 			
 	var ret : int = OS.execute(bin_path,
 		["-plaintext",
-	 	"localhost:50051",
+	 	"0.0.0.0:50051",
 	 	request],
 	 	output,
 	 	true)
