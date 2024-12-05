@@ -22,6 +22,8 @@ var timer_run_status_update = null
 
 
 func _ready() -> void:
+	get_tree().set_auto_accept_quit(false)
+	
 	# Create timer to check on running state of L1 and L2 software
 	timer_run_status_update = Timer.new()
 	add_child(timer_run_status_update)
@@ -40,7 +42,31 @@ func _exit_tree() -> void:
 	kill_started_pid()
 
 
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		shutdown_everything()
+
+
+func _on_button_force_shutdown_pressed() -> void:
+	get_tree().quit()
+
+
+func shutdown_everything() -> void:
+	$ShutdownStatus.visible = true
+
+	kill_started_pid()
+	await get_tree().create_timer(10).timeout
+	get_tree().quit()
+
+
 func kill_started_pid() -> void:
+	# Send bitcoind a stop request and wait
+	$RPCClient.rpc_bitcoin_stop()
+	
+	# TODO since this can take a random amount of time, wait for a completion
+	# signal instead of 5 seconds
+	await get_tree().create_timer(5).timeout
+	
 	for pid in started_pid:
 		print("Killing pid ", pid)
 		OS.kill(pid)
