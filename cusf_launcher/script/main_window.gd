@@ -333,7 +333,7 @@ func _on_button_start_l1_pressed() -> void:
 
 
 func _on_rpc_client_btc_new_block_count(height: int) -> void:
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = "BTC Running!"
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = str("BTC Running! Blocks: ", height)
 
 
 func _on_rpc_client_btc_rpc_failed() -> void:
