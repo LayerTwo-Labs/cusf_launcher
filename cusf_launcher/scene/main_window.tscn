@@ -147,6 +147,7 @@ text = "Wallets"
 
 [node name="ButtonTools" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer"]
 layout_mode = 2
+disabled = true
 toggle_mode = true
 button_group = SubResource("ButtonGroup_ltl0q")
 text = "Tools
@@ -583,6 +584,7 @@ offset_bottom = 544.0
 theme_override_styles/panel = ExtResource("5_i6pkh")
 
 [node name="LabelShutdown" type="Label" parent="ShutdownStatus/Panel"]
+layout_mode = 0
 offset_left = 49.0
 offset_top = 71.0
 offset_right = 967.0
