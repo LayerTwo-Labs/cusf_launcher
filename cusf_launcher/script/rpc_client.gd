@@ -5,7 +5,7 @@ const DEFAULT_WALLET_RPC_PORT : int = 38332
 const DEFAULT_CUSF_CAT_RPC_PORT : int = -1 # TODO currently unknown
 const DEFAULT_CUSF_DRIVECHAIN_RPC_PORT : int = 50051 
 
-const DEBUG_REQUESTS : bool = true
+const DEBUG_REQUESTS : bool = false
 
 const GRPC_CUSF_DRIVECHAIN_GET_TIP : String = "cusf.mainchain.v1.ValidatorService.GetChainTip"
 
@@ -45,12 +45,12 @@ func cli_thunder_getblockcount() -> void:
 	var bin_path : String = ""
 	match OS.get_name():
 		"Linux":
-			bin_path = str(user_dir, "/downloads/thunder-cli-latest-x86_64-unknown-linux-gnu")
+			bin_path = str(user_dir, "/downloads/l2/thunder-cli-latest-x86_64-unknown-linux-gnu")
 		"Windows":
-			bin_path = str(user_dir, "/downloads/thunder-cli-latest-x86_64-pc-windows-gnu.exe")
+			bin_path = str(user_dir, "/downloads/l2/thunder-cli-latest-x86_64-pc-windows-gnu.exe")
 		"macOS":
 			# TODO
-			bin_path = str(user_dir, "/downloads/thunder-cli-latest-x86_64-unknown-linux-gnu")
+			bin_path = str(user_dir, "/downloads/l2/thunder-cli-latest-x86_64-unknown-linux-gnu")
 	
 	var ret : int = OS.execute(bin_path,
 		["get-blockcount"],
@@ -74,12 +74,12 @@ func make_grpc_request(request : String) -> void:
 	var bin_path : String = ""
 	match OS.get_name():
 		"Linux":
-			bin_path = str(user_dir, "/downloads/grpcurl")
+			bin_path = str(user_dir, "/downloads/l1/grpcurl")
 		"Windows":
-			bin_path = str(user_dir, "/downloads/grpcurl.exe")
+			bin_path = str(user_dir, "/downloads/l1/grpcurl.exe")
 		"macOS":
 			# TODO
-			bin_path = str(user_dir, "/downloads/grpcurl")
+			bin_path = str(user_dir, "/downloads/l1/grpcurl")
 			
 	var ret : int = OS.execute(bin_path,
 		["-plaintext",
@@ -148,7 +148,7 @@ func parse_rpc_result(response_code, body) -> Dictionary:
 			res = json.get_data() as Dictionary
 	
 	return res
-	
+
 
 func _on_http_rpc_btc_get_block_count_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	var res = parse_rpc_result(response_code, body)

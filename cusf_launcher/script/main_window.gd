@@ -16,8 +16,6 @@ var pid_enforcer : int = -1
 # TODO maybe move this to L2Status
 var pid_thunder : int = -1
 
-var started_pid = []
-
 var timer_run_status_update = null
 
 
@@ -28,8 +26,6 @@ func _ready() -> void:
 	timer_run_status_update = Timer.new()
 	add_child(timer_run_status_update)
 	timer_run_status_update.connect("timeout", check_running_status)
-	
-	timer_run_status_update.start(RUN_STATUS_UPDATE_DELAY)
 	
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.set_l2_info("Thunder", "LN Support Chain")
 	
@@ -59,7 +55,9 @@ func shutdown_everything() -> void:
 	get_tree().quit()
 
 
-func kill_started_pid() -> void:
+func kill_l1_pid() -> void:
+	timer_run_status_update.stop()
+	
 	# Send bitcoind a stop request and wait
 	$RPCClient.rpc_bitcoin_stop()
 	
@@ -67,14 +65,35 @@ func kill_started_pid() -> void:
 	# signal instead of 5 seconds
 	await get_tree().create_timer(5).timeout
 	
-	for pid in started_pid:
-		print("Killing pid ", pid)
-		OS.kill(pid)
+	if pid_bitcoin != -1:
+		print("Killing bitcoin pid ", pid_bitcoin)
+		OS.kill(pid_bitcoin)
+		
+	if pid_bitwindow != -1:
+		print("Killing bitwindow pid ", pid_bitwindow)
+		OS.kill(pid_bitwindow)
+	
+	if pid_enforcer != -1:
+		print("Killing enforcer pid ", pid_enforcer)
+		OS.kill(pid_enforcer)
 		
 	pid_bitcoin = -1
 	pid_bitwindow = -1
 	pid_enforcer = -1
+
+
+# TODO move to l2 status scene
+func kill_l2_pid() -> void:
+	if pid_thunder != -1:
+		print("Killing thunder pid ", pid_thunder)
+		OS.kill(pid_thunder)
+
 	pid_thunder = -1
+
+
+func kill_started_pid() -> void:
+	kill_l1_pid()
+	kill_l2_pid()
 
 
 func check_running_status() -> void:
@@ -160,7 +179,9 @@ func display_resource_status() -> void:
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = true
 		# Tell all L2's that L1 is setup
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.set_l1_ready()
-		
+		# Enable L1 remove button
+		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/ButtonRemoveL1.disabled = false
+
 	var l1_status_text : String = ""
 	
 	var l1_downloading : bool = $MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelDownloadProgress.visible
@@ -263,7 +284,9 @@ func _on_button_setup_l1_pressed() -> void:
 # then start enforcer and wait,
 # then start BitWindow
 func start_l1() -> void:
-	var downloads_dir : String = str(OS.get_user_data_dir(), "/downloads")
+	timer_run_status_update.start(RUN_STATUS_UPDATE_DELAY)
+	
+	var downloads_dir : String = str(OS.get_user_data_dir(), "/downloads/l1")
 
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = false
 
@@ -286,7 +309,6 @@ func start_l1() -> void:
 		printerr("Failed to start bitcoin")
 		return
 	else:
-		started_pid.push_back(ret)
 		pid_bitcoin = ret
 		print("started bitcoin with pid: ", ret)
 	
@@ -319,7 +341,6 @@ func start_l1() -> void:
 		printerr("Failed to start enforcer")
 		return
 	else:
-		started_pid.push_back(ret)
 		pid_enforcer = ret
 		print("started enforcer with pid: ", ret)
 	
@@ -344,7 +365,6 @@ func start_l1() -> void:
 		printerr("Failed to start bitwindow")
 		return
 	else:
-		started_pid.push_back(ret)
 		pid_bitwindow = ret
 		print("started bitwindow with pid: ", ret)
 		
@@ -352,6 +372,9 @@ func start_l1() -> void:
 
 	# Tell L2's that L1 is running
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.set_l1_running()
+
+	# Enable L1 restart button
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/ButtonRestartL1.disabled = false
 
 
 func _on_button_start_l1_pressed() -> void:
@@ -403,10 +426,21 @@ func _on_button_delete_everything_pressed() -> void:
 	
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteEverythingConfirmationDialog.dialog_text = delete_text 
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteEverythingConfirmationDialog.show()
+	
+	# Go back to overview page
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer/ButtonOverview.button_pressed = true
 
 
 func _on_delete_everything_confirmation_dialog_confirmed() -> void:
-	kill_started_pid()
+	remove_l1()
+	remove_l2_thunder()
+
+
+func remove_l1() -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/ButtonRemoveL1.disabled = true
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/ButtonRestartL1.disabled = true
+	
+	kill_l1_pid()
 	
 	# Trash L1 data dir 
 	OS.move_to_trash($Configuration.get_bitcoin_datadir())
@@ -420,11 +454,8 @@ func _on_delete_everything_confirmation_dialog_confirmed() -> void:
 	# Trash bitwindowd data dir
 	OS.move_to_trash($Configuration.get_bitwindowd_datadir())
 	
-	# Trash cusf_launcher files
-	OS.move_to_trash(str(OS.get_user_data_dir(), "/downloads"))
-	
-	# Trash thunder files
-	OS.move_to_trash($Configuration.get_thunder_datadir())
+	# Trash cusf_launcher l1 downloads
+	OS.move_to_trash(str(OS.get_user_data_dir(), "/downloads/l1/"))
 	
 	# Reset L1 resource status
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = false
@@ -433,12 +464,6 @@ func _on_delete_everything_confirmation_dialog_confirmed() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBitWindow.visible = false
 
-	# Reset L2 resource status
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.handle_reset()
-
-	# Go back to overview page
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer/ButtonOverview.button_pressed = true
-	
 	resource_bitcoin_ready = false
 	resource_bitwindow_ready = false
 	resource_grpcurl_ready = false
@@ -447,6 +472,21 @@ func _on_delete_everything_confirmation_dialog_confirmed() -> void:
 	
 	call_deferred("check_resources")
 	call_deferred("display_resource_status")
+
+
+func remove_l2_thunder() -> void:
+	kill_l2_pid()
+	
+	# Trash thunder files
+	OS.move_to_trash($Configuration.get_thunder_datadir())
+	
+	# Trash L2 download files 
+	# TODO whenever there is more than 1 sidechain this will need to be 
+	# updated to delete only the requested chain
+	OS.move_to_trash(str(OS.get_user_data_dir(), "/downloads/l2/"))
+
+	# Reset thunder L2 resource status
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.handle_reset()
 
 
 func _on_confirmation_dialog_l2_start_l1_confirmed() -> void:
@@ -485,5 +525,25 @@ func _on_l2_status_thunder_start_l1_message_requested() -> void:
 
 
 func _on_l2_status_thunder_started(pid: int) -> void:
-	started_pid.push_back(pid)
 	pid_thunder = pid
+
+
+func _on_button_restart_l1_pressed() -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/ButtonRestartL1.disabled = true
+	$RestartStatus.visible = true
+	kill_l1_pid()
+	await get_tree().create_timer(5.0).timeout
+	$RestartStatus.visible = false
+	start_l1()
+
+
+func _on_button_remove_l1_pressed() -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/ConfirmationDialogRemoveL1.show()
+
+
+func _on_confirmation_dialog_remove_l1_confirmed() -> void:
+	remove_l1()
+
+
+func _on_l2_status_thunder_requested_removal() -> void:
+	remove_l2_thunder()

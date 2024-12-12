@@ -58,6 +58,19 @@ text = "Setup LAYERTWO"
 visible = false
 layout_mode = 2
 
+[node name="HBoxContainerL2Options" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ButtonRestart" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainerL2Options"]
+layout_mode = 2
+disabled = true
+text = "Restart Thunder"
+
+[node name="ButtonRemove" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainerL2Options"]
+layout_mode = 2
+disabled = true
+text = "Remove Thunder"
+
 [node name="HBoxContainerDownloadStatus" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
 visible = false
 layout_mode = 2
@@ -74,9 +87,17 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="ConfirmationDialogRemoveL2" type="ConfirmationDialog" parent="PanelContainer"]
+initial_position = 2
+ok_button_text = "Remove"
+dialog_text = "Remove L2 software?"
+
 [connection signal="resource_thunder_download_progress" from="ResourceDownloader" to="." method="_on_resource_downloader_resource_thunder_download_progress"]
 [connection signal="resource_thunder_ready" from="ResourceDownloader" to="." method="_on_resource_downloader_resource_thunder_ready"]
 [connection signal="thunder_cli_failed" from="RPCClient" to="." method="_on_rpc_client_thunder_cli_failed"]
 [connection signal="thunder_new_block_count" from="RPCClient" to="." method="_on_rpc_client_thunder_new_block_count"]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/ButtonStartL2" to="." method="_on_button_start_pressed"]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/ButtonSetupL2" to="." method="_on_button_setup_pressed"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/HBoxContainerL2Options/ButtonRestart" to="." method="_on_button_restart_pressed"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/HBoxContainerL2Options/ButtonRemove" to="." method="_on_button_remove_pressed"]
+[connection signal="confirmed" from="PanelContainer/ConfirmationDialogRemoveL2" to="." method="_on_confirmation_dialog_remove_l2_confirmed"]

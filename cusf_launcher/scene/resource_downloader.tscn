@@ -12,23 +12,23 @@ grow_vertical = 2
 script = ExtResource("1_6gijx")
 
 [node name="HTTPDownloadGRPCURL" type="HTTPRequest" parent="."]
-download_file = "user://downloads/grpcurl.tar.gz"
+download_file = "user://downloads/l1/grpcurl.tar.gz"
 download_chunk_size = 512000
 
 [node name="HTTPDownloadEnforcer" type="HTTPRequest" parent="."]
-download_file = "user://downloads/300301enforcer.zip"
+download_file = "user://downloads/l1/300301enforcer.zip"
 download_chunk_size = 512000
 
 [node name="HTTPDownloadBitcoin" type="HTTPRequest" parent="."]
-download_file = "user://downloads/bitcoinpatched.zip"
+download_file = "user://downloads/l1/bitcoinpatched.zip"
 download_chunk_size = 512000
 
 [node name="HTTPDownloadBitWindow" type="HTTPRequest" parent="."]
-download_file = "user://downloads/bitwindow.zip"
+download_file = "user://downloads/l1/bitwindow.zip"
 download_chunk_size = 512000
 
 [node name="HTTPDownloadThunder" type="HTTPRequest" parent="."]
-download_file = "user://downloads/thunder.zip"
+download_file = "user://downloads/l2/thunder.zip"
 download_chunk_size = 512000
 
 [connection signal="request_completed" from="HTTPDownloadGRPCURL" to="." method="_on_http_download_grpcurl_request_completed"]

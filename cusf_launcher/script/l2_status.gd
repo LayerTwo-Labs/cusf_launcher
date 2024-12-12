@@ -2,7 +2,6 @@ extends Control
 
 const RUN_STATUS_UPDATE_DELAY : int = 10
 
-
 var l2_title : String = "LAYERTWOTITLE"
 var l2_description : String = "LAYERTWODESC"
 
@@ -12,6 +11,9 @@ var l1_software_running: bool = false
 signal l2_started(pid : int)
 signal l2_start_l1_message_requested()
 signal l2_setup_l1_message_requested()
+signal l2_requested_removal()
+
+var l2_pid : int = -1
 
 var timer_run_status_update = null
 
@@ -34,6 +36,9 @@ func set_l2_info(title : String, description : String) -> void:
 func update_setup_status() -> void:
 	var l2_ready : bool = $ResourceDownloader.have_thunder()
 	var l2_downloading : bool = $PanelContainer/VBoxContainer/DownloadProgress.visible
+	
+	if l2_ready:
+		$PanelContainer/VBoxContainer/HBoxContainerL2Options/ButtonRemove.disabled = false
 	
 	# Hide setup buttons if everything is ready
 	if l2_ready:
@@ -66,7 +71,7 @@ func _on_button_setup_pressed() -> void:
 	$ResourceDownloader.download_thunder()
 
 
-func _on_button_start_pressed() -> void:
+func start_l2() -> void:
 	# Don't start any L2 if we didn't setup L1
 	if !l1_software_ready:
 		l2_setup_l1_message_requested.emit()
@@ -77,7 +82,7 @@ func _on_button_start_pressed() -> void:
 		l2_start_l1_message_requested.emit()
 		return
 		
-	var downloads_dir : String = str(OS.get_user_data_dir(), "/downloads")
+	var downloads_dir : String = str(OS.get_user_data_dir(), "/downloads/l2")
 
 	# TODO work for L2's besides thunder
 	var l2_bin_path : String = ""
@@ -101,6 +106,8 @@ func _on_button_start_pressed() -> void:
 	# Signal this L2's PID to mainwindow
 	l2_started.emit(ret)
 	
+	l2_pid = ret
+	
 	$PanelContainer/VBoxContainer/LabelRunStatus.visible = true
 	$PanelContainer/VBoxContainer/LabelRunStatus.text = str("Starting ", l2_title, "...")
 	
@@ -113,6 +120,15 @@ func _on_button_start_pressed() -> void:
 	timer_run_status_update.connect("timeout", check_running_status)
 	
 	timer_run_status_update.start(RUN_STATUS_UPDATE_DELAY)
+
+	# Show L2 option buttons (Restart, remove for now)
+	$PanelContainer/VBoxContainer/HBoxContainerL2Options.visible = true
+	
+	$PanelContainer/VBoxContainer/HBoxContainerL2Options/ButtonRestart.disabled = false
+
+
+func _on_button_start_pressed() -> void:
+	start_l2()
 
 
 func check_running_status() -> void:
@@ -129,7 +145,8 @@ func _on_resource_downloader_resource_thunder_download_progress(percent: int) ->
 func _on_resource_downloader_resource_thunder_ready() -> void:
 	update_setup_status()
 	$PanelContainer/VBoxContainer/HBoxContainerDownloadStatus.visible = false
-	
+	$PanelContainer/VBoxContainer/HBoxContainerL2Options/ButtonRemove.disabled = false
+
 
 func set_l1_ready() -> void:
 	l1_software_ready = true
@@ -140,11 +157,15 @@ func set_l1_running() -> void:
 
 
 func handle_reset() -> void:
+	print("L2 handle reset")
 	l1_software_running = false
 	l1_software_ready = false
 	$PanelContainer/VBoxContainer/LabelRunStatus.visible = false
 	update_setup_status()
 	
+	$PanelContainer/VBoxContainer/HBoxContainerL2Options/ButtonRestart.disabled = true
+	$PanelContainer/VBoxContainer/HBoxContainerL2Options/ButtonRemove.disabled = true
+
 
 # TODO make new block count and rpc failed general instead of thunder specific
 func _on_rpc_client_thunder_new_block_count(height: int) -> void:
@@ -153,3 +174,23 @@ func _on_rpc_client_thunder_new_block_count(height: int) -> void:
 
 func _on_rpc_client_thunder_cli_failed() -> void:
 	$PanelContainer/VBoxContainer/LabelRunStatus.text = str("Error: Thunder not responding!")
+
+
+func _on_button_restart_pressed() -> void:
+	restart_l2()
+
+
+func _on_button_remove_pressed() -> void:
+	$PanelContainer/ConfirmationDialogRemoveL2.show()
+
+
+func _on_confirmation_dialog_remove_l2_confirmed() -> void:
+	# TODO emit signal to main window to remove this L2, or make L2 data
+	# management part of this scene?
+	l2_requested_removal.emit()
+
+
+func restart_l2() -> void:
+	OS.kill(l2_pid)
+	await get_tree().create_timer(1.0).timeout
+	start_l2()

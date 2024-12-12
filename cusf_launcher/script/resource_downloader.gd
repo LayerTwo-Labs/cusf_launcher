@@ -23,8 +23,8 @@ const URL_THUNDER_WIN : String = "https://releases.drivechain.info/L2-S9-Thunder
 const URL_THUNDER_OSX : String = "https://releases.drivechain.info/L2-S9-Thunder-latest-x86_64-apple-darwin.zip"
 
 # GRPCURL is released as a .zip for windows and .tar.gz for anything else:
-const DOWNLOAD_PATH_GRPCURL_LIN_OSX = "user://downloads/grpcurl.tar.gz"
-const DOWNLOAD_PATH_GRPCURL_WIN = "user://downloads/grpcurl.zip"
+const DOWNLOAD_PATH_GRPCURL_LIN_OSX = "user://downloads/l1/grpcurl.tar.gz"
+const DOWNLOAD_PATH_GRPCURL_WIN = "user://downloads/l1/grpcurl.zip"
 
 const DOWNLOAD_PROGRESS_UPDATE_DELAY : float = 0.1
 
@@ -33,12 +33,6 @@ const DOWNLOAD_PROGRESS_UPDATE_DELAY : float = 0.1
 @onready var http_download_bitcoin: HTTPRequest = $HTTPDownloadBitcoin
 @onready var http_download_thunder: HTTPRequest = $HTTPDownloadThunder
 @onready var http_download_bit_window: HTTPRequest = $HTTPDownloadBitWindow
-
-# TODO remove these
-var located_grpcurl : bool = false
-var located_enforcer : bool = false
-var located_bitcoin : bool = false
-var located_bitwindow : bool = false
 
 var timer_l1_download_progress_update = null
 # TODO this will be per L2 but for now just thunder
@@ -168,106 +162,90 @@ func check_l2_download_progress() -> void:
 
 
 func have_grpcurl() -> bool:
-	if located_grpcurl:
-		return true
-		
 	match OS.get_name():
 		"Linux":
-			if !FileAccess.file_exists("user://downloads/grpcurl"):
+			if !FileAccess.file_exists("user://downloads/l1/grpcurl"):
 				return false
 		"Windows":
-			if !FileAccess.file_exists("user://downloads/grpcurl.exe"):
+			if !FileAccess.file_exists("user://downloads/l1/grpcurl.exe"):
 				return false
 		"macOS":
 			# TODO correct path
-			if !FileAccess.file_exists("user://downloads/grpcurl"):
+			if !FileAccess.file_exists("user://downloads/l1/grpcurl"):
 				return false
 				
 	resource_grpcurl_ready.emit()
 	
-	located_grpcurl = true
 	return true
 
 
 func have_enforcer() -> bool:
-	if located_enforcer:
-		return true
-	
 	match OS.get_name():
 		"Linux":
-			if !FileAccess.file_exists("user://downloads/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"):
+			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"):
 				return false
 		"Windows":
 			# TODO the folder name has .exe which is probably an accident. 
 			# Maybe an issue with the github actions?
-			if !FileAccess.file_exists("user://downloads/bip300301-enforcer-latest-x86_64-pc-windows-gnu.exe/bip300301_enforcer-0.1.0-x86_64-pc-windows-gnu.exe"):
+			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-pc-windows-gnu.exe/bip300301_enforcer-0.1.0-x86_64-pc-windows-gnu.exe"):
 				return false
 		"macOS":
 			# TODO correct path
-			if !FileAccess.file_exists("user://downloads/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"):
+			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"):
 				return false
 	
 	resource_enforcer_ready.emit()
 	
-	located_enforcer = true
 	return true
 	
 	
 func have_bitcoin() -> bool:
-	if located_bitcoin:
-		return true
-	
 	match OS.get_name():
 		"Linux":
-			if !FileAccess.file_exists("user://downloads/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/bitcoind"):
+			if !FileAccess.file_exists("user://downloads/l1/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/bitcoind"):
 				return false
 		"Windows":
-			if !FileAccess.file_exists("user://downloads/L1-bitcoin-patched-latest-x86_64-w64-msvc/Release/bitcoind.exe"):
+			if !FileAccess.file_exists("user://downloads/l1/L1-bitcoin-patched-latest-x86_64-w64-msvc/Release/bitcoind.exe"):
 				return false
 		"macOS":
 			# TODO correct path
-			if !FileAccess.file_exists("user://downloads/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/bitcoind"):
+			if !FileAccess.file_exists("user://downloads/l1/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/bitcoind"):
 				return false
 
 	resource_bitcoin_ready.emit()
 	
-	located_bitcoin = true
 	return true
 
 
 func have_bitwindow() -> bool:
-	if located_bitwindow:
-		return true
-	
 	match OS.get_name():
 		"Linux":
-			if !FileAccess.file_exists("user://downloads/bitwindow/bitwindow"):
+			if !FileAccess.file_exists("user://downloads/l1/bitwindow/bitwindow"):
 				return false
 		"Windows":
-			if !FileAccess.file_exists("user://downloads/bitwindow.exe"):
+			if !FileAccess.file_exists("user://downloads/l1/bitwindow.exe"):
 				return false
 		"macOS":
 			# TODO correct path
-			if !FileAccess.file_exists("user://downloads/BitWindow-latest-???/bitwindow"):
+			if !FileAccess.file_exists("user://downloads/l1/BitWindow-latest-???/bitwindow"):
 				return false
 
 	resource_bitwindow_ready.emit()
 	
-	located_bitwindow = true
 	return true
 
 
 func have_thunder() -> bool:	
 	match OS.get_name():
 		"Linux":
-			if !FileAccess.file_exists("user://downloads/thunder-latest-x86_64-unknown-linux-gnu"):
+			if !FileAccess.file_exists("user://downloads/l2/thunder-latest-x86_64-unknown-linux-gnu"):
 				return false
 		"Windows":
-			if !FileAccess.file_exists("user://downloads/thunder-latest-x86_64-pc-windows-gnu.exe"):
+			if !FileAccess.file_exists("user://downloads/l2/thunder-latest-x86_64-pc-windows-gnu.exe"):
 				return false
 		"macOS":
 			# TODO correct path
-			if !FileAccess.file_exists("user://downloads/thunder-latest-x86_64-unknown-linux-gnu"):
+			if !FileAccess.file_exists("user://downloads/l2/thunder-latest-x86_64-unknown-linux-gnu"):
 				return false
 
 	return true
@@ -280,6 +258,7 @@ func download_grpcurl() -> void:
 	track_l1_download_progress()
 		
 	DirAccess.make_dir_absolute("user://downloads/")
+	DirAccess.make_dir_absolute("user://downloads/l1")
 		
 	match OS.get_name():
 		"Linux":
@@ -300,7 +279,8 @@ func download_enforcer() -> void:
 	track_l1_download_progress()
 	
 	DirAccess.make_dir_absolute("user://downloads/")
-
+	DirAccess.make_dir_absolute("user://downloads/l1")
+	
 	match OS.get_name():
 		"Linux":
 			$HTTPDownloadEnforcer.request(URL_300301_ENFORCER_LIN)
@@ -317,6 +297,7 @@ func download_bitcoin() -> void:
 	track_l1_download_progress()
 	
 	DirAccess.make_dir_absolute("user://downloads/")
+	DirAccess.make_dir_absolute("user://downloads/l1")
 
 	match OS.get_name():
 		"Linux":
@@ -334,6 +315,7 @@ func download_bitwindow() -> void:
 	track_l1_download_progress()
 	
 	DirAccess.make_dir_absolute("user://downloads/")
+	DirAccess.make_dir_absolute("user://downloads/l1")
 
 	match OS.get_name():
 		"Linux":
@@ -351,6 +333,7 @@ func download_thunder() -> void:
 	track_l2_download_progress()
 
 	DirAccess.make_dir_absolute("user://downloads/")
+	DirAccess.make_dir_absolute("user://downloads/l2")
 
 	match OS.get_name():
 		"Linux":
@@ -362,7 +345,7 @@ func download_thunder() -> void:
 
 
 func extract_grpcurl() -> void:
-	var downloads_dir = str(OS.get_user_data_dir(), "/downloads")
+	var downloads_dir = str(OS.get_user_data_dir(), "/downloads/l1")
 	
 	var ret : int = -1 
 	match OS.get_name():
@@ -381,7 +364,7 @@ func extract_grpcurl() -> void:
 
 
 func extract_enforcer() -> void:
-	var downloads_dir = str(OS.get_user_data_dir(), "/downloads")
+	var downloads_dir = str(OS.get_user_data_dir(), "/downloads/l1")
 
 	var ret : int = -1
 	match OS.get_name():
@@ -407,7 +390,7 @@ func extract_enforcer() -> void:
 
 
 func extract_bitcoin() -> void:
-	var downloads_dir = str(OS.get_user_data_dir(), "/downloads")
+	var downloads_dir = str(OS.get_user_data_dir(), "/downloads/l1")
 
 	var ret : int = -1
 	match OS.get_name():
@@ -433,7 +416,7 @@ func extract_bitcoin() -> void:
 
 
 func extract_bitwindow() -> void:
-	var downloads_dir = str(OS.get_user_data_dir(), "/downloads")
+	var downloads_dir = str(OS.get_user_data_dir(), "/downloads/l1")
 
 	var ret : int = -1
 	match OS.get_name():
@@ -459,7 +442,7 @@ func extract_bitwindow() -> void:
 
 
 func extract_thunder() -> void:
-	var downloads_dir = str(OS.get_user_data_dir(), "/downloads")
+	var downloads_dir = str(OS.get_user_data_dir(), "/downloads/l2")
 	
 	var ret : int = -1
 	match OS.get_name():
