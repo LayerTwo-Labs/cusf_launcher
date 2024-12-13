@@ -24,9 +24,14 @@ signal thunder_cli_failed()
 var core_auth_cookie : String = "user:password"
 
 @onready var http_rpc_btc_get_block_count: HTTPRequest = $BitcoinCoreRPC/HTTPRPCBTCGetBlockCount
+@onready var http_rpc_btc_stop: HTTPRequest = $BitcoinCoreRPC/HTTPRPCBTCStop
 
 func rpc_bitcoin_getblockcount() -> void:
 	make_rpc_request(DEFAULT_BITCOIN_RPC_PORT, "getblockcount", [], http_rpc_btc_get_block_count)
+
+
+func rpc_bitcoin_stop() -> void:
+	make_rpc_request(DEFAULT_BITCOIN_RPC_PORT, "stop", [], http_rpc_btc_stop)
 
 
 func grpc_enforcer_gettip() -> void:
