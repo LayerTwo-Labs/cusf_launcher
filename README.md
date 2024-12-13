@@ -4,9 +4,9 @@
 * Godot v4.3 : https://github.com/godotengine/godot/releases/tag/4.3-stable
 * Rust/Cargo : https://rustup.rs/
 
-If cross-compiling for Windows, mingw-64 is required.
+To build with godot editor just open the project and hit the play button.
 
-## Command line build instructions:
+Command line build instructions:
 
 Linux:
 ```

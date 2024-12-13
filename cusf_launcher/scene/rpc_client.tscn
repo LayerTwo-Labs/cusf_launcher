@@ -15,4 +15,6 @@ script = ExtResource("1_ywa47")
 
 [node name="HTTPRPCBTCGetBlockCount" type="HTTPRequest" parent="BitcoinCoreRPC"]
 
+[node name="HTTPRPCBTCStop" type="HTTPRequest" parent="BitcoinCoreRPC"]
+
 [connection signal="request_completed" from="BitcoinCoreRPC/HTTPRPCBTCGetBlockCount" to="." method="_on_http_rpc_btc_get_block_count_request_completed"]
