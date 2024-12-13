@@ -311,8 +311,7 @@ func start_l1() -> void:
 		"Windows":
 			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-w64-msvc/Release/bitcoind.exe")
 		"macOS":
-			# TODO
-			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/bitcoind")
+			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-apple-darwin//bitcoind")
 
 	# Start bitcoin
 	var ret : int = OS.create_process(btc_bin_path, [])
@@ -343,8 +342,7 @@ func start_l1() -> void:
 		"Windows":
 			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-pc-windows-gnu.exe/bip300301_enforcer-0.1.0-x86_64-pc-windows-gnu.exe")
 		"macOS":
-			# TODO
-			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu")
+			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.0-x86_64-apple-darwin")
 
 	# Start bip300-301 enforcer
 	ret = OS.create_process(enforcer_bin_path, ["--node-rpc-addr=localhost:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://localhost:29000", "--enable-wallet"])
@@ -367,8 +365,7 @@ func start_l1() -> void:
 		"Windows":
 			bitwindow_bin_path = str(downloads_dir, "/bitwindow.exe")
 		"macOS":
-			# TODO
-			bitwindow_bin_path = str(downloads_dir, "/bitwindow/bitwindow")
+			bitwindow_bin_path = str(downloads_dir, "/bitwindow/bitwindow.app")
 
 	# Start BitWindow
 	ret = OS.create_process(bitwindow_bin_path, [])

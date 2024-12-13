@@ -170,7 +170,6 @@ func have_grpcurl() -> bool:
 			if !FileAccess.file_exists("user://downloads/l1/grpcurl.exe"):
 				return false
 		"macOS":
-			# TODO correct path
 			if !FileAccess.file_exists("user://downloads/l1/grpcurl"):
 				return false
 				
@@ -190,8 +189,7 @@ func have_enforcer() -> bool:
 			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-pc-windows-gnu.exe/bip300301_enforcer-0.1.0-x86_64-pc-windows-gnu.exe"):
 				return false
 		"macOS":
-			# TODO correct path
-			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu"):
+			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.0-x86_64-apple-darwin"):
 				return false
 	
 	resource_enforcer_ready.emit()
@@ -208,8 +206,7 @@ func have_bitcoin() -> bool:
 			if !FileAccess.file_exists("user://downloads/l1/L1-bitcoin-patched-latest-x86_64-w64-msvc/Release/bitcoind.exe"):
 				return false
 		"macOS":
-			# TODO correct path
-			if !FileAccess.file_exists("user://downloads/l1/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/bitcoind"):
+			if !FileAccess.file_exists("user://downloads/l1/L1-bitcoin-patched-latest-x86_64-apple-darwin/bitcoind"):
 				return false
 
 	resource_bitcoin_ready.emit()
@@ -226,8 +223,7 @@ func have_bitwindow() -> bool:
 			if !FileAccess.file_exists("user://downloads/l1/bitwindow.exe"):
 				return false
 		"macOS":
-			# TODO correct path
-			if !FileAccess.file_exists("user://downloads/l1/BitWindow-latest-???/bitwindow"):
+			if !FileAccess.file_exists("user://downloads/l1/bitwindow/bitwindow.app"):
 				return false
 
 	resource_bitwindow_ready.emit()
@@ -244,8 +240,7 @@ func have_thunder() -> bool:
 			if !FileAccess.file_exists("user://downloads/l2/thunder-latest-x86_64-pc-windows-gnu.exe"):
 				return false
 		"macOS":
-			# TODO correct path
-			if !FileAccess.file_exists("user://downloads/l2/thunder-latest-x86_64-unknown-linux-gnu"):
+			if !FileAccess.file_exists("user://downloads/l2/thunder-latest-x86_64-apple-darwin"):
 				return false
 
 	return true
@@ -379,7 +374,7 @@ func extract_enforcer() -> void:
 		printerr("Failed to extract enforcer")
 		return
 
-	# Make executable for linux # TODO osx?
+	# Make executable for linux
 	if OS.get_name() == "Linux":
 		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.0-x86_64-unknown-linux-gnu")])
 		if ret != OK:
@@ -387,7 +382,12 @@ func extract_enforcer() -> void:
 			return
 
 	resource_enforcer_ready.emit()
-
+	
+	if OS.get_name() == "macOS":
+		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.0-x86_64-apple-darwin")])
+		if ret != OK:
+			printerr("Failed to mark enforcer executable")
+			return
 
 func extract_bitcoin() -> void:
 	var downloads_dir = str(OS.get_user_data_dir(), "/downloads/l1")
@@ -405,15 +405,19 @@ func extract_bitcoin() -> void:
 		printerr("Failed to extract bitcoin")
 		return
 		
-	# Make executable for linux # TODO osx?
 	if OS.get_name() == "Linux":
 		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/bitcoind")])
 		if ret != OK:
 			printerr("Failed to mark bitcoin executable")
 			return
-	
+			
+	if OS.get_name() == "macOS":
+		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-apple-darwin/bitcoind")])
+		if ret != OK:
+			printerr("Failed to mark bitcoin executable")
+			return
+			
 	resource_bitcoin_ready.emit()
-
 
 func extract_bitwindow() -> void:
 	var downloads_dir = str(OS.get_user_data_dir(), "/downloads/l1")
@@ -431,9 +435,13 @@ func extract_bitwindow() -> void:
 		printerr("Failed to extract bitwindow")
 		return
 		
-	# Make executable for linux # TODO osx?
 	if OS.get_name() == "Linux":
 		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bitwindow/bitwindow")])
+		if ret != OK:
+			printerr("Failed to mark bitwindow executable")
+			return
+	if OS.get_name() == "macOS":
+		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bitwindow/bitwindow.app")])
 		if ret != OK:
 			printerr("Failed to mark bitwindow executable")
 			return
@@ -457,7 +465,6 @@ func extract_thunder() -> void:
 		printerr("Failed to extract thunder")
 		return
 
-	# Make executable for linux # TODO osx?
 	if OS.get_name() == "Linux":
 		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/thunder-cli-latest-x86_64-unknown-linux-gnu")])
 		if ret != OK:
@@ -468,7 +475,15 @@ func extract_thunder() -> void:
 		if ret != OK:
 			printerr("Failed to mark thunder executable")
 			return
-	
+	elif OS.get_name() == "macOS":
+		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/thunder-cli-latest-x86_64-apple-darwin")])
+		if ret != OK:
+			printerr("Failed to mark thunder-cli executable")
+			return
+		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/thunder-latest-x86_64-apple-darwin")])
+		if ret != OK:
+			printerr("Failed to mark thunder executable")
+			return
 	resource_thunder_ready.emit()
 
 
