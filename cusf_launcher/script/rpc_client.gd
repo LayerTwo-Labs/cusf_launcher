@@ -5,7 +5,7 @@ const DEFAULT_WALLET_RPC_PORT : int = 38332
 const DEFAULT_CUSF_CAT_RPC_PORT : int = -1 # TODO currently unknown
 const DEFAULT_CUSF_DRIVECHAIN_RPC_PORT : int = 50051 
 
-const DEBUG_REQUESTS : bool = false
+const DEBUG_REQUESTS : bool = true
 
 const GRPC_CUSF_DRIVECHAIN_GET_TIP : String = "cusf.mainchain.v1.ValidatorService.GetChainTip"
 
