@@ -249,8 +249,8 @@ func have_thunder() -> bool:
 				return false
 
 	return true
-	
-	
+
+
 func download_grpcurl() -> void:
 	if have_grpcurl():
 		return

@@ -389,8 +389,8 @@ func _on_rpc_client_btc_rpc_failed() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = "Failed to contact BTC!"
 
 
-func _on_rpc_client_cusf_drivechain_responded() -> void:
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.text = "Drivechain Enforcer Running!"
+func _on_rpc_client_cusf_drivechain_responded(height: int) -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.text = str("Drivechain Enforcer Running! Blocks: ", height)
 
 
 func _on_rpc_client_cusf_drivechain_rpc_failed() -> void:

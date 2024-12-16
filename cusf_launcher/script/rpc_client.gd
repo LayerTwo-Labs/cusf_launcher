@@ -11,7 +11,7 @@ const GRPC_CUSF_DRIVECHAIN_GET_TIP : String = "cusf.mainchain.v1.ValidatorServic
 
 # Signals that should be emitted regularly if connections are working
 signal btc_new_block_count(height : int)
-signal cusf_drivechain_responded()
+signal cusf_drivechain_responded(height : int)
 signal thunder_new_block_count(height : int)
 
 # Signals that indicate connection failure to one of the backend softwares 
@@ -89,13 +89,38 @@ func make_grpc_request(request : String) -> void:
 	 	true)
 	
 	if DEBUG_REQUESTS:
-		print("ret ", ret)
-		print("output ", output)
+		print("grpc ret ", ret)
+		print("grpc output ", output)
 		
+	# If the request is for "cusf.mainchain.v1.ValidatorService.GetChainTip"
+	# then parse the height from the response and emit that
+	var enforcer_height : int = 0
+	if request == GRPC_CUSF_DRIVECHAIN_GET_TIP && output.size():
+		var json = JSON.new()
+		var error = json.parse(output[0])
+		if error == OK:
+			if DEBUG_REQUESTS:
+				print("Parsed grpc json!")
+			if !json.data.has("blockHeaderInfo"):
+				printerr("gRPC response missing block header info!")
+				cusf_drivechain_rpc_failed.emit()
+				return
+			enforcer_height = json.data["blockHeaderInfo"]["height"]
+			
+			if DEBUG_REQUESTS:
+				print("Height from json? : ", enforcer_height)
+		else:
+			printerr("Failed to parse gRPC JSON response!")
+			cusf_drivechain_rpc_failed.emit()
+			return
+
 	if ret != 0:
 		cusf_drivechain_rpc_failed.emit()
 	else:
-		cusf_drivechain_responded.emit()
+		# TODO only emit the height when 
+		# "cusf.mainchain.v1.ValidatorService.GetChainTip" is requested
+		# But for now that's the only gRPC request being used
+		cusf_drivechain_responded.emit(enforcer_height)
 
 
 func make_rpc_request(port : int, method: String, params: Variant, http_request: HTTPRequest) -> void:	
