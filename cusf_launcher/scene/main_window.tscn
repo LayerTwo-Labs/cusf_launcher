@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://c7xfr6losav1n"]
+[gd_scene load_steps=9 format=3 uid="uid://c7xfr6losav1n"]
 
 [ext_resource type="Script" path="res://script/main_window.gd" id="1_8sbni"]
 [ext_resource type="PackedScene" uid="uid://bdpd4vlv7wtfm" path="res://scene/resource_downloader.tscn" id="2_e34m6"]
@@ -9,28 +9,6 @@
 [ext_resource type="PackedScene" uid="uid://dh0sbeesm4c5m" path="res://scene/l2_status.tscn" id="7_er7gt"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_ltl0q"]
-
-[sub_resource type="Gradient" id="Gradient_y0kg2"]
-offsets = PackedFloat32Array(0.199234, 0.726054)
-colors = PackedColorArray(1, 0, 0, 1, 0, 0, 0, 0)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_fcp85"]
-gradient = SubResource("Gradient_y0kg2")
-width = 16
-height = 16
-fill = 1
-fill_from = Vector2(0.5, 0.5)
-
-[sub_resource type="Gradient" id="Gradient_i28mx"]
-offsets = PackedFloat32Array(0.199234, 0.726054)
-colors = PackedColorArray(0.285298, 0.629639, 7.70092e-07, 1, 0, 0, 0, 0)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_p2ue0"]
-gradient = SubResource("Gradient_i28mx")
-width = 16
-height = 16
-fill = 1
-fill_from = Vector2(0.5, 0.5)
 
 [node name="MainWindow" type="Control"]
 layout_mode = 3
@@ -506,86 +484,30 @@ initial_position = 2
 size = Vector2i(640, 480)
 ok_button_text = "Delete Everything"
 
-[node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
+[node name="Spacer" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="CheckBoxRandomQuotes" type="CheckBox" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
+layout_mode = 2
+text = "Show random quotes on the interface"
+
+[node name="PanelContainerQuotes" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
 visible = false
 custom_minimum_size = Vector2(1140, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("4_kdykr")
 
-[node name="HBoxContainerBottomStatus" type="HBoxContainer" parent="MarginContainer/VBoxContainer/PanelContainer"]
+[node name="HBoxContainerBottomQuotes" type="HBoxContainer" parent="MarginContainer/VBoxContainer/PanelContainerQuotes"]
 layout_mode = 2
 
-[node name="LabelNumBlocks" type="Label" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainerBottomStatus"]
+[node name="RichTextLabelQuote" type="RichTextLabel" parent="MarginContainer/VBoxContainer/PanelContainerQuotes/HBoxContainerBottomQuotes"]
+clip_contents = false
+custom_minimum_size = Vector2(1100, 32)
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.0
-text = "Blocks: 0"
-
-[node name="VSeparator" type="VSeparator" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainerBottomStatus"]
-layout_mode = 2
-
-[node name="Label6" type="Label" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainerBottomStatus"]
-layout_mode = 2
-text = "Last Block: ? minutes ago"
-
-[node name="VSeparator7" type="VSeparator" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainerBottomStatus"]
-layout_mode = 2
-
-[node name="LabelPeers" type="Label" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainerBottomStatus"]
-layout_mode = 2
-text = "Peers: 0
-"
-
-[node name="Label3" type="Label" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainerBottomStatus"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Connections: Bitcoin:"
-horizontal_alignment = 2
-
-[node name="TextureRectBitcoinNotConnected" type="TextureRect" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainerBottomStatus"]
-layout_mode = 2
-texture = SubResource("GradientTexture2D_fcp85")
-expand_mode = 3
-
-[node name="TextureRectBitcoinConnected" type="TextureRect" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainerBottomStatus"]
-visible = false
-layout_mode = 2
-texture = SubResource("GradientTexture2D_p2ue0")
-expand_mode = 3
-
-[node name="Label5" type="Label" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainerBottomStatus"]
-layout_mode = 2
-text = "CUSF Client:"
-
-[node name="TextureRectCUSFNotConnected" type="TextureRect" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainerBottomStatus"]
-layout_mode = 2
-texture = SubResource("GradientTexture2D_fcp85")
-expand_mode = 3
-
-[node name="TextureRectCUSFConnected" type="TextureRect" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainerBottomStatus"]
-visible = false
-layout_mode = 2
-texture = SubResource("GradientTexture2D_p2ue0")
-expand_mode = 3
-
-[node name="Label4" type="Label" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainerBottomStatus"]
-layout_mode = 2
-text = "Wallet:"
-
-[node name="TextureRectWalletNotConnected" type="TextureRect" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainerBottomStatus"]
-layout_mode = 2
-texture = SubResource("GradientTexture2D_fcp85")
-expand_mode = 3
-
-[node name="TextureRectWalletConnected" type="TextureRect" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainerBottomStatus"]
-visible = false
-layout_mode = 2
-texture = SubResource("GradientTexture2D_p2ue0")
-expand_mode = 3
-
-[node name="ConnectionLights" type="Control" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainerBottomStatus"]
-layout_mode = 2
+bbcode_enabled = true
+text = "text of quote"
 
 [node name="ShutdownStatus" type="Control" parent="."]
 visible = false
@@ -704,4 +626,5 @@ editor_preview_indeterminate = false
 [connection signal="confirmed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/ConfirmationDialogL2SetupL1" to="." method="_on_confirmation_dialog_l2_setup_l1_confirmed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/ButtonDeleteEverything" to="." method="_on_button_delete_everything_pressed"]
 [connection signal="confirmed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteEverythingConfirmationDialog" to="." method="_on_delete_everything_confirmation_dialog_confirmed"]
+[connection signal="toggled" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/CheckBoxRandomQuotes" to="." method="_on_check_box_random_quotes_toggled"]
 [connection signal="pressed" from="ShutdownStatus/Panel/ButtonForceShutdown" to="." method="_on_button_force_shutdown_pressed"]

@@ -2,6 +2,8 @@ extends Control
 
 const RUN_STATUS_UPDATE_DELAY : int = 10
 
+const RANDOM_QUOTE_UPDATE_DELAY : int = 10
+
 # For now we track L1 resource status here, and L2 resource status 
 # individually per L2 using L2Status scene
 var resource_bitcoin_ready : bool = false
@@ -18,6 +20,15 @@ var pid_thunder : int = -1
 
 var timer_run_status_update = null
 
+var tween_typing: Tween = null
+var timer_random_quote = null
+var current_random_quote : String = ""
+
+var random_quotes = [
+	"I'm sure that in 20 years there will either be very large transaction volume or no volume. -Satoshi Nakamoto",
+ 	"Poorly paid labor is inefficient labor, the world over. -Henry George",
+ 	"Resistance to tyranny is obedience to God. -Thomas Jefferson",
+]
 
 func _ready() -> void:
 	get_tree().set_auto_accept_quit(false)
@@ -547,3 +558,50 @@ func _on_confirmation_dialog_remove_l1_confirmed() -> void:
 
 func _on_l2_status_thunder_requested_removal() -> void:
 	remove_l2_thunder()
+
+
+func _on_check_box_random_quotes_toggled(toggled_on: bool) -> void:
+	$"/root/GlobalSettings".settings_show_random_quotes = toggled_on
+	
+	if toggled_on:
+		$MarginContainer/VBoxContainer/PanelContainerQuotes.visible = true
+		show_next_random_quote()
+		
+		timer_random_quote = Timer.new()
+		add_child(timer_random_quote)
+		timer_random_quote.connect("timeout", show_next_random_quote)
+		
+		timer_random_quote.start(RANDOM_QUOTE_UPDATE_DELAY)
+		
+	else:
+		$MarginContainer/VBoxContainer/PanelContainerQuotes.visible = false
+		
+		if tween_typing:
+			tween_typing.kill()
+		
+		if timer_random_quote:
+			timer_random_quote.kill()
+
+
+func format_quote_text(text : String) -> String:
+	return str("[shake rate=2 connected=10 level=2]", text, "[/shake]")
+
+
+func show_next_random_quote() -> void:
+	var random_quote : String = random_quotes.pick_random()
+	while random_quote == current_random_quote:
+		random_quote = random_quotes.pick_random()
+		
+	current_random_quote = random_quote
+	
+	if tween_typing:
+		tween_typing.kill()
+		
+	tween_typing = get_tree().create_tween()
+	
+	$MarginContainer/VBoxContainer/PanelContainerQuotes/HBoxContainerBottomQuotes/RichTextLabelQuote.visible_ratio = 0
+	$MarginContainer/VBoxContainer/PanelContainerQuotes/HBoxContainerBottomQuotes/RichTextLabelQuote.text = format_quote_text(random_quote)
+	
+	tween_typing.tween_property($MarginContainer/VBoxContainer/PanelContainerQuotes/HBoxContainerBottomQuotes/RichTextLabelQuote, "visible", true, 0)
+	tween_typing.tween_property($MarginContainer/VBoxContainer/PanelContainerQuotes/HBoxContainerBottomQuotes/RichTextLabelQuote, "visible_ratio", 1, 0.86)
+	tween_typing.tween_property($MarginContainer/VBoxContainer/PanelContainerQuotes/HBoxContainerBottomQuotes/RichTextLabelQuote, "text", random_quote, 0).set_delay(0.1)
