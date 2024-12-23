@@ -589,3 +589,7 @@ func show_next_random_quote() -> void:
 
 func _on_button_next_quote_pressed() -> void:
 	show_next_random_quote()
+
+
+func _on_check_box_shutdown_on_exit_toggled(toggled_on: bool) -> void:
+	pass # Replace with function body.

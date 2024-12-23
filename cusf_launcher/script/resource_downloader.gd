@@ -195,8 +195,8 @@ func have_enforcer() -> bool:
 	resource_enforcer_ready.emit()
 	
 	return true
-	
-	
+
+
 func have_bitcoin() -> bool:
 	match OS.get_name():
 		"Linux":
@@ -388,6 +388,7 @@ func extract_enforcer() -> void:
 			printerr("Failed to mark enforcer executable")
 			return
 
+
 func extract_bitcoin() -> void:
 	var downloads_dir = str(OS.get_user_data_dir(), "/downloads/l1")
 
@@ -417,6 +418,7 @@ func extract_bitcoin() -> void:
 			return
 			
 	resource_bitcoin_ready.emit()
+
 
 func extract_bitwindow() -> void:
 	var downloads_dir = str(OS.get_user_data_dir(), "/downloads/l1")
