@@ -20,7 +20,6 @@ var pid_thunder : int = -1
 
 var timer_run_status_update = null
 
-var tween_typing: Tween = null
 var timer_random_quote = null
 var current_random_quote : String = ""
 
@@ -572,17 +571,10 @@ func _on_check_box_random_quotes_toggled(toggled_on: bool) -> void:
 		
 	else:
 		$MarginContainer/VBoxContainer/PanelContainerQuotes.visible = false
-		
-		if tween_typing:
-			tween_typing.kill()
-		
+
 		if timer_random_quote:
 			timer_random_quote.stop()
 			timer_random_quote.queue_free()
-
-
-func format_quote_text(text : String) -> String:
-	return str("[shake rate=2 connected=10 level=2]", text, "[/shake]")
 
 
 func show_next_random_quote() -> void:
@@ -591,15 +583,9 @@ func show_next_random_quote() -> void:
 		random_quote = random_quotes.pick_random()
 		
 	current_random_quote = random_quote
-	
-	if tween_typing:
-		tween_typing.kill()
-		
-	tween_typing = get_tree().create_tween()
-	
-	$MarginContainer/VBoxContainer/PanelContainerQuotes/HBoxContainerBottomQuotes/RichTextLabelQuote.visible_ratio = 0
-	$MarginContainer/VBoxContainer/PanelContainerQuotes/HBoxContainerBottomQuotes/RichTextLabelQuote.text = format_quote_text(random_quote)
-	
-	tween_typing.tween_property($MarginContainer/VBoxContainer/PanelContainerQuotes/HBoxContainerBottomQuotes/RichTextLabelQuote, "visible", true, 0)
-	tween_typing.tween_property($MarginContainer/VBoxContainer/PanelContainerQuotes/HBoxContainerBottomQuotes/RichTextLabelQuote, "visible_ratio", 1, 0.86)
-	tween_typing.tween_property($MarginContainer/VBoxContainer/PanelContainerQuotes/HBoxContainerBottomQuotes/RichTextLabelQuote, "text", random_quote, 0).set_delay(0.1)
+
+	$MarginContainer/VBoxContainer/PanelContainerQuotes/HBoxContainerBottomQuotes/RichTextLabelQuote.text = random_quote
+
+
+func _on_button_next_quote_pressed() -> void:
+	show_next_random_quote()
