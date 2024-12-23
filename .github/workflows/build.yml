@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - "master"
-      - "mac-paths"
   workflow_dispatch:
 
 jobs:
@@ -73,31 +72,6 @@ jobs:
           GODOT_MACOS_NOTARIZATION_API_UUID:
             ${{ secrets.GODOT_MACOS_NOTARIZATION_API_UUID }}
 
-      # Add this debug step
-      - name: Debug build log
-        if: ${{ matrix.build == 'macos' }}
-        run: |
-          echo "=== Build Log Contents ==="
-          cat build.log
-          echo "=== Searching for Notarization UUID ==="
-          grep -i "notarization" build.log || true
-
-      - name: Wait for notarization to finish
-        if: ${{ matrix.build == 'macos' }}
-        run: |
-          request_id=$(grep 'Notarization request UUID' build.log | rev | cut -d ' ' -f 1 | rev | tr -d '"' || echo "")
-          echo "Found request_id: $request_id"
-          
-          if [ -z "$request_id" ]; then
-            echo "No notarization request UUID found in build log"
-            exit 1
-          fi
-
-          xcrun notarytool wait $request_id \
-            --issuer ${{ secrets.GODOT_MACOS_NOTARIZATION_API_UUID }} \
-            --key-id ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY_ID }} \
-            --key ./cusf_launcher/notarization_api_key.p8
-
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
@@ -105,13 +79,22 @@ jobs:
           if-no-files-found: error
           path: cusf_launcher/${{ matrix.target-bin }}
 
+      - name: Wait for notarization to finish
+        if: ${{ matrix.build == 'macos' }}
+        run: |
+          request_id=$(grep 'Notarization request UUID' build.log | rev | cut -d ' ' -f 1 | rev | tr -d '"')
+
+          xcrun notarytool wait $request_id \
+            --issuer ${{ secrets.GODOT_MACOS_NOTARIZATION_API_UUID }} \
+            --key-id ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY_ID }} \
+            --key ./cusf_launcher/notarization_api_key.p8
+
   upload-artifacts-to-releases-drivechain-info:
     name: Upload artifacts to releases.drivechain.info
     runs-on: ubuntu-latest
     needs: [build]
-    # Comment out or modify this condition for testing
-    # if: github.event_name == 'push' && github.repository_owner == 'LayerTwo-Labs'
-    if: github.event_name == 'push'  # Simplified for testing
+    # avoid uploading on PRs!
+    if: github.event_name == 'push' && github.repository_owner == 'LayerTwo-Labs'
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
