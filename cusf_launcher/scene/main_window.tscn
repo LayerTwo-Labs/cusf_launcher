@@ -488,6 +488,11 @@ ok_button_text = "Delete Everything"
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 
+[node name="CheckBoxShutdownOnExit" type="CheckBox" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
+layout_mode = 2
+button_pressed = true
+text = "Shutdown launched software on exit"
+
 [node name="CheckBoxRandomQuotes" type="CheckBox" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
 layout_mode = 2
 text = "Show random quotes on the interface"
@@ -630,6 +635,7 @@ editor_preview_indeterminate = false
 [connection signal="confirmed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/ConfirmationDialogL2SetupL1" to="." method="_on_confirmation_dialog_l2_setup_l1_confirmed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/ButtonDeleteEverything" to="." method="_on_button_delete_everything_pressed"]
 [connection signal="confirmed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteEverythingConfirmationDialog" to="." method="_on_delete_everything_confirmation_dialog_confirmed"]
+[connection signal="toggled" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/CheckBoxShutdownOnExit" to="." method="_on_check_box_shutdown_on_exit_toggled"]
 [connection signal="toggled" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/CheckBoxRandomQuotes" to="." method="_on_check_box_random_quotes_toggled"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/PanelContainerQuotes/ButtonNextQuote" to="." method="_on_button_next_quote_pressed"]
 [connection signal="pressed" from="ShutdownStatus/Panel/ButtonForceShutdown" to="." method="_on_button_force_shutdown_pressed"]

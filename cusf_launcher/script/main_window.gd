@@ -45,12 +45,16 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
-	kill_started_pid()
+	if $"/root/GlobalSettings".settings_shutdown_on_exit:
+		kill_started_pid()
 
 
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		shutdown_everything()
+		if $"/root/GlobalSettings".settings_shutdown_on_exit:
+			shutdown_everything()
+		else:
+			get_tree().quit()
 
 
 func _on_button_force_shutdown_pressed() -> void:
@@ -556,6 +560,10 @@ func _on_l2_status_thunder_requested_removal() -> void:
 	remove_l2_thunder()
 
 
+func _on_check_box_shutdown_on_exit_toggled(toggled_on: bool) -> void:
+	$"/root/GlobalSettings".settings_shutdown_on_exit = toggled_on
+
+
 func _on_check_box_random_quotes_toggled(toggled_on: bool) -> void:
 	$"/root/GlobalSettings".settings_show_random_quotes = toggled_on
 	
@@ -589,7 +597,3 @@ func show_next_random_quote() -> void:
 
 func _on_button_next_quote_pressed() -> void:
 	show_next_random_quote()
-
-
-func _on_check_box_shutdown_on_exit_toggled(toggled_on: bool) -> void:
-	pass # Replace with function body.
