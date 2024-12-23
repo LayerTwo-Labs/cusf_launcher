@@ -68,11 +68,9 @@ func get_bitwindow_datadir() -> String:
 		"Linux":
 			return str("/home/", user, "/.local/share/bitwindow/")
 		"Windows":
-			# TODO
 			return str("C:\\Users\\", user, "\\AppData\\Roaming\\bitwindow")
 		"macOS":
-			# TODO
-			return str("/home/", user, "/Library/Application Support/bitwindow/")
+			return str("/Users/", user, "/Library/Application Support/bitwindow/")
 	
 	return ""
 
@@ -89,8 +87,7 @@ func get_bitwindowd_datadir() -> String:
 			# So I am not very confident that this is correct...
 			return str("C:\\Users\\", user, "\\AppData\\Roaming\\com.layertwolabs.bitwindow")
 		"macOS":
-			# TODO
-			return str("/home/", user, "/Library/Application Support/bitwindowd/")
+			return str("/home/", user, "/Library/Application Support/bitwindowd")
 	
 	return ""
 

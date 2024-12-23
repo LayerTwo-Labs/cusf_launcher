@@ -223,15 +223,27 @@ func have_bitwindow() -> bool:
 			if !FileAccess.file_exists("user://downloads/l1/bitwindow.exe"):
 				return false
 		"macOS":
-			if !FileAccess.file_exists("user://downloads/l1/bitwindow/bitwindow.app"):
+			# Try multiple possible locations
+			var possible_paths = [
+				"user://downloads/l1/bitwindow/Contents/MacOS/bitwindow",
+				"user://downloads/l1/bitwindow/bitwindow.app/Contents/MacOS/bitwindow",
+				"user://downloads/l1/bitwindow/bitwindow"
+			]
+			
+			var found = false
+			for path in possible_paths:
+				if FileAccess.file_exists(path):
+					found = true
+					break
+					
+			if !found:
 				return false
 
 	resource_bitwindow_ready.emit()
-	
 	return true
 
 
-func have_thunder() -> bool:	
+func have_thunder() -> bool:
 	match OS.get_name():
 		"Linux":
 			if !FileAccess.file_exists("user://downloads/l2/thunder-latest-x86_64-unknown-linux-gnu"):
@@ -429,23 +441,15 @@ func extract_bitwindow() -> void:
 		"Windows":
 			ret = OS.execute("tar", ["-C", downloads_dir, "-xf", str(downloads_dir, "/bitwindow.zip")])
 		"macOS":
+			DirAccess.make_dir_absolute(str(downloads_dir, "/bitwindow"))
 			ret = OS.execute("unzip", ["-o", "-d", str(downloads_dir, "/bitwindow"), str(downloads_dir, "/bitwindow.zip")])
+			if ret == OK:
+				ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bitwindow/bitwindow.app/Contents/MacOS/bitwindow")])
 
 	if ret != OK:
-		printerr("Failed to extract bitwindow")
+		printerr("Failed to extract bitwindow with return code: ", ret)
 		return
 		
-	if OS.get_name() == "Linux":
-		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bitwindow/bitwindow")])
-		if ret != OK:
-			printerr("Failed to mark bitwindow executable")
-			return
-	if OS.get_name() == "macOS":
-		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bitwindow/bitwindow.app")])
-		if ret != OK:
-			printerr("Failed to mark bitwindow executable")
-			return
-	
 	resource_bitwindow_ready.emit()
 
 
