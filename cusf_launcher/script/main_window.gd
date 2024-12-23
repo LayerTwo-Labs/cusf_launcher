@@ -577,7 +577,8 @@ func _on_check_box_random_quotes_toggled(toggled_on: bool) -> void:
 			tween_typing.kill()
 		
 		if timer_random_quote:
-			timer_random_quote.kill()
+			timer_random_quote.stop()
+			timer_random_quote.queue_free()
 
 
 func format_quote_text(text : String) -> String:
