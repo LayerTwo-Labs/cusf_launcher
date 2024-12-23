@@ -92,7 +92,7 @@ func start_l2() -> void:
 		"Windows":
 			l2_bin_path = str(downloads_dir, "/thunder-latest-x86_64-pc-windows-gnu.exe")
 		"macOS":
-			l2_bin_path = str(downloads_dir, "/thunder-latest-x86_64-unknown-linux-gnu")
+			l2_bin_path = str(downloads_dir, "/thunder-latest-x86_64-apple-darwin")
 	
 
 	var ret : int = OS.create_process(l2_bin_path, [])

@@ -223,20 +223,7 @@ func have_bitwindow() -> bool:
 			if !FileAccess.file_exists("user://downloads/l1/bitwindow.exe"):
 				return false
 		"macOS":
-			# Try multiple possible locations
-			var possible_paths = [
-				"user://downloads/l1/bitwindow/Contents/MacOS/bitwindow",
-				"user://downloads/l1/bitwindow/bitwindow.app/Contents/MacOS/bitwindow",
-				"user://downloads/l1/bitwindow/bitwindow"
-			]
-			
-			var found = false
-			for path in possible_paths:
-				if FileAccess.file_exists(path):
-					found = true
-					break
-					
-			if !found:
+			if !FileAccess.file_exists("user://downloads/l1/bitwindow/bitwindow.app/Contents/MacOS/bitwindow"):
 				return false
 
 	resource_bitwindow_ready.emit()
