@@ -26,7 +26,7 @@ func get_thunder_datadir() -> String:
 		"Windows":
 			return str("C:\\Users\\", user, "\\AppData\\Roaming\\thunder")
 		"macOS":
-			return str("/home/", user, "/Library/Application Support/thunder/")
+			return str("/Users/", user, "/Library/Application Support/thunder/")
 	
 	return ""
 
@@ -55,8 +55,7 @@ func get_enforcer_datadir() -> String:
 			# TODO
 			return str("C:\\Users\\", user, "\\AppData\\Roaming\\bip300301_enforcer")
 		"macOS":
-			# TODO
-			return str("/home/", user, "/Library/Application Support/bip300301_enforcer/")
+			return str("/Users/", user, "/Library/Application Support/bip300301_enforcer/")
 	
 	return ""
 
@@ -68,11 +67,9 @@ func get_bitwindow_datadir() -> String:
 		"Linux":
 			return str("/home/", user, "/.local/share/bitwindow/")
 		"Windows":
-			# TODO
 			return str("C:\\Users\\", user, "\\AppData\\Roaming\\bitwindow")
 		"macOS":
-			# TODO
-			return str("/home/", user, "/Library/Application Support/bitwindow/")
+			return str("/Users/", user, "/Library/Application Support/bitwindow/")
 	
 	return ""
 
@@ -89,8 +86,7 @@ func get_bitwindowd_datadir() -> String:
 			# So I am not very confident that this is correct...
 			return str("C:\\Users\\", user, "\\AppData\\Roaming\\com.layertwolabs.bitwindow")
 		"macOS":
-			# TODO
-			return str("/home/", user, "/Library/Application Support/bitwindowd/")
+			return str("/Users/", user, "/Library/Application Support/bitwindowd")
 	
 	return ""
 
