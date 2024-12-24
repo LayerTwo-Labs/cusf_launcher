@@ -39,6 +39,9 @@ func _ready() -> void:
 	
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.set_l2_info("Thunder", "LN Support Chain")
 	
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonRemoveL1.visible = false
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonStopL1.visible = false
+	
 	call_deferred("check_resources")
 	call_deferred("display_resource_status")
 	call_deferred("update_os_info")
@@ -62,7 +65,7 @@ func _on_button_force_shutdown_pressed() -> void:
 
 
 func shutdown_everything() -> void:
-	$ShutdownStatus.visible = true
+	$LauncherShutdownStatus.visible = true
 
 	kill_started_pid()
 	await get_tree().create_timer(10).timeout
@@ -194,8 +197,8 @@ func display_resource_status() -> void:
 		# Tell all L2's that L1 is setup
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.set_l1_ready()
 		# Enable L1 remove button
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/ButtonRemoveL1.disabled = false
-
+		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonRemoveL1.visible = true
+	
 	var l1_status_text : String = ""
 	
 	var l1_downloading : bool = $MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelDownloadProgress.visible
@@ -384,8 +387,8 @@ func start_l1() -> void:
 	# Tell L2's that L1 is running
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.set_l1_running()
 
-	# Enable L1 restart button
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/ButtonRestartL1.disabled = false
+	# Enable L1 stop button
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonStopL1.visible = true
 
 
 func _on_button_start_l1_pressed() -> void:
@@ -448,8 +451,8 @@ func _on_delete_everything_confirmation_dialog_confirmed() -> void:
 
 
 func remove_l1() -> void:
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/ButtonRemoveL1.disabled = true
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/ButtonRestartL1.disabled = true
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonRemoveL1.visible = false
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonStopL1.visible = false
 	
 	kill_l1_pid()
 	
@@ -539,19 +542,6 @@ func _on_l2_status_thunder_started(pid: int) -> void:
 	pid_thunder = pid
 
 
-func _on_button_restart_l1_pressed() -> void:
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/ButtonRestartL1.disabled = true
-	$RestartStatus.visible = true
-	kill_l1_pid()
-	await get_tree().create_timer(5.0).timeout
-	$RestartStatus.visible = false
-	start_l1()
-
-
-func _on_button_remove_l1_pressed() -> void:
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/ConfirmationDialogRemoveL1.show()
-
-
 func _on_confirmation_dialog_remove_l1_confirmed() -> void:
 	remove_l1()
 
@@ -597,3 +587,23 @@ func show_next_random_quote() -> void:
 
 func _on_button_next_quote_pressed() -> void:
 	show_next_random_quote()
+
+
+func _on_button_remove_l1_pressed() -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/ConfirmationDialogRemoveL1.show()
+
+
+func _on_button_stop_l1_pressed() -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonStopL1.visible = false
+	$L1ShutdownStatus.visible = true
+	kill_l1_pid()
+	
+	# TODO wait for pids to actually stop instead of a timer
+	await get_tree().create_timer(5.0).timeout
+	$L1ShutdownStatus.visible = false
+	
+	# Hide L1 run status labels and show start button
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = true
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.visible = false
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.visible = false	
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBitWindow.visible = false
