@@ -21,11 +21,19 @@ config/icon="res://image/bitcoin.png"
 [autoload]
 
 GlobalSettings="*res://global_settings.gd"
+ExtensionLoader="*res://addons/cusf_launcher_crypto/extension_loader.gd"
 
 [display]
 
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/size/resizable=false
 window/stretch/mode="canvas_items"
 window/stretch/aspect="ignore"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/cusf_launcher_crypto/plugin.cfg")
 
 [rendering]
 
