@@ -1,0 +1,100 @@
+[gd_scene load_steps=2 format=3 uid="uid://b6j8p2q3n4m5k"]
+
+[ext_resource type="Script" path="res://script/minimal_wallet.gd" id="1_w4j3r"]
+
+[node name="MinimalWallet" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_w4j3r")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5)
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -200.0
+offset_right = 300.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="Label" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+text = "Create Wallet"
+horizontal_alignment = 1
+
+[node name="InputTypeContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="MnemonicButton" type="CheckBox" parent="Panel/VBoxContainer/InputTypeContainer"]
+layout_mode = 2
+button_pressed = true
+text = "Mnemonic"
+
+[node name="HexButton" type="CheckBox" parent="Panel/VBoxContainer/InputTypeContainer"]
+layout_mode = 2
+text = ""
+
+[node name="SeedInput" type="LineEdit" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(550, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+placeholder_text = "Enter seed (12 words or 64 hex characters) or generate random"
+
+[node name="PassphraseContainer" type="VBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/VBoxContainer/PassphraseContainer"]
+layout_mode = 2
+text = "Optional BIP39 Passphrase:"
+horizontal_alignment = 1
+
+[node name="PassphraseInput" type="LineEdit" parent="Panel/VBoxContainer/PassphraseContainer"]
+custom_minimum_size = Vector2(550, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+placeholder_text = "Enter optional passphrase (leave empty for none)"
+secret = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="GenerateRandom" type="Button" parent="Panel/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Generate Random"
+
+[node name="CreateWallet" type="Button" parent="Panel/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Create Wallet"
+
+[node name="StatusLabel" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+horizontal_alignment = 1
