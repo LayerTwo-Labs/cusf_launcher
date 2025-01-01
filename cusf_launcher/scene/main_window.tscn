@@ -551,6 +551,20 @@ text = "Shutdown launched software on exit"
 layout_mode = 2
 text = "Show random quotes on the interface"
 
+[node name="ButtonDeleteWalletStarters" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
+layout_mode = 2
+text = "Delete Wallet Starters"
+
+[node name="DeleteWalletStartersConfirmationDialog" type="ConfirmationDialog" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
+initial_position = 2
+size = Vector2i(500, 200)
+ok_button_text = "Delete Wallet Starters"
+dialog_text = "WARNING: You are about to delete all wallet starter files.
+
+If you have not saved your mnemonic phrase, you will NOT be able to regenerate these files!
+
+Are you sure you want to proceed?"
+
 [node name="PanelContainerQuotes" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
 visible = false
 custom_minimum_size = Vector2(1140, 0)

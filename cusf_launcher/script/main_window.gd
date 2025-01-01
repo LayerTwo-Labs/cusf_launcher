@@ -45,7 +45,20 @@ func _ready() -> void:
 	call_deferred("check_resources")
 	call_deferred("display_resource_status")
 	call_deferred("update_os_info")
-
+	
+	# Check if wallet exists, if not show the minimal wallet window
+	var user_data_dir = OS.get_user_data_dir()
+	var wallet_file = user_data_dir.path_join("wallet_starters/wallet_master_seed.txt")
+	if not FileAccess.file_exists(wallet_file):
+		var minimal_wallet_scene = load("res://scene/minimal_wallet.tscn")
+		var minimal_wallet = minimal_wallet_scene.instantiate()
+		get_tree().root.add_child(minimal_wallet)
+	
+	# Connect delete wallet starters button
+	var delete_wallet_starters_button = $MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/ButtonDeleteWalletStarters
+	var delete_wallet_starters_dialog = $MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteWalletStartersConfirmationDialog
+	delete_wallet_starters_button.connect("pressed", Callable(self, "_on_button_delete_wallet_starters_pressed"))
+	delete_wallet_starters_dialog.connect("confirmed", Callable(self, "_on_delete_wallet_starters_confirmed"))
 
 func _exit_tree() -> void:
 	if $"/root/GlobalSettings".settings_shutdown_on_exit:
@@ -607,3 +620,33 @@ func _on_button_stop_l1_pressed() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.visible = false	
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBitWindow.visible = false
+
+
+func _on_button_delete_wallet_starters_pressed():
+	var dialog = $MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteWalletStartersConfirmationDialog
+	dialog.popup_centered()
+
+
+func _on_delete_wallet_starters_confirmed():
+	var user_data_dir = OS.get_user_data_dir()
+	var starters_dir = user_data_dir.path_join("wallet_starters")
+	
+	# Delete all files in the wallet_starters directory
+	var dir = DirAccess.open(starters_dir)
+	if dir:
+		# First delete all files in the directory
+		var files = dir.get_files()
+		for file in files:
+			var file_path = starters_dir.path_join(file)
+			dir.remove(file_path)
+		
+		# Move up one directory to delete the wallet_starters folder itself
+		var parent_dir = DirAccess.open(user_data_dir)
+		if parent_dir:
+			parent_dir.remove(starters_dir)
+		
+		# Show the minimal wallet window since no wallet exists now
+		var minimal_wallet_scene = preload("res://scene/minimal_wallet.tscn")
+		var minimal_wallet = minimal_wallet_scene.instantiate()
+		add_child.call_deferred(minimal_wallet)
+		minimal_wallet.visible = true
