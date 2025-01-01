@@ -1,0 +1,11 @@
+[package]
+name = "cusf_launcher_crypto"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]  # Compile this crate to a dynamic C library.
+
+[dependencies]
+bitcoin_hashes = { version = "0.14.0", default-features = false }
+godot = { git = "https://github.com/godot-rust/gdext", branch = "master" }
