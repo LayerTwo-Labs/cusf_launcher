@@ -29,6 +29,8 @@ func _ready():
 	seed_input.connect("text_changed", Callable(self, "_on_seed_input_changed"))
 	mnemonic_button.connect("pressed", Callable(self, "_on_input_type_changed"))
 	hex_button.connect("pressed", Callable(self, "_on_input_type_changed"))
+	$Panel/CloseButton.connect("pressed", Callable(self, "_on_close_button_pressed"))
+	$Panel/CloseWarningDialog.connect("confirmed", Callable(self, "_on_close_warning_confirmed"))
 	ensure_starters_directory()
 	load_bip39_words()
 	
@@ -345,3 +347,12 @@ func _on_close_requested():
 		visible = false
 	else:
 		status_label.text = "Please create a wallet first"
+
+func _on_close_button_pressed():
+	if !check_existing_wallet():
+		$Panel/CloseWarningDialog.popup_centered()
+	else:
+		visible = false
+
+func _on_close_warning_confirmed():
+	visible = false
