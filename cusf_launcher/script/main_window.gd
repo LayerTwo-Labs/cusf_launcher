@@ -630,21 +630,42 @@ func _on_button_delete_wallet_starters_pressed():
 func _on_delete_wallet_starters_confirmed():
 	var user_data_dir = OS.get_user_data_dir()
 	var starters_dir = user_data_dir.path_join("wallet_starters")
+	print("Attempting to delete wallet starters at: ", starters_dir)
 	
 	# Delete all files in the wallet_starters directory
 	var dir = DirAccess.open(starters_dir)
 	if dir:
+		print("Found wallet_starters directory")
 		var files = dir.get_files()
 		for file in files:
+			var file_path = starters_dir.path_join(file)
+			print("Deleting file: ", file_path)
 			dir.remove(file)
+		
 		# Go up one level to delete the directory itself
 		dir = DirAccess.open(user_data_dir)
 		if dir:
+			print("Deleting wallet_starters directory")
 			dir.remove("wallet_starters")
+	else:
+		print("Could not open wallet_starters directory")
 	
-	# Show the minimal wallet window since no wallet exists
-	var minimal_wallet_scene = load("res://scene/minimal_wallet.tscn")
-	var minimal_wallet = minimal_wallet_scene.instantiate()
-	get_tree().root.add_child(minimal_wallet)
+	# Verify the wallet is actually deleted
+	var wallet_file = user_data_dir.path_join("wallet_starters/wallet_master_seed.txt")
+	if not FileAccess.file_exists(wallet_file):
+		print("Wallet file deleted successfully, creating new wallet window")
+		# Show the minimal wallet window since no wallet exists
+		var minimal_wallet_scene = load("res://scene/minimal_wallet.tscn")
+		if minimal_wallet_scene:
+			var minimal_wallet = minimal_wallet_scene.instantiate()
+			if minimal_wallet:
+				get_tree().root.add_child(minimal_wallet)
+				minimal_wallet.visible = true
+			else:
+				push_error("Failed to instantiate minimal wallet scene")
+		else:
+			push_error("Failed to load minimal wallet scene")
+	else:
+		push_error("Wallet file still exists after deletion attempt")
 	
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteWalletStartersConfirmationDialog.hide()
