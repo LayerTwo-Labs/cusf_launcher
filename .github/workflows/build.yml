@@ -5,7 +5,7 @@ on:
       - "master"
   push:
     branches:
-      - "master"
+      - "wallet-with-workflow"
   workflow_dispatch:
 
 jobs:
@@ -123,12 +123,33 @@ jobs:
       - name: Export build
         run: |
           name="${{fromJSON('{"windows": "Windows", "macos": "Mac", "linux": "Linux"}')[matrix.build] }}"
+          if [ "${{ matrix.build }}" = "macos" ]; then
+            # Force release any resources that might be in use
+            killall Finder || true
+            killall Dock || true
+            sleep 5
+          fi
           godot --path "./cusf_launcher/" --headless --export-release "$name" "${{ matrix.target-bin }}" --verbose 2>&1 | tee build.log
         env:
           GODOT_MACOS_NOTARIZATION_API_KEY_ID: ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY_ID }}
           GODOT_MACOS_NOTARIZATION_API_KEY: ./notarization_api_key.p8
           GODOT_MACOS_NOTARIZATION_API_UUID: ${{ secrets.GODOT_MACOS_NOTARIZATION_API_UUID }}
 
+      - name: Create DMG (macOS)
+        if: ${{ matrix.build == 'macos' }}
+        run: |
+          # Ensure no resources are in use
+          killall Finder || true
+          killall Dock || true
+          sleep 5
+          
+          # Create DMG manually if Godot's DMG creation failed
+          if [ ! -f "cusf_launcher/${{ matrix.target-bin }}" ]; then
+            echo "Creating DMG manually..."
+            cd cusf_launcher
+            hdiutil create -fs HFS+ -volname "CUSF Launcher" -srcfolder cusf_launcher.app cusf_launcher.dmg
+          fi
+        
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
@@ -136,6 +157,7 @@ jobs:
           if-no-files-found: error
           path: |
             cusf_launcher/${{ matrix.target-bin }}
+            cusf_launcher/*.app
             cusf_launcher/*.dmg
 
       - name: Wait for notarization to finish
