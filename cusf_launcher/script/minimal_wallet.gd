@@ -1,27 +1,21 @@
 extends Control
 
-@onready var seed_input = $Panel/VBoxContainer/SeedInput
-@onready var passphrase_input = $Panel/VBoxContainer/PassphraseContainer/PassphraseInput
-@onready var passphrase_container = $Panel/VBoxContainer/PassphraseContainer
-@onready var generate_random = $Panel/VBoxContainer/HBoxContainer/GenerateRandom
-@onready var create_wallet = $Panel/VBoxContainer/HBoxContainer/CreateWallet
-@onready var status_label = $Panel/VBoxContainer/StatusLabel
-@onready var mnemonic_button = $Panel/VBoxContainer/InputTypeContainer/MnemonicButton
-@onready var hex_button = $Panel/VBoxContainer/InputTypeContainer/HexButton
+const ENT_128 = 16  # 128 bits = 12 words
 
 var crypto = Crypto.new()
 var ripemd160
 var hmac_sha512
 var bip39_words = []
 
-# BIP39 constants
-const ENT_128 = 16  # 128 bits = 12 words
+@onready var _seed_input = $Panel/VBoxContainer/SeedInput
+@onready var _passphrase_input = $Panel/VBoxContainer/PassphraseContainer/PassphraseInput
+@onready var _passphrase_container = $Panel/VBoxContainer/PassphraseContainer
+@onready var _generate_random = $Panel/VBoxContainer/HBoxContainer/GenerateRandom
+@onready var _create_wallet = $Panel/VBoxContainer/HBoxContainer/CreateWallet
+@onready var _status_label = $Panel/VBoxContainer/StatusLabel
+@onready var _mnemonic_button = $Panel/VBoxContainer/InputTypeContainer/MnemonicButton
+@onready var _hex_button = $Panel/VBoxContainer/InputTypeContainer/HexButton
 
-func sha256(data: PackedByteArray) -> PackedByteArray:
-	var ctx = HashingContext.new()
-	ctx.start(HashingContext.HASH_SHA256)
-	ctx.update(data)
-	return ctx.finish()
 
 func _ready():
 	# Initialize crypto classes
@@ -32,68 +26,71 @@ func _ready():
 		push_error("Crypto extension classes not found. Make sure the extension is loaded.")
 		return
 
-	generate_random.connect("pressed", Callable(self, "_on_generate_random_pressed"))
-	create_wallet.connect("pressed", Callable(self, "_on_create_wallet_pressed"))
-	seed_input.connect("text_changed", Callable(self, "_on_seed_input_changed"))
-	mnemonic_button.connect("pressed", Callable(self, "_on_input_type_changed"))
-	hex_button.connect("pressed", Callable(self, "_on_input_type_changed"))
-	$Panel/CloseButton.connect("pressed", Callable(self, "_on_close_button_pressed"))
-	$Panel/CloseWarningDialog.connect("confirmed", Callable(self, "_on_close_warning_confirmed"))
-	ensure_starters_directory()
-	load_bip39_words()
+	_generate_random.connect("pressed", _on_generate_random_pressed)
+	_create_wallet.connect("pressed", _on_create_wallet_pressed)
+	_seed_input.connect("text_changed", _on_seed_input_changed)
+	_mnemonic_button.connect("pressed", _on_input_type_changed)
+	_hex_button.connect("pressed", _on_input_type_changed)
+	$Panel/CloseButton.connect("pressed", _on_close_button_pressed)
+	$Panel/CloseWarningDialog.connect("confirmed", _on_close_warning_confirmed)
 	
-	# Show the window if no wallet exists
-	visible = !check_existing_wallet()
+	_ensure_starters_directory()
+	_load_bip39_words()
 	_on_input_type_changed()  # Set initial visibility
+	
+	# Always show the window when it's instantiated
+	# The main window only creates this when needed
+	show()
+	visible = true
 
-func _on_input_type_changed():
-	var button = mnemonic_button if mnemonic_button.button_pressed else hex_button
-	if button == mnemonic_button:
-		hex_button.button_pressed = false
-		seed_input.placeholder_text = "Enter BIP39 mnemonic (12 words) or generate random"
-		passphrase_container.visible = true
-	else:
-		mnemonic_button.button_pressed = false
-		seed_input.placeholder_text = "Enter 64 hex characters or generate random"
-		passphrase_container.visible = false
-	_on_seed_input_changed(seed_input.text)
 
-func load_bip39_words():
+func _input(event):
+	if event is InputEventMouseButton:
+		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			# Check if click is outside the panel
+			var panel_rect = $Panel.get_global_rect()
+			if not panel_rect.has_point(event.position):
+				_on_close_requested()
+
+
+func _load_bip39_words():
 	var file = FileAccess.open("res://addons/cusf_launcher_crypto/bip39_word_list.json", FileAccess.READ)
 	if file:
 		bip39_words = JSON.parse_string(file.get_as_text())
 		file.close()
+
 
 func _on_generate_random_pressed():
 	# Generate random bytes using current time
 	var time_bytes = str(Time.get_unix_time_from_system()).to_utf8_buffer()
 	var random_hex = sha256(sha256(time_bytes)).hex_encode()
 	
-	if mnemonic_button.button_pressed:
+	if _mnemonic_button.button_pressed:
 		# Convert the hex to mnemonic (use first 16 bytes for 12 words)
 		var all_bytes = random_hex.hex_decode()
 		var entropy = all_bytes.slice(0, ENT_128)  # Take first 16 bytes for 12 words
-		var mnemonic = generate_mnemonic(entropy)
-		seed_input.text = mnemonic
+		var mnemonic = _generate_mnemonic(entropy)
+		_seed_input.text = mnemonic
 	else:
 		# Display the hex directly
-		seed_input.text = random_hex
+		_seed_input.text = random_hex
+
 
 func _on_create_wallet_pressed():
-	var input_text = seed_input.text.strip_edges()
+	var input_text = _seed_input.text.strip_edges()
 	var seed_bytes: PackedByteArray
 	var mnemonic: String = ""
 	
-	if mnemonic_button.button_pressed:
-		if !is_valid_mnemonic(input_text):
-			status_label.text = "Invalid mnemonic. Please enter 12 valid BIP39 words."
+	if _mnemonic_button.button_pressed:
+		if not _is_valid_mnemonic(input_text):
+			_status_label.text = "Invalid mnemonic. Please enter 12 valid BIP39 words."
 			return
 		mnemonic = input_text
-		var passphrase = passphrase_input.text  # Get optional passphrase
-		seed_bytes = mnemonic_to_seed(mnemonic, passphrase)
+		var passphrase = _passphrase_input.text  # Get optional passphrase
+		seed_bytes = _mnemonic_to_seed(mnemonic, passphrase)
 	else:
-		if !is_valid_hex(input_text):
-			status_label.text = "Invalid hex format. Must be 64 hex characters."
+		if not _is_valid_hex(input_text):
+			_status_label.text = "Invalid hex format. Must be 64 hex characters."
 			return
 		# Double SHA256 of hex input
 		var initial_bytes = input_text.hex_decode()
@@ -101,44 +98,48 @@ func _on_create_wallet_pressed():
 		seed_bytes = sha256(first_hash)
 	
 	# Generate wallet data
-	var wallet_data = generate_wallet_data(seed_bytes, mnemonic)
-	save_wallet_data(wallet_data)
-	status_label.text = "Wallet created successfully!"
+	var wallet_data = _generate_wallet_data(seed_bytes, mnemonic)
+	_save_wallet_data(wallet_data)
+	_status_label.text = "Wallet created successfully!"
 	
 	# Hide after a short delay
 	await get_tree().create_timer(1.0).timeout
 	visible = false
 
+
 func _on_seed_input_changed(new_text: String):
 	if new_text.is_empty():
-		status_label.text = ""
+		_status_label.text = ""
 		return
 
-	if mnemonic_button.button_pressed:
-		if is_valid_mnemonic(new_text):
-			status_label.text = "Valid mnemonic format"
+	if _mnemonic_button.button_pressed:
+		if _is_valid_mnemonic(new_text):
+			_status_label.text = "Valid mnemonic format"
 		else:
-			status_label.text = "Invalid mnemonic. Please enter 12 valid BIP39 words."
+			_status_label.text = "Invalid mnemonic. Please enter 12 valid BIP39 words."
 	else:
-		if is_valid_hex(new_text):
-			status_label.text = "Valid hex format"
+		if _is_valid_hex(new_text):
+			_status_label.text = "Valid hex format"
 		else:
-			status_label.text = "Invalid hex format. Must be 64 hex characters."
+			_status_label.text = "Invalid hex format. Must be 64 hex characters."
 
-func is_valid_hex(hex_string: String) -> bool:
+
+func _is_valid_hex(hex_string: String) -> bool:
 	if hex_string.length() != 64:
 		return false
 	var hex_regex = RegEx.new()
 	hex_regex.compile("^[0-9a-fA-F]+$")
 	return hex_regex.search(hex_string) != null
 
-func format_binary(num: int, width: int) -> String:
+
+func _format_binary(num: int, width: int) -> String:
 	var result = ""
 	for i in range(width):
 		result = ("1" if num & (1 << i) else "0") + result
 	return result
 
-func is_valid_mnemonic(mnemonic: String) -> bool:
+
+func _is_valid_mnemonic(mnemonic: String) -> bool:
 	var words = mnemonic.split(" ", false)
 	
 	# Check word count is valid (12 words only)
@@ -147,7 +148,7 @@ func is_valid_mnemonic(mnemonic: String) -> bool:
 	
 	# Check if all words are in the BIP39 word list
 	for word in words:
-		if !bip39_words.has(word):
+		if not bip39_words.has(word):
 			return false
 	
 	# Calculate entropy length (128 bits for 12 words)
@@ -162,7 +163,7 @@ func is_valid_mnemonic(mnemonic: String) -> bool:
 	# Convert indices to binary
 	var binary = ""
 	for index in indices:
-		binary += format_binary(index, 11)
+		binary += _format_binary(index, 11)
 	
 	# Split entropy and checksum
 	var entropy_bits_str = binary.substr(0, entropy_bits)
@@ -187,7 +188,8 @@ func is_valid_mnemonic(mnemonic: String) -> bool:
 	
 	return checksum_bits == expected_checksum
 
-func generate_mnemonic(entropy: PackedByteArray) -> String:
+
+func _generate_mnemonic(entropy: PackedByteArray) -> String:
 	if entropy.size() != ENT_128:
 		push_error("Invalid entropy length")
 		return ""
@@ -226,7 +228,8 @@ func generate_mnemonic(entropy: PackedByteArray) -> String:
 	
 	return " ".join(words)
 
-func mnemonic_to_seed(mnemonic: String, passphrase: String = "") -> PackedByteArray:
+
+func _mnemonic_to_seed(mnemonic: String, passphrase: String = "") -> PackedByteArray:
 	# Convert mnemonic and passphrase to UTF-8
 	var password = mnemonic.to_utf8_buffer()
 	var salt = ("mnemonic" + passphrase).to_utf8_buffer()
@@ -238,7 +241,7 @@ func mnemonic_to_seed(mnemonic: String, passphrase: String = "") -> PackedByteAr
 	# We need 64 bytes (512 bits) of output
 	while result.size() < 64:
 		# Calculate U1 = HMAC-SHA512(password, salt || INT_32_BE(i))
-		var u = hmac_sha512.hmac(password, salt + int_to_4bytes(block_number))
+		var u = hmac_sha512.hmac(password, salt + _int_to_4bytes(block_number))
 		var block = u
 		
 		# Calculate U2 through U2048
@@ -253,7 +256,8 @@ func mnemonic_to_seed(mnemonic: String, passphrase: String = "") -> PackedByteAr
 	
 	return result.slice(0, 64)  # Ensure exactly 64 bytes
 
-func int_to_4bytes(n: int) -> PackedByteArray:
+
+func _int_to_4bytes(n: int) -> PackedByteArray:
 	var bytes = PackedByteArray()
 	bytes.resize(4)
 	bytes[0] = (n >> 24) & 0xFF
@@ -262,7 +266,8 @@ func int_to_4bytes(n: int) -> PackedByteArray:
 	bytes[3] = n & 0xFF
 	return bytes
 
-func generate_wallet_data(seed_bytes: PackedByteArray, mnemonic: String) -> Dictionary:
+
+func _generate_wallet_data(seed_bytes: PackedByteArray, mnemonic: String) -> Dictionary:
 	# Generate HMAC-SHA512 of seed with "Bitcoin seed" as key
 	var key = "Bitcoin seed".to_utf8_buffer()
 	var hmac = hmac_sha512.hmac(key, seed_bytes)
@@ -276,7 +281,7 @@ func generate_wallet_data(seed_bytes: PackedByteArray, mnemonic: String) -> Dict
 	var bip39_csum = ""
 	var bip39_csum_hex = ""
 	
-	if !mnemonic.is_empty():
+	if not mnemonic.is_empty():
 		# Convert mnemonic words to indices
 		var indices = []
 		for word in mnemonic.split(" ", false):
@@ -284,7 +289,7 @@ func generate_wallet_data(seed_bytes: PackedByteArray, mnemonic: String) -> Dict
 		
 		# Convert indices to binary
 		for index in indices:
-			bip39_bin += format_binary(index, 11)
+			bip39_bin += _format_binary(index, 11)
 		
 		# Calculate entropy length from word count
 		var word_count = mnemonic.split(" ", false).size()
@@ -315,11 +320,12 @@ func generate_wallet_data(seed_bytes: PackedByteArray, mnemonic: String) -> Dict
 		"hd_key_data": master_key.hex_encode() + chain_code.hex_encode(),
 		"master_key": master_key.hex_encode(),
 		"mnemonic": mnemonic,
-		"seed_hex": seed_bytes.hex_encode()
+		"seed_hex": seed_bytes.hex_encode(),
 	}
 
-func save_wallet_data(wallet_data: Dictionary):
-	ensure_starters_directory()
+
+func _save_wallet_data(wallet_data: Dictionary):
+	_ensure_starters_directory()
 	
 	var user_data_dir = OS.get_user_data_dir()
 	var starters_dir = user_data_dir.path_join("wallet_starters")
@@ -330,37 +336,69 @@ func save_wallet_data(wallet_data: Dictionary):
 		master_file.store_string(JSON.stringify(wallet_data))
 		master_file.close()
 
-func ensure_starters_directory():
+
+func _ensure_starters_directory():
 	var user_data_dir = OS.get_user_data_dir()
 	var starters_dir = user_data_dir.path_join("wallet_starters")
 	var dir = DirAccess.open(user_data_dir)
 	if not dir.dir_exists("wallet_starters"):
 		dir.make_dir("wallet_starters")
 
-func check_existing_wallet() -> bool:
-	var user_data_dir = OS.get_user_data_dir()
-	var wallet_file = user_data_dir.path_join("wallet_starters/wallet_master_seed.txt")
-	return FileAccess.file_exists(wallet_file)
 
-func _input(event):
-	if event is InputEventMouseButton:
-		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			# Check if click is outside the panel
-			var panel_rect = $Panel.get_global_rect()
-			if !panel_rect.has_point(event.position):
-				_on_close_requested()
+func _check_existing_wallet() -> bool:
+	var user_data_dir = OS.get_user_data_dir()
+	var starters_dir = user_data_dir.path_join("wallet_starters")
+	var wallet_file = starters_dir.path_join("wallet_master_seed.txt")
+	
+	if not DirAccess.dir_exists_absolute(starters_dir):
+		return false
+		
+	if not FileAccess.file_exists(wallet_file):
+		return false
+		
+	var file = FileAccess.open(wallet_file, FileAccess.READ)
+	if not file:
+		return false
+		
+	var content = file.get_as_text()
+	file.close()
+	
+	return not content.is_empty()
+
+
+func _on_input_type_changed():
+	var button = _mnemonic_button if _mnemonic_button.button_pressed else _hex_button
+	if button == _mnemonic_button:
+		_hex_button.button_pressed = false
+		_seed_input.placeholder_text = "Enter BIP39 mnemonic (12 words) or generate random"
+		_passphrase_container.visible = true
+	else:
+		_mnemonic_button.button_pressed = false
+		_seed_input.placeholder_text = "Enter 64 hex characters or generate random"
+		_passphrase_container.visible = false
+	_on_seed_input_changed(_seed_input.text)
+
 
 func _on_close_requested():
-	if check_existing_wallet():
+	if _check_existing_wallet():
 		visible = false
 	else:
-		status_label.text = "Please create a wallet first"
+		_status_label.text = "Please create a wallet first"
+
 
 func _on_close_button_pressed():
-	if !check_existing_wallet():
+	if not _check_existing_wallet():
 		$Panel/CloseWarningDialog.popup_centered()
 	else:
 		visible = false
 
+
 func _on_close_warning_confirmed():
 	visible = false
+
+
+func sha256(data: PackedByteArray) -> PackedByteArray:
+	var ctx = HashingContext.new()
+	ctx.start(HashingContext.HASH_SHA256)
+	ctx.update(data)
+	return ctx.finish()

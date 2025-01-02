@@ -29,7 +29,56 @@ var random_quotes = [
  	"Resistance to tyranny is obedience to God. -Thomas Jefferson",
 ]
 
+func _check_wallet() -> bool:
+	var user_data_dir = OS.get_user_data_dir()
+	var starters_dir = user_data_dir.path_join("wallet_starters")
+	var wallet_file = starters_dir.path_join("wallet_master_seed.txt")
+	
+	print("Checking wallet at: ", wallet_file)
+	
+	# If directory doesn't exist, we need a wallet
+	if not DirAccess.dir_exists_absolute(starters_dir):
+		print("Wallet directory does not exist")
+		return false
+		
+	# If directory exists but is empty, we need a wallet
+	var dir = DirAccess.open(starters_dir)
+	if dir and dir.get_files().is_empty():
+		print("Wallet directory is empty")
+		return false
+		
+	# If file doesn't exist, we need a wallet
+	if not FileAccess.file_exists(wallet_file):
+		print("Wallet file does not exist")
+		return false
+		
+	# If file exists but can't be opened, we need a wallet
+	var file = FileAccess.open(wallet_file, FileAccess.READ)
+	if not file:
+		print("Wallet file cannot be opened")
+		return false
+		
+	# If file is empty, we need a wallet
+	var content = file.get_as_text().strip_edges()
+	file.close()
+	
+	if content.is_empty():
+		print("Wallet file is empty")
+		return false
+		
+	print("Wallet exists and is valid")
+	return true
+
 func _ready() -> void:
+	# Check for wallet first, before any other initialization
+	if not _check_wallet():
+		print("No wallet found, showing wallet creator")
+		var minimal_wallet_scene = load("res://scene/minimal_wallet.tscn")
+		var minimal_wallet = minimal_wallet_scene.instantiate()
+		add_child(minimal_wallet)  # Add to this node instead of root
+		minimal_wallet.show()
+		minimal_wallet.process_mode = Node.PROCESS_MODE_ALWAYS  # Ensure it processes even if parent is paused
+	
 	get_tree().set_auto_accept_quit(false)
 	
 	# Create timer to check on running state of L1 and L2 software
@@ -45,14 +94,6 @@ func _ready() -> void:
 	call_deferred("check_resources")
 	call_deferred("display_resource_status")
 	call_deferred("update_os_info")
-	
-	# Check if wallet exists, if not show the minimal wallet window
-	var user_data_dir = OS.get_user_data_dir()
-	var wallet_file = user_data_dir.path_join("wallet_starters/wallet_master_seed.txt")
-	if not FileAccess.file_exists(wallet_file):
-		var minimal_wallet_scene = load("res://scene/minimal_wallet.tscn")
-		var minimal_wallet = minimal_wallet_scene.instantiate()
-		get_tree().root.add_child(minimal_wallet)
 	
 	# Connect delete wallet starters button
 	var delete_wallet_starters_button = $MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/ButtonDeleteWalletStarters
