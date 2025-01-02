@@ -634,19 +634,17 @@ func _on_delete_wallet_starters_confirmed():
 	# Delete all files in the wallet_starters directory
 	var dir = DirAccess.open(starters_dir)
 	if dir:
-		# First delete all files in the directory
 		var files = dir.get_files()
 		for file in files:
-			var file_path = starters_dir.path_join(file)
-			dir.remove(file_path)
-		
-		# Move up one directory to delete the wallet_starters folder itself
-		var parent_dir = DirAccess.open(user_data_dir)
-		if parent_dir:
-			parent_dir.remove(starters_dir)
-		
-		# Show the minimal wallet window since no wallet exists now
-		var minimal_wallet_scene = preload("res://scene/minimal_wallet.tscn")
-		var minimal_wallet = minimal_wallet_scene.instantiate()
-		add_child.call_deferred(minimal_wallet)
-		minimal_wallet.visible = true
+			dir.remove(file)
+		# Go up one level to delete the directory itself
+		dir = DirAccess.open(user_data_dir)
+		if dir:
+			dir.remove("wallet_starters")
+	
+	# Show the minimal wallet window since no wallet exists
+	var minimal_wallet_scene = load("res://scene/minimal_wallet.tscn")
+	var minimal_wallet = minimal_wallet_scene.instantiate()
+	get_tree().root.add_child(minimal_wallet)
+	
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteWalletStartersConfirmationDialog.hide()
