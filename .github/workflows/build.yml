@@ -138,16 +138,17 @@ jobs:
       - name: Create DMG (macOS)
         if: ${{ matrix.build == 'macos' }}
         run: |
-          # Ensure no resources are in use
-          killall Finder || true
-          killall Dock || true
-          sleep 5
+          # Show what files we have
+          echo "Contents of cusf_launcher directory:"
+          ls -la cusf_launcher/
           
-          # Create DMG manually if Godot's DMG creation failed
-          if [ ! -f "cusf_launcher/${{ matrix.target-bin }}" ]; then
-            echo "Creating DMG manually..."
+          # Only create DMG if Godot didn't create one
+          if [ ! -f "cusf_launcher/cusf_launcher.dmg" ] && [ -d "cusf_launcher/cusf_launcher.app" ]; then
+            echo "Godot DMG not found but .app exists, creating DMG manually..."
             cd cusf_launcher
             hdiutil create -fs HFS+ -volname "CUSF Launcher" -srcfolder cusf_launcher.app cusf_launcher.dmg
+          else
+            echo "Using Godot-created DMG or no .app bundle found"
           fi
         
       - name: Upload build
