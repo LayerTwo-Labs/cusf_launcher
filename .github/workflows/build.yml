@@ -1,9 +1,11 @@
 name: Build Launcher
 on:
   pull_request:
+    branches:
+      - "master"
   push:
     branches:
-      - "marc/wallet-creator"
+      - "master"
   workflow_dispatch:
 
 jobs:
