@@ -10,8 +10,8 @@ extends Control
 @onready var hex_button = $Panel/VBoxContainer/InputTypeContainer/HexButton
 
 var crypto = Crypto.new()
-var ripemd160 = Ripemd160.new()
-var hmac_sha512 = HmacSha512.new()
+var ripemd160
+var hmac_sha512
 var bip39_words = []
 
 # BIP39 constants
@@ -24,6 +24,14 @@ func sha256(data: PackedByteArray) -> PackedByteArray:
 	return ctx.finish()
 
 func _ready():
+	# Initialize crypto classes
+	if ClassDB.class_exists("Ripemd160") and ClassDB.class_exists("HmacSha512"):
+		ripemd160 = Ripemd160.new()
+		hmac_sha512 = HmacSha512.new()
+	else:
+		push_error("Crypto extension classes not found. Make sure the extension is loaded.")
+		return
+
 	generate_random.connect("pressed", Callable(self, "_on_generate_random_pressed"))
 	create_wallet.connect("pressed", Callable(self, "_on_create_wallet_pressed"))
 	seed_input.connect("text_changed", Callable(self, "_on_seed_input_changed"))

@@ -1,7 +1,6 @@
-@tool
-extends EditorPlugin
+extends Node
 
-func _enter_tree():
+func _ready():
 	var extension_path = "res://addons/cusf_launcher_crypto/CusfLauncherCrypto.gdextension"
 	
 	if not GDExtensionManager.is_extension_loaded(extension_path):
@@ -17,6 +16,3 @@ func _enter_tree():
 				push_error("Crypto extension not found")
 			GDExtensionManager.LOAD_STATUS_NEEDS_RESTART:
 				push_error("Crypto extension needs restart to load")
-
-func _exit_tree():
-	pass
