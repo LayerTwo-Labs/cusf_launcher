@@ -6,10 +6,10 @@ rpcpassword=password
 zmqpubsequence=tcp://localhost:29000
 txindex=1
 server=1
-signet=1
 fallbackfee=0.00021
+signet=1
 [signet]
-addnode=drivechain.live:8383
+addnode=172.105.148.135
 signetblocktime=60
 signetchallenge=00141f61d57873d70d28bd28b3c9f9d6bf818b5a0d6a
 '''
