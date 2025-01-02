@@ -7,8 +7,63 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    # both Windows and Linux builds run on Ubuntu
+  build-extension:
+    name: Build GDExtension
+    runs-on: ${{ matrix.build == 'windows' && 'windows' || matrix.build == 'macos' && 'macos' || 'ubuntu' }}-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [macos, windows, linux]
+    
+    outputs:
+      extension_path: ${{ steps.save-path.outputs.path }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.build == 'windows' && 'x86_64-pc-windows-msvc' || matrix.build == 'linux' && 'x86_64-unknown-linux-gnu' || 'aarch64-apple-darwin' }}
+
+      - name: Install Windows build tools
+        if: matrix.build == 'windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build GDExtension library (Windows)
+        if: matrix.build == 'windows'
+        shell: cmd
+        run: |
+          set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+          set PATH=%PATH:C:\Program Files\Git\bin;=%
+          cd cusf_launcher_crypto
+          mkdir ..\cusf_launcher\addons\cusf_launcher_crypto\bin
+          cargo build --release --target x86_64-pc-windows-msvc
+          copy target\x86_64-pc-windows-msvc\release\cusf_launcher_crypto.dll ..\cusf_launcher\addons\cusf_launcher_crypto\bin\
+
+      - name: Build GDExtension library (Unix)
+        if: matrix.build != 'windows'
+        shell: bash
+        run: |
+          cd cusf_launcher_crypto
+          mkdir -p ../cusf_launcher/addons/cusf_launcher_crypto/bin
+          if [ "${{ matrix.build }}" = "linux" ]; then
+            cargo build --release --target x86_64-unknown-linux-gnu
+            cp target/x86_64-unknown-linux-gnu/release/libcusf_launcher_crypto.so ../cusf_launcher/addons/cusf_launcher_crypto/bin/
+          else
+            cargo build --release --target aarch64-apple-darwin
+            cp target/aarch64-apple-darwin/release/libcusf_launcher_crypto.dylib ../cusf_launcher/addons/cusf_launcher_crypto/bin/
+          fi
+
+      - name: Cache GDExtension
+        uses: actions/cache@v3
+        with:
+          path: cusf_launcher/addons/cusf_launcher_crypto/bin
+          key: gdextension-${{ matrix.build }}-${{ github.sha }}
+
+  build-godot:
+    name: Build Godot Project
+    needs: build-extension
     runs-on: ${{ matrix.build == 'macos' && 'macos' || 'ubuntu' }}-latest
     strategy:
       fail-fast: false
@@ -31,25 +86,11 @@ jobs:
           use-dotnet: false
           include-templates: true
 
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - name: Restore GDExtension
+        uses: actions/cache@v3
         with:
-          targets: ${{ matrix.build == 'windows' && 'x86_64-pc-windows-msvc' || matrix.build == 'linux' && 'x86_64-unknown-linux-gnu' || 'aarch64-apple-darwin' }}
-
-      - name: Build GDExtension library
-        run: |
-          cd cusf_launcher_crypto
-          mkdir -p ../cusf_launcher/addons/cusf_launcher_crypto/bin
-          if [ "${{ matrix.build }}" = "windows" ]; then
-            cargo build --release --target x86_64-pc-windows-msvc
-            cp target/x86_64-pc-windows-msvc/release/cusf_launcher_crypto.dll ../cusf_launcher/addons/cusf_launcher_crypto/bin/
-          elif [ "${{ matrix.build }}" = "linux" ]; then
-            cargo build --release --target x86_64-unknown-linux-gnu
-            cp target/x86_64-unknown-linux-gnu/release/libcusf_launcher_crypto.so ../cusf_launcher/addons/cusf_launcher_crypto/bin/
-          else
-            cargo build --release --target aarch64-apple-darwin
-            cp target/aarch64-apple-darwin/release/libcusf_launcher_crypto.dylib ../cusf_launcher/addons/cusf_launcher_crypto/bin/
-          fi
+          path: cusf_launcher/addons/cusf_launcher_crypto/bin
+          key: gdextension-${{ matrix.build }}-${{ github.sha }}
 
       - name: Verify Setup
         run: godot --version
@@ -69,10 +110,6 @@ jobs:
 
       - name: Setup notarization credentials
         if: ${{ matrix.build == 'macos' }}
-        # important: the --path argument passed to the godot build command
-        # below causes the signing to happen with this as the working directory
-        # that means we have to make sure the notarization key is placed here, 
-        # in order to not fail with a "file not found".
         working-directory: cusf_launcher
         run: |
           echo ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY }} | base64 --decode > notarization_api_key.p8
@@ -86,24 +123,23 @@ jobs:
           name="${{fromJSON('{"windows": "Windows", "macos": "Mac", "linux": "Linux"}')[matrix.build] }}"
           godot --path "./cusf_launcher/" --headless --export-release "$name" "${{ matrix.target-bin }}" --verbose 2>&1 | tee build.log
         env:
-          GODOT_MACOS_NOTARIZATION_API_KEY_ID:
-            ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY_ID }}
+          GODOT_MACOS_NOTARIZATION_API_KEY_ID: ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY_ID }}
           GODOT_MACOS_NOTARIZATION_API_KEY: ./notarization_api_key.p8
-          GODOT_MACOS_NOTARIZATION_API_UUID:
-            ${{ secrets.GODOT_MACOS_NOTARIZATION_API_UUID }}
+          GODOT_MACOS_NOTARIZATION_API_UUID: ${{ secrets.GODOT_MACOS_NOTARIZATION_API_UUID }}
 
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
           name: cusf_launcher_${{ matrix.build }}
           if-no-files-found: error
-          path: cusf_launcher/${{ matrix.target-bin }}
+          path: |
+            cusf_launcher/${{ matrix.target-bin }}
+            cusf_launcher/*.dmg
 
       - name: Wait for notarization to finish
         if: ${{ matrix.build == 'macos' }}
         run: |
           request_id=$(grep 'Notarization request UUID' build.log | rev | cut -d ' ' -f 1 | rev | tr -d '"')
-
           xcrun notarytool wait $request_id \
             --issuer ${{ secrets.GODOT_MACOS_NOTARIZATION_API_UUID }} \
             --key-id ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY_ID }} \
