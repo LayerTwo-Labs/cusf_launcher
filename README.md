@@ -6,6 +6,8 @@ https://github.com/godotengine/godot/releases/tag/4.3-stable
 
 To build with godot editor just open the project and hit the play button.
 
+Building with compatibility mode right now because it doesn't seem to work on virtualized windows hosts in forward+.
+
 Command line build instructions:
 
 Linux:
