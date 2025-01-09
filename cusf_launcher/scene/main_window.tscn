@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://c7xfr6losav1n"]
+[gd_scene load_steps=24 format=3 uid="uid://c7xfr6losav1n"]
 
 [ext_resource type="Script" path="res://script/main_window.gd" id="1_8sbni"]
 [ext_resource type="PackedScene" uid="uid://bdpd4vlv7wtfm" path="res://scene/resource_downloader.tscn" id="2_e34m6"]
@@ -13,7 +13,15 @@
 [ext_resource type="StyleBox" uid="uid://cqkp2ncxclwfx" path="res://theme/tab_button_style_hover.tres" id="7_ls48t"]
 [ext_resource type="StyleBox" uid="uid://b2kkxl382xgg" path="res://theme/tab_button_style_pressed.tres" id="8_ovtns"]
 [ext_resource type="Texture2D" uid="uid://by4u2br7gu4ly" path="res://image/icon/delete.png" id="12_w040v"]
+[ext_resource type="Texture2D" uid="uid://ccgl0xeel0hc4" path="res://image/icon/add.png" id="12_wkain"]
+[ext_resource type="Texture2D" uid="uid://crmgcl23ieknh" path="res://image/icon/add_red.png" id="13_ksqnh"]
 [ext_resource type="Texture2D" uid="uid://b3wm0ytm4xifd" path="res://image/icon/close.png" id="13_os0af"]
+[ext_resource type="Texture2D" uid="uid://km8xj4gogj60" path="res://image/icon/start.png" id="13_srba4"]
+[ext_resource type="Texture2D" uid="uid://mixwhhu05wx0" path="res://image/icon/update.png" id="14_2ttk1"]
+[ext_resource type="Texture2D" uid="uid://bwyv4kw31cua0" path="res://image/icon/start_red.png" id="15_ciuer"]
+[ext_resource type="Texture2D" uid="uid://cnrahgew3iu3e" path="res://image/icon/delete_red.png" id="17_31mrd"]
+[ext_resource type="Texture2D" uid="uid://b3p3f5x4ktvw6" path="res://image/icon/close_red.png" id="19_ii7mt"]
+[ext_resource type="Texture2D" uid="uid://ru2k23ymnpeg" path="res://image/icon/update_red.png" id="21_ldoh2"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_ltl0q"]
 
@@ -42,33 +50,6 @@ offset_bottom = 18.0
 
 [node name="RPCClient" parent="." instance=ExtResource("4_0vrr0")]
 layout_mode = 1
-
-[node name="ButtonDownloadCUSF" type="Button" parent="."]
-layout_mode = 0
-offset_left = 434.0
-offset_top = -449.0
-offset_right = 678.0
-offset_bottom = -418.0
-text = "Download everything for CUSF"
-
-[node name="ButtonStartCUSF" type="Button" parent="."]
-layout_mode = 0
-offset_left = 475.0
-offset_top = -143.0
-offset_right = 678.0
-offset_bottom = -112.0
-text = "Start everything for CUSF"
-
-[node name="LabelResources" type="Label" parent="."]
-layout_mode = 0
-offset_left = 686.0
-offset_top = -451.0
-offset_right = 804.0
-offset_bottom = -350.0
-text = "Resources:
-resource : false
-resource : false
-resource : false"
 
 [node name="ProgressDownload" type="Control" parent="."]
 visible = false
@@ -137,10 +118,12 @@ button_group = SubResource("ButtonGroup_ltl0q")
 text = "Overview"
 
 [node name="Spacer2" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer"]
+visible = false
 custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 
 [node name="ButtonWallets" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer"]
+visible = false
 layout_mode = 2
 theme = ExtResource("6_qhbsj")
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -155,10 +138,12 @@ button_group = SubResource("ButtonGroup_ltl0q")
 text = "Wallets"
 
 [node name="Spacer3" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer"]
+visible = false
 custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 
 [node name="ButtonTools" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer"]
+visible = false
 layout_mode = 2
 theme = ExtResource("6_qhbsj")
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -192,7 +177,7 @@ text = "Settings"
 
 [node name="PanelContainerPages" type="PanelContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons"]
 clip_contents = true
-custom_minimum_size = Vector2(900, 598)
+custom_minimum_size = Vector2(1000, 600)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("4_kdykr")
@@ -214,7 +199,7 @@ theme_override_styles/panel = ExtResource("5_i6pkh")
 layout_mode = 2
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
-custom_minimum_size = Vector2(400, 0)
+custom_minimum_size = Vector2(500, 0)
 layout_mode = 2
 text = "Layer 1 Software:"
 
@@ -291,15 +276,6 @@ layout_mode = 2
 custom_minimum_size = Vector2(333, 0)
 layout_mode = 2
 
-[node name="ButtonSetupL1" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
-layout_mode = 2
-text = "Setup L1"
-
-[node name="ButtonStartL1" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
-visible = false
-layout_mode = 2
-text = "Start L1 Software"
-
 [node name="LabelL1RunStatusBTC" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
 visible = false
 layout_mode = 2
@@ -315,21 +291,74 @@ layout_mode = 2
 [node name="HBoxContainerL1Options" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer"]
 layout_mode = 2
 
-[node name="TextureButtonRemoveL1" type="TextureButton" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options"]
-modulate = Color(0, 0, 0, 0.513726)
+[node name="TextureButtonSetupL1" type="TextureButton" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options"]
 layout_mode = 2
+tooltip_text = "Install"
+texture_normal = ExtResource("12_wkain")
+texture_hover = ExtResource("13_ksqnh")
+
+[node name="TextureButtonStartL1" type="TextureButton" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options"]
+layout_mode = 2
+tooltip_text = "Start"
+texture_normal = ExtResource("13_srba4")
+texture_hover = ExtResource("15_ciuer")
+
+[node name="TextureButtonRemoveL1" type="TextureButton" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options"]
+layout_mode = 2
+tooltip_text = "Remove"
 texture_normal = ExtResource("12_w040v")
+texture_hover = ExtResource("17_31mrd")
 
 [node name="TextureButtonStopL1" type="TextureButton" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options"]
-modulate = Color(0.780392, 0, 0, 0.513726)
 layout_mode = 2
+tooltip_text = "Stop"
 texture_normal = ExtResource("13_os0af")
+texture_hover = ExtResource("19_ii7mt")
 stretch_mode = 5
+
+[node name="TextureButtonUpdateL1" type="TextureButton" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options"]
+layout_mode = 2
+tooltip_text = "Update"
+texture_normal = ExtResource("14_2ttk1")
+texture_hover = ExtResource("21_ldoh2")
+stretch_mode = 5
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options"]
+layout_mode = 2
+theme_override_constants/margin_top = 8
+
+[node name="RichTextLabelUpdateL1" type="RichTextLabel" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/MarginContainer"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+bbcode_enabled = true
+text = "[pulse]Update Available![/pulse]"
+scroll_active = false
+
+[node name="RichTextLabelInstallL1" type="RichTextLabel" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/MarginContainer"]
+custom_minimum_size = Vector2(184, 0)
+layout_mode = 2
+bbcode_enabled = true
+text = "[pulse]Setup L1 to get started![/pulse]"
+scroll_active = false
 
 [node name="ConfirmationDialogRemoveL1" type="ConfirmationDialog" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1"]
 initial_position = 2
 ok_button_text = "Remove"
 dialog_text = "Remove L1 Software?"
+
+[node name="ConfirmationDialogUpdateL1" type="ConfirmationDialog" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1"]
+auto_translate_mode = 1
+initial_position = 2
+size = Vector2i(526, 236)
+ok_button_text = "Update"
+dialog_text = "Update L1 software?
+
+All L1 and L2 software will be shut down. 
+All L1 downloads will be erased.
+Data directories will not be erased.
+Latest versions of L1 software will be downloaded and configured.
+
+"
 
 [node name="PanelContainerL2" type="PanelContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer"]
 custom_minimum_size = Vector2(450, 250)
@@ -360,6 +389,16 @@ initial_position = 2
 size = Vector2i(455, 100)
 ok_button_text = "Setup L1"
 dialog_text = "Please download L1 software before starting L2 software"
+
+[node name="PanelContainerLauncherUpdate" type="PanelContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer"]
+layout_mode = 2
+theme_override_styles/panel = ExtResource("5_i6pkh")
+
+[node name="LabelLauncherUpdate" type="RichTextLabel" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerLauncherUpdate"]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+bbcode_enabled = true
+text = "[pulse]New launcher version available to download:[/pulse] [url]https://releases.drivechain.info/[/url]"
 
 [node name="WalletPage" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages"]
 visible = false
@@ -505,42 +544,17 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
-layout_mode = 2
-text = "Settings"
-
 [node name="LabelOSInfo" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
 layout_mode = 2
 text = "OS: 
 Version:
 Data:
-
 "
-
-[node name="LabelDeleteEverything" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
-layout_mode = 2
-text = "If you press \"DeleteEverything\":
-- All L1 & L2 software will stop
-
-All of this will be moved to trash:
--All L1 & L2 data directories 
--All CUSF Launcher downloads
--All CUSF Launcher data
-
-If you have trash disabled everything will be deleted"
-
-[node name="ButtonDeleteEverything" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
-layout_mode = 2
-text = "Delete Everything"
 
 [node name="DeleteEverythingConfirmationDialog" type="ConfirmationDialog" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
 initial_position = 2
 size = Vector2i(640, 480)
 ok_button_text = "Delete Everything"
-
-[node name="Spacer" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
-custom_minimum_size = Vector2(0, 20)
-layout_mode = 2
 
 [node name="CheckBoxShutdownOnExit" type="CheckBox" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
 layout_mode = 2
@@ -550,6 +564,37 @@ text = "Shutdown launched software on exit"
 [node name="CheckBoxRandomQuotes" type="CheckBox" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
 layout_mode = 2
 text = "Show random quotes on the interface"
+
+[node name="Spacer2" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="ButtonDeleteEverything" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_styles/hover = ExtResource("7_ls48t")
+theme_override_styles/normal = ExtResource("6_cr4os")
+text = "Delete Everything"
+
+[node name="Spacer3" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer"]
+layout_mode = 2
+
+[node name="ButtonUpdate" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+theme_override_styles/hover = ExtResource("7_ls48t")
+theme_override_styles/normal = ExtResource("6_cr4os")
+text = "Check For Updates"
+
+[node name="LabelUpdateStatus" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/HBoxContainer"]
+visible = false
+layout_mode = 2
+text = "  Up to date!"
 
 [node name="PanelContainerQuotes" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
 visible = false
@@ -663,6 +708,10 @@ editor_preview_indeterminate = false
 [connection signal="resource_enforcer_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_enforcer_ready"]
 [connection signal="resource_grpcurl_download_progress" from="ResourceDownloader" to="." method="_on_resource_downloader_grpcurl_progress"]
 [connection signal="resource_grpcurl_ready" from="ResourceDownloader" to="." method="_on_downloader_resource_grpcurl_ready"]
+[connection signal="update_available_l1" from="ResourceDownloader" to="." method="_on_resource_downloader_update_available_l1"]
+[connection signal="update_available_l2_thunder" from="ResourceDownloader" to="." method="_on_resource_downloader_update_available_l2_thunder"]
+[connection signal="update_available_launcher" from="ResourceDownloader" to="." method="_on_resource_downloader_update_available_launcher"]
+[connection signal="update_available_none" from="ResourceDownloader" to="." method="_on_resource_downloader_update_available_none"]
 [connection signal="configuration_complete" from="Configuration" to="." method="_on_configuration_complete"]
 [connection signal="btc_new_block_count" from="RPCClient" to="." method="_on_rpc_client_btc_new_block_count"]
 [connection signal="btc_rpc_failed" from="RPCClient" to="." method="_on_rpc_client_btc_rpc_failed"]
@@ -670,26 +719,28 @@ editor_preview_indeterminate = false
 [connection signal="cusf_drivechain_rpc_failed" from="RPCClient" to="." method="_on_rpc_client_cusf_drivechain_rpc_failed"]
 [connection signal="thunder_cli_failed" from="RPCClient" to="." method="_on_rpc_client_thunder_cli_failed"]
 [connection signal="thunder_new_block_count" from="RPCClient" to="." method="_on_rpc_client_thunder_new_block_count"]
-[connection signal="pressed" from="ButtonDownloadCUSF" to="." method="_on_button_download_cusf_pressed"]
-[connection signal="pressed" from="ButtonStartCUSF" to="." method="_on_button_start_cusf_pressed"]
 [connection signal="toggled" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer/ButtonOverview" to="." method="_on_button_overview_toggled"]
 [connection signal="toggled" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer/ButtonWallets" to="." method="_on_button_wallets_toggled"]
 [connection signal="toggled" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer/ButtonTools" to="." method="_on_button_tools_toggled"]
 [connection signal="toggled" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPageButtons/VBoxContainer/ButtonSettings" to="." method="_on_button_settings_toggled"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonSetupL1" to="." method="_on_button_setup_l1_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1" to="." method="_on_button_start_l1_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonSetupL1" to="." method="_on_texture_button_setup_l1_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonStartL1" to="." method="_on_texture_button_start_l1_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonRemoveL1" to="." method="_on_button_remove_l1_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonStopL1" to="." method="_on_button_stop_l1_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonUpdateL1" to="." method="_on_texture_button_update_l1_pressed"]
 [connection signal="confirmed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/ConfirmationDialogRemoveL1" to="." method="_on_confirmation_dialog_remove_l1_confirmed"]
+[connection signal="confirmed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/ConfirmationDialogUpdateL1" to="." method="_on_confirmation_dialog_update_l1_confirmed"]
 [connection signal="l2_requested_removal" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder" to="." method="_on_l2_status_thunder_requested_removal"]
 [connection signal="l2_setup_l1_message_requested" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder" to="." method="_on_l2_status_thunder_setup_l1_message_requested"]
 [connection signal="l2_start_l1_message_requested" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder" to="." method="_on_l2_status_thunder_start_l1_message_requested"]
 [connection signal="l2_started" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder" to="." method="_on_l2_status_thunder_started"]
 [connection signal="confirmed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/ConfirmationDialogL2StartL1" to="." method="_on_confirmation_dialog_l2_start_l1_confirmed"]
 [connection signal="confirmed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/ConfirmationDialogL2SetupL1" to="." method="_on_confirmation_dialog_l2_setup_l1_confirmed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/ButtonDeleteEverything" to="." method="_on_button_delete_everything_pressed"]
+[connection signal="meta_clicked" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerLauncherUpdate/LabelLauncherUpdate" to="." method="_on_label_launcher_update_meta_clicked"]
 [connection signal="confirmed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteEverythingConfirmationDialog" to="." method="_on_delete_everything_confirmation_dialog_confirmed"]
 [connection signal="toggled" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/CheckBoxShutdownOnExit" to="." method="_on_check_box_shutdown_on_exit_toggled"]
 [connection signal="toggled" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/CheckBoxRandomQuotes" to="." method="_on_check_box_random_quotes_toggled"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/ButtonDeleteEverything" to="." method="_on_button_delete_everything_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/HBoxContainer/ButtonUpdate" to="." method="_on_button_update_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/PanelContainerQuotes/ButtonNextQuote" to="." method="_on_button_next_quote_pressed"]
 [connection signal="pressed" from="LauncherShutdownStatus/Panel/ButtonForceShutdown" to="." method="_on_button_force_shutdown_pressed"]

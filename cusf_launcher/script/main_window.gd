@@ -25,8 +25,8 @@ var current_random_quote : String = ""
 
 var random_quotes = [
 	"I'm sure that in 20 years there will either be very large transaction volume or no volume. -Satoshi Nakamoto",
- 	"Poorly paid labor is inefficient labor, the world over. -Henry George",
- 	"Resistance to tyranny is obedience to God. -Thomas Jefferson",
+	"Poorly paid labor is inefficient labor, the world over. -Henry George",
+	"Resistance to tyranny is obedience to God. -Thomas Jefferson",
 ]
 
 func _ready() -> void:
@@ -42,6 +42,20 @@ func _ready() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonRemoveL1.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonStopL1.visible = false
 	
+	# Hide launcher update panel
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerLauncherUpdate.visible = false
+	
+	# Hide L1 buttons 
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonSetupL1.visible = false
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonStartL1.visible = false
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonRemoveL1.visible = false
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonStopL1.visible = false
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonUpdateL1.visible = false
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/MarginContainer/RichTextLabelUpdateL1.visible = false
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/MarginContainer/RichTextLabelInstallL1.visible = false
+	
+	call_deferred("load_user_settings")
+	call_deferred("initial_version_check")
 	call_deferred("check_resources")
 	call_deferred("display_resource_status")
 	call_deferred("update_os_info")
@@ -54,6 +68,7 @@ func _exit_tree() -> void:
 
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		$"/root/GlobalSettings".save_settings()
 		if $"/root/GlobalSettings".settings_shutdown_on_exit:
 			shutdown_everything()
 		else:
@@ -62,6 +77,10 @@ func _notification(what):
 
 func _on_button_force_shutdown_pressed() -> void:
 	get_tree().quit()
+
+
+func load_user_settings() -> void:
+	$"/root/GlobalSettings".load_settings()
 
 
 func shutdown_everything() -> void:
@@ -150,6 +169,14 @@ func _on_configuration_complete() -> void:
 	display_resource_status()
 
 
+func initial_version_check() -> void:
+	# If we haven't parsed software version info from the release server yet,
+	# do that now. If we don't have any version info yet, then signals for
+	# updated software will not be triggered, we are just populating the dict
+	if !$"/root/GlobalSettings".have_release_info():
+		$ResourceDownloader.check_for_updates()	
+
+
 func check_resources() -> void:
 	# Check for any existing L1 software that is already setup
 	$ResourceDownloader.have_grpcurl()
@@ -184,24 +211,31 @@ func display_resource_status() -> void:
 	# L1 resource status
 	
 	# Update the displayed status of L1 & L2 resources
+	
+	var l1_downloading : bool = $MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelDownloadProgress.visible
 
-	# Hide l1 setup buttons if everything L1 is ready
+	# Check if L1 configuration is complete
 	if configuration_complete \
 		&& resource_bitcoin_ready \
 		&& resource_bitwindow_ready \
 		&& resource_grpcurl_ready \
 		&& resource_enforcer_ready:
 		hide_l1_download_progress()
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonSetupL1.visible = false
-		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = true
+		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonStartL1.visible = true
 		# Tell all L2's that L1 is setup
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL2/VBoxContainer/L2StatusThunder.set_l1_ready()
 		# Enable L1 remove button
 		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonRemoveL1.visible = true
-	
+		# Hide L1 setup button
+		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonSetupL1.visible = false
+		$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/MarginContainer/RichTextLabelInstallL1.visible = false
+	else:
+		# Show L1 setup button if we aren't currently setting up
+		if !l1_downloading:
+			$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonSetupL1.visible = true
+			$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/MarginContainer/RichTextLabelInstallL1.visible = true
+			
 	var l1_status_text : String = ""
-	
-	var l1_downloading : bool = $MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelDownloadProgress.visible
 	
 	if resource_bitcoin_ready:
 		l1_status_text += "\nBitcoin: Ready!"
@@ -275,8 +309,11 @@ func _on_button_settings_toggled(toggled_on: bool) -> void:
 
 
 func setup_l1() -> void:
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonSetupL1.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1SetupStatus.visible = true
+	
+	# Reset version info, we are downloading the latest now
+	$"/root/GlobalSettings".reset_version_info()
+	$ResourceDownloader.check_for_updates()
 	
 	# Show individual L1 resource progress bars
 	show_l1_download_progress()
@@ -293,10 +330,6 @@ func setup_l1() -> void:
 	display_resource_status()
 
 
-func _on_button_setup_l1_pressed() -> void:
-	setup_l1()
-
-
 # Start bitcoind and wait, 
 # then start enforcer and wait,
 # then start BitWindow
@@ -304,8 +337,6 @@ func start_l1() -> void:
 	timer_run_status_update.start(RUN_STATUS_UPDATE_DELAY)
 	
 	var downloads_dir : String = str(OS.get_user_data_dir(), "/downloads/l1")
-
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = false
 
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.visible = true
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = "Starting Bitcoin Core.."
@@ -391,10 +422,6 @@ func start_l1() -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonStopL1.visible = true
 
 
-func _on_button_start_l1_pressed() -> void:
-	start_l1()
-
-
 func _on_rpc_client_btc_new_block_count(height: int) -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.text = str("BTC Running! Blocks: ", height)
 
@@ -430,13 +457,16 @@ func update_os_info() -> void:
 
 
 func _on_button_delete_everything_pressed() -> void:
-	var delete_text = str("The following will be moved to trash or deleted:\n\n",
-		$Configuration.get_bitcoin_datadir(), "\n\n",
-		$Configuration.get_enforcer_datadir(), "\n\n",
-		$Configuration.get_bitwindow_datadir(), "\n\n",
-		$Configuration.get_bitwindowd_datadir(), "\n\n",
-		$Configuration.get_thunder_datadir(), "\n\n",
-		str(OS.get_user_data_dir(), "/downloads"), "\n")
+	var delete_text : String  = str("All L1 & L2 software will stop.\n\n",
+		"The following will be moved to trash or deleted:\n",
+		$Configuration.get_bitcoin_datadir(), "\n",
+		$Configuration.get_enforcer_datadir(), "\n",
+		$Configuration.get_bitwindow_datadir(), "\n",
+		$Configuration.get_bitwindowd_datadir(), "\n",
+		$Configuration.get_thunder_datadir(), "\n",
+		str(OS.get_user_data_dir(), "/downloads"), "\n\n",
+		"If you have trash disabled everything will be deleted.\n\n",
+		"Your settings will be reset.")
 	
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteEverythingConfirmationDialog.dialog_text = delete_text 
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/DeleteEverythingConfirmationDialog.show()
@@ -448,32 +478,34 @@ func _on_button_delete_everything_pressed() -> void:
 func _on_delete_everything_confirmation_dialog_confirmed() -> void:
 	remove_l1()
 	remove_l2_thunder()
+	$"/root/GlobalSettings".reset_user_settings()
+	$ResourceDownloader.check_for_updates()
 
 
-func remove_l1() -> void:
+func remove_l1(keep_data_dirs : bool = false) -> void:
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonRemoveL1.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonStopL1.visible = false
 	
 	kill_l1_pid()
 	
-	# Trash L1 data dir 
-	OS.move_to_trash($Configuration.get_bitcoin_datadir())
-	
-	# Trash enforcer data dir 
-	OS.move_to_trash($Configuration.get_enforcer_datadir())
-	
-	# Trash bitwindow data dir
-	OS.move_to_trash($Configuration.get_bitwindow_datadir())
-	
-	# Trash bitwindowd data dir
-	OS.move_to_trash($Configuration.get_bitwindowd_datadir())
-	
+	if !keep_data_dirs:
+		# Trash L1 data dir 
+		OS.move_to_trash($Configuration.get_bitcoin_datadir())
+		
+		# Trash enforcer data dir 
+		OS.move_to_trash($Configuration.get_enforcer_datadir())
+		
+		# Trash bitwindow data dir
+		OS.move_to_trash($Configuration.get_bitwindow_datadir())
+		
+		# Trash bitwindowd data dir
+		OS.move_to_trash($Configuration.get_bitwindowd_datadir())
+		
 	# Trash cusf_launcher l1 downloads
 	OS.move_to_trash(str(OS.get_user_data_dir(), "/downloads/l1/"))
 	
 	# Reset L1 resource status
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = false
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonSetupL1.visible = true
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonStartL1.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBitWindow.visible = false
@@ -603,7 +635,86 @@ func _on_button_stop_l1_pressed() -> void:
 	$L1ShutdownStatus.visible = false
 	
 	# Hide L1 run status labels and show start button
-	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/ButtonStartL1.visible = true
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonStartL1.visible = true
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBTC.visible = false
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusEnforcer.visible = false	
 	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/LabelL1RunStatusBitWindow.visible = false
+
+
+func _on_button_update_pressed() -> void:
+	$ResourceDownloader.check_for_updates()
+
+
+func _on_resource_downloader_update_available_l1() -> void:
+	show_settings_update_status("  Updates available on overview page!")
+	
+	# Show L1 update button and label if we have any L1 software installed
+	if resource_bitcoin_ready || resource_bitwindow_ready || \
+		resource_grpcurl_ready || resource_enforcer_ready:
+			$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonUpdateL1.visible = true
+			$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/MarginContainer/RichTextLabelUpdateL1.visible = true
+
+
+func _on_resource_downloader_update_available_l2_thunder() -> void:
+	show_settings_update_status("  Updates available on overview page!")
+
+
+func _on_resource_downloader_update_available_launcher() -> void:
+	show_settings_update_status("  Updates available on overview page!")
+
+	# Show launcher update panel
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerLauncherUpdate.visible = true
+
+
+func _on_resource_downloader_update_available_none() -> void:
+	show_settings_update_status("  Up to date!")
+
+
+func show_settings_update_status(status : String) -> void:
+	# Don't show label unless user is on the settings page
+	if !$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage.visible:
+		return
+	
+	var updated_label = $MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/SettingPage/VBoxContainer/HBoxContainer/LabelUpdateStatus
+	
+	# If label is still visible from previous tween, let that finish
+	if updated_label.visible:
+		return
+		
+	updated_label.text = status
+	updated_label.modulate.a = 0
+	updated_label.visible = true
+	
+	var tween = get_tree().create_tween()
+	tween.tween_property(updated_label, "modulate:a", 1.0, 0.2).set_ease(Tween.EASE_IN)
+	tween.tween_property(updated_label, "modulate:a", 0.0, 0.5).set_ease(Tween.EASE_IN).set_delay(5.0)
+	tween.tween_property(updated_label, "visible", false, 0.0)
+
+
+func _on_texture_button_update_l1_pressed() -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/ConfirmationDialogUpdateL1.show()
+
+
+func _on_confirmation_dialog_update_l1_confirmed() -> void:
+	# Shutdown everything
+	kill_started_pid()
+	
+	# Remove L1 downloads but keep data directories
+	remove_l1(true)
+	
+	# Re-install L1
+	setup_l1()
+
+
+func _on_texture_button_setup_l1_pressed() -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonSetupL1.visible = false
+	setup_l1()
+
+
+func _on_label_launcher_update_meta_clicked(meta: Variant) -> void:
+	OS.shell_open(str(meta))
+
+
+func _on_texture_button_start_l1_pressed() -> void:
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonStartL1.visible = false
+	start_l1()

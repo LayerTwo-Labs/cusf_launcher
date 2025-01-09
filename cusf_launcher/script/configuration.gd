@@ -110,7 +110,7 @@ func have_bitcoin_configuration() -> bool:
 		return true
 	
 	return false
-	
+
 
 func write_bitcoin_configuration() -> void:
 	DirAccess.make_dir_absolute(get_bitcoin_datadir())
