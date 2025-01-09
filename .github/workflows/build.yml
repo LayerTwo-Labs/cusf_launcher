@@ -5,17 +5,29 @@ on:
       - "master"
   push:
     branches:
-      - "wallet-starters"
+      - "starters"
   workflow_dispatch:
 
 jobs:
   build-extension:
     name: Build GDExtension
-    runs-on: ${{ matrix.build == 'windows' && 'windows' || matrix.build == 'macos' && 'macos' || 'ubuntu' }}-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        build: [macos, windows, linux]
+        include:
+          - build: macos
+            os: macos-latest
+            target: aarch64-apple-darwin
+            lib_name: libcusf_launcher_crypto.dylib
+          - build: windows
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            lib_name: cusf_launcher_crypto.dll
+          - build: linux
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            lib_name: libcusf_launcher_crypto.so
     
     outputs:
       extension_path: ${{ steps.save-path.outputs.path }}
@@ -26,7 +38,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.build == 'windows' && 'x86_64-pc-windows-msvc' || matrix.build == 'linux' && 'x86_64-unknown-linux-gnu' || 'aarch64-apple-darwin' }}
+          targets: ${{ matrix.target }}
 
       - name: Install Linux dependencies
         if: matrix.build == 'linux'
@@ -38,32 +50,39 @@ jobs:
         if: matrix.build == 'windows'
         uses: ilammy/msvc-dev-cmd@v1
 
+      - name: Create extension directory
+        shell: bash
+        run: mkdir -p cusf_launcher/addons/cusf_launcher_crypto/bin
+
       - name: Build GDExtension library (Windows)
         if: matrix.build == 'windows'
         shell: cmd
         run: |
+          cd cusf_launcher_crypto
           set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
           set PATH=%PATH:C:\Program Files\Git\bin;=%
-          cd cusf_launcher_crypto
-          mkdir ..\cusf_launcher\addons\cusf_launcher_crypto\bin
-          cargo build --release --target x86_64-pc-windows-msvc
-          copy target\x86_64-pc-windows-msvc\release\cusf_launcher_crypto.dll ..\cusf_launcher\addons\cusf_launcher_crypto\bin\
+          cargo build --release --target ${{ matrix.target }}
+          copy "target\${{ matrix.target }}\release\${{ matrix.lib_name }}" "..\cusf_launcher\addons\cusf_launcher_crypto\bin\"
 
       - name: Build GDExtension library (Unix)
         if: matrix.build != 'windows'
         shell: bash
         run: |
           cd cusf_launcher_crypto
-          mkdir -p ../cusf_launcher/addons/cusf_launcher_crypto/bin
-          if [ "${{ matrix.build }}" = "linux" ]; then
-            cargo build --release --target x86_64-unknown-linux-gnu
-            cp target/x86_64-unknown-linux-gnu/release/libcusf_launcher_crypto.so ../cusf_launcher/addons/cusf_launcher_crypto/bin/
-            chmod +x ../cusf_launcher/addons/cusf_launcher_crypto/bin/libcusf_launcher_crypto.so
-            ls -la ../cusf_launcher/addons/cusf_launcher_crypto/bin/
-          else
-            cargo build --release --target aarch64-apple-darwin
-            cp target/aarch64-apple-darwin/release/libcusf_launcher_crypto.dylib ../cusf_launcher/addons/cusf_launcher_crypto/bin/
-          fi
+          cargo build --release --target ${{ matrix.target }}
+          cp target/${{ matrix.target }}/release/${{ matrix.lib_name }} ../cusf_launcher/addons/cusf_launcher_crypto/bin/
+
+      - name: Set permissions (Unix)
+        if: matrix.build != 'windows'
+        shell: bash
+        run: chmod +x cusf_launcher/addons/cusf_launcher_crypto/bin/*
+
+      - name: Verify extension exists
+        shell: bash
+        run: |
+          ls -la cusf_launcher/addons/cusf_launcher_crypto/bin/
+          test -f cusf_launcher/addons/cusf_launcher_crypto/bin/${{ matrix.lib_name }}
+
       - name: Cache GDExtension
         uses: actions/cache@v3
         with:
@@ -73,17 +92,19 @@ jobs:
   build-godot:
     name: Build Godot Project
     needs: build-extension
-    runs-on: ${{ matrix.build == 'macos' && 'macos' || 'ubuntu' }}-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        build: [macos, windows, linux]
         include:
           - build: linux
+            os: ubuntu-latest
             target-bin: 'cusf_launcher.x86_64'
           - build: macos
+            os: macos-latest
             target-bin: 'cusf_launcher.dmg'
           - build: windows
+            os: windows-latest
             target-bin: 'cusf_launcher.exe'
 
     steps:
