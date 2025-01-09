@@ -1,4 +1,5 @@
 name: Build Launcher
+
 on:
   pull_request:
     branches:
@@ -122,8 +123,16 @@ jobs:
           path: cusf_launcher/addons/cusf_launcher_crypto/bin
           key: gdextension-${{ matrix.build }}-${{ github.sha }}
 
-      - name: Verify Setup
+      # --- Separate "Verify Setup" steps ---
+      - name: Verify Setup (macOS/Linux)
+        if: matrix.build != 'windows'
         run: godot --version
+
+      - name: Verify Setup (Windows)
+        if: matrix.build == 'windows'
+        shell: pwsh
+        run: |
+          & "C:\Users\runneradmin\godot\Godot_v4.3-stable_win64.exe" --version
 
       - name: Import certificate to Keychain
         if: ${{ matrix.build == 'macos' }}
@@ -143,36 +152,45 @@ jobs:
         working-directory: cusf_launcher
         run: |
           echo ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY }} | base64 --decode > notarization_api_key.p8
-      # MUST be run before build
+
+      # --- Separate "Initialize godot cache" steps ---
       - name: Initialize godot cache (Windows)
         if: matrix.build == 'windows'
         shell: pwsh
         run: |
-          Write-Host "Godot location:"
-          Get-ChildItem "$env:GODOT"
-          Get-ChildItem (Split-Path -Parent "$env:GODOT")
-          python3 .github/scripts/godot_ci_cache.py
+          python3 .github/scripts/godot_ci_cache.py --godot "C:\Users\runneradmin\godot\Godot_v4.3-stable_win64.exe"
 
       - name: Initialize godot cache (Unix)
         if: matrix.build != 'windows'
         shell: bash
         run: |
-          echo "Godot location:"
-          ls -la $GODOT
-          ls -la $(dirname $GODOT)
-          python3 .github/scripts/godot_ci_cache.py
+          python3 .github/scripts/godot_ci_cache.py  # calls `godot` symlink just fine on Unix
 
       - name: Debug extension location
         shell: bash
         run: |
           echo "Extension directory contents:"
           ls -la cusf_launcher/addons/cusf_launcher_crypto/bin/
-          echo "Extension file permissions:"
           if [ "${{ matrix.build }}" = "linux" ]; then
+            echo "Extension file permissions:"
             stat cusf_launcher/addons/cusf_launcher_crypto/bin/libcusf_launcher_crypto.so
           fi
 
-      - name: Export build
+      # --- Separate "Export build" steps ---
+      - name: Export build (Windows)
+        if: matrix.build == 'windows'
+        shell: bash
+        run: |
+          # Because we can't call "godot" on Windows (no rename), we use the real .exe
+          name="${{fromJSON('{"windows": "Windows", "macos": "Mac", "linux": "Linux"}')[matrix.build] }}"
+          "C:/Users/runneradmin/godot/Godot_v4.3-stable_win64.exe" \
+            --path "./cusf_launcher/" --headless \
+            --export-release "$name" "${{ matrix.target-bin }}" \
+            --verbose 2>&1 | tee build.log
+
+      - name: Export build (macOS/Linux)
+        if: matrix.build != 'windows'
+        shell: bash
         run: |
           name="${{fromJSON('{"windows": "Windows", "macos": "Mac", "linux": "Linux"}')[matrix.build] }}"
           if [ "${{ matrix.build }}" = "macos" ]; then
@@ -181,28 +199,25 @@ jobs:
             killall Dock || true
             sleep 5
           fi
-          godot --path "./cusf_launcher/" --headless --export-release "$name" "${{ matrix.target-bin }}" --verbose 2>&1 | tee build.log
-        env:
-          GODOT_MACOS_NOTARIZATION_API_KEY_ID: ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY_ID }}
-          GODOT_MACOS_NOTARIZATION_API_KEY: ./notarization_api_key.p8
-          GODOT_MACOS_NOTARIZATION_API_UUID: ${{ secrets.GODOT_MACOS_NOTARIZATION_API_UUID }}
+          godot --path "./cusf_launcher/" --headless \
+            --export-release "$name" "${{ matrix.target-bin }}" \
+            --verbose 2>&1 | tee build.log
 
       - name: Create DMG (macOS)
         if: ${{ matrix.build == 'macos' }}
         run: |
-          # Show what files we have
           echo "Contents of cusf_launcher directory:"
           ls -la cusf_launcher/
           
-          # Only create DMG if Godot didn't create one
+          # If Godot didn't produce a DMG automatically, but there's a .app, create the DMG
           if [ ! -f "cusf_launcher/cusf_launcher.dmg" ] && [ -d "cusf_launcher/cusf_launcher.app" ]; then
             echo "Godot DMG not found but .app exists, creating DMG manually..."
             cd cusf_launcher
             hdiutil create -fs HFS+ -volname "CUSF Launcher" -srcfolder cusf_launcher.app cusf_launcher.dmg
           else
-            echo "Using Godot-created DMG or no .app bundle found"
+            echo "Using Godot-created DMG or no .app found"
           fi
-        
+
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
@@ -212,6 +227,7 @@ jobs:
             cusf_launcher/${{ matrix.target-bin }}
             cusf_launcher/*.app
             cusf_launcher/*.dmg
+
       - name: Wait for notarization to finish
         if: ${{ matrix.build == 'macos' }}
         run: |
@@ -219,4 +235,4 @@ jobs:
           xcrun notarytool wait $request_id \
             --issuer ${{ secrets.GODOT_MACOS_NOTARIZATION_API_UUID }} \
             --key-id ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY_ID }} \
-            --key ./cusf_launcher/notarization_api_key.p8
+            --key ./notarization_api_key.p8
