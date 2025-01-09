@@ -144,8 +144,23 @@ jobs:
         run: |
           echo ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY }} | base64 --decode > notarization_api_key.p8
       # MUST be run before build
-      - name: Initialize godot cache
-        run: python3 .github/scripts/godot_ci_cache.py
+      - name: Initialize godot cache (Windows)
+        if: matrix.build == 'windows'
+        shell: pwsh
+        run: |
+          Write-Host "Godot location:"
+          Get-ChildItem "$env:GODOT"
+          Get-ChildItem (Split-Path -Parent "$env:GODOT")
+          python3 .github/scripts/godot_ci_cache.py
+
+      - name: Initialize godot cache (Unix)
+        if: matrix.build != 'windows'
+        shell: bash
+        run: |
+          echo "Godot location:"
+          ls -la $GODOT
+          ls -la $(dirname $GODOT)
+          python3 .github/scripts/godot_ci_cache.py
 
       - name: Debug extension location
         shell: bash
