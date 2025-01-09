@@ -5,7 +5,7 @@ on:
       - "master"
   push:
     branches:
-      - "starters"
+      - "wallet-starters"
   workflow_dispatch:
 
 jobs:
@@ -47,11 +47,7 @@ jobs:
           cd cusf_launcher_crypto
           mkdir ..\cusf_launcher\addons\cusf_launcher_crypto\bin
           cargo build --release --target x86_64-pc-windows-msvc
-          echo "Windows build output:"
-          dir target\x86_64-pc-windows-msvc\release\
           copy target\x86_64-pc-windows-msvc\release\cusf_launcher_crypto.dll ..\cusf_launcher\addons\cusf_launcher_crypto\bin\
-          echo "Windows extension copied to:"
-          dir ..\cusf_launcher\addons\cusf_launcher_crypto\bin\
 
       - name: Build GDExtension library (Unix)
         if: matrix.build != 'windows'
@@ -60,34 +56,19 @@ jobs:
           cd cusf_launcher_crypto
           mkdir -p ../cusf_launcher/addons/cusf_launcher_crypto/bin
           if [ "${{ matrix.build }}" = "linux" ]; then
-            echo "Building for Linux..."
             cargo build --release --target x86_64-unknown-linux-gnu
-            echo "Linux build output:"
-            ls -la target/x86_64-unknown-linux-gnu/release/
             cp target/x86_64-unknown-linux-gnu/release/libcusf_launcher_crypto.so ../cusf_launcher/addons/cusf_launcher_crypto/bin/
             chmod +x ../cusf_launcher/addons/cusf_launcher_crypto/bin/libcusf_launcher_crypto.so
-            echo "Linux extension copied to:"
             ls -la ../cusf_launcher/addons/cusf_launcher_crypto/bin/
           else
-            echo "Building for macOS..."
             cargo build --release --target aarch64-apple-darwin
-            echo "macOS build output:"
-            ls -la target/aarch64-apple-darwin/release/
             cp target/aarch64-apple-darwin/release/libcusf_launcher_crypto.dylib ../cusf_launcher/addons/cusf_launcher_crypto/bin/
-            echo "macOS extension copied to:"
-            ls -la ../cusf_launcher/addons/cusf_launcher_crypto/bin/
           fi
-
       - name: Cache GDExtension
         uses: actions/cache@v3
         with:
           path: cusf_launcher/addons/cusf_launcher_crypto/bin
           key: gdextension-${{ matrix.build }}-${{ github.sha }}
-
-      - name: Debug Cache Contents
-        run: |
-          echo "Contents of extension directory before caching:"
-          ls -la cusf_launcher/addons/cusf_launcher_crypto/bin/
 
   build-godot:
     name: Build Godot Project
@@ -120,16 +101,6 @@ jobs:
           path: cusf_launcher/addons/cusf_launcher_crypto/bin
           key: gdextension-${{ matrix.build }}-${{ github.sha }}
 
-      - name: Debug Restored Cache
-        shell: bash
-        run: |
-          echo "Contents of extension directory after restore:"
-          if [ "${{ matrix.build }}" = "windows" ]; then
-            pwsh -Command "Get-ChildItem -Force cusf_launcher/addons/cusf_launcher_crypto/bin/"
-          else
-            ls -la cusf_launcher/addons/cusf_launcher_crypto/bin/
-          fi
-
       - name: Verify Setup
         run: godot --version
 
@@ -151,23 +122,18 @@ jobs:
         working-directory: cusf_launcher
         run: |
           echo ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY }} | base64 --decode > notarization_api_key.p8
-
       # MUST be run before build
       - name: Initialize godot cache
         run: python3 .github/scripts/godot_ci_cache.py
 
-      - name: Debug build output
+      - name: Debug extension location
         shell: bash
         run: |
-          echo "Checking build output files:"
-          if [ "${{ matrix.build }}" = "windows" ]; then
-            pwsh -Command "Get-ChildItem -Force cusf_launcher/"
-            echo "Checking extension files:"
-            pwsh -Command "Get-ChildItem -Force cusf_launcher/addons/cusf_launcher_crypto/bin/"
-          else
-            ls -la cusf_launcher/
-            echo "Checking extension files:"
-            ls -la cusf_launcher/addons/cusf_launcher_crypto/bin/
+          echo "Extension directory contents:"
+          ls -la cusf_launcher/addons/cusf_launcher_crypto/bin/
+          echo "Extension file permissions:"
+          if [ "${{ matrix.build }}" = "linux" ]; then
+            stat cusf_launcher/addons/cusf_launcher_crypto/bin/libcusf_launcher_crypto.so
           fi
 
       - name: Export build
@@ -179,17 +145,11 @@ jobs:
             killall Dock || true
             sleep 5
           fi
-          echo "Contents of extension directory before export:"
-          ls -la cusf_launcher/addons/cusf_launcher_crypto/bin/
           godot --path "./cusf_launcher/" --headless --export-release "$name" "${{ matrix.target-bin }}" --verbose 2>&1 | tee build.log
-          echo "Contents of exported build directory:"
-          if [ "${{ matrix.build }}" = "macos" ]; then
-            ls -la cusf_launcher/cusf_launcher.app/Contents/MacOS/
-            echo "Contents of addons in app bundle:"
-            ls -la cusf_launcher/cusf_launcher.app/Contents/MacOS/addons/cusf_launcher_crypto/bin/ || echo "Addons directory not found in expected location"
-          else
-            ls -la cusf_launcher/
-          fi
+        env:
+          GODOT_MACOS_NOTARIZATION_API_KEY_ID: ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY_ID }}
+          GODOT_MACOS_NOTARIZATION_API_KEY: ./notarization_api_key.p8
+          GODOT_MACOS_NOTARIZATION_API_UUID: ${{ secrets.GODOT_MACOS_NOTARIZATION_API_UUID }}
 
       - name: Create DMG (macOS)
         if: ${{ matrix.build == 'macos' }}
@@ -213,9 +173,9 @@ jobs:
           name: cusf_launcher_${{ matrix.build }}
           if-no-files-found: error
           path: |
-            ${{ matrix.build == 'windows' && 'cusf_launcher/cusf_launcher.exe' || matrix.build == 'linux' && 'cusf_launcher/cusf_launcher.x86_64' || 'cusf_launcher/cusf_launcher.dmg' }}
-            ${{ matrix.build == 'macos' && 'cusf_launcher/*.app' || '' }}
-
+            cusf_launcher/${{ matrix.target-bin }}
+            cusf_launcher/*.app
+            cusf_launcher/*.dmg
       - name: Wait for notarization to finish
         if: ${{ matrix.build == 'macos' }}
         run: |

@@ -31,6 +31,11 @@ var random_quotes = [
 
 func _ready() -> void:
 	get_tree().set_auto_accept_quit(false)
+
+	if ClassDB.class_exists("Ripemd160"):
+		print("✓ CusfLauncherCrypto extension loaded successfully")
+	else:
+		push_error("❌ Failed to load CusfLauncherCrypto extension!")
 	
 	# Create timer to check on running state of L1 and L2 software
 	timer_run_status_update = Timer.new()
