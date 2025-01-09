@@ -8,6 +8,9 @@ To build with godot editor just open the project and hit the play button.
 
 Building with compatibility mode right now because it doesn't seem to work on virtualized windows hosts in forward+.
 
+If you have any issues open an issue here: 
+https://github.com/LayerTwo-Labs/cusf_launcher/issues
+
 Command line build instructions:
 
 Linux:
