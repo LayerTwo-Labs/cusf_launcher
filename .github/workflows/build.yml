@@ -121,9 +121,14 @@ jobs:
           key: gdextension-${{ matrix.build }}-${{ github.sha }}
 
       - name: Debug Restored Cache
+        shell: bash
         run: |
           echo "Contents of extension directory after restore:"
-          ls -la cusf_launcher/addons/cusf_launcher_crypto/bin/
+          if [ "${{ matrix.build }}" = "windows" ]; then
+            pwsh -Command "Get-ChildItem -Force cusf_launcher/addons/cusf_launcher_crypto/bin/"
+          else
+            ls -la cusf_launcher/addons/cusf_launcher_crypto/bin/
+          fi
 
       - name: Verify Setup
         run: godot --version
@@ -152,11 +157,18 @@ jobs:
         run: python3 .github/scripts/godot_ci_cache.py
 
       - name: Debug build output
+        shell: bash
         run: |
           echo "Checking build output files:"
-          ls -la cusf_launcher/
-          echo "Checking extension files:"
-          ls -la cusf_launcher/addons/cusf_launcher_crypto/bin/
+          if [ "${{ matrix.build }}" = "windows" ]; then
+            pwsh -Command "Get-ChildItem -Force cusf_launcher/"
+            echo "Checking extension files:"
+            pwsh -Command "Get-ChildItem -Force cusf_launcher/addons/cusf_launcher_crypto/bin/"
+          else
+            ls -la cusf_launcher/
+            echo "Checking extension files:"
+            ls -la cusf_launcher/addons/cusf_launcher_crypto/bin/
+          fi
 
       - name: Export build
         run: |
@@ -212,60 +224,3 @@ jobs:
             --issuer ${{ secrets.GODOT_MACOS_NOTARIZATION_API_UUID }} \
             --key-id ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY_ID }} \
             --key ./cusf_launcher/notarization_api_key.p8
-
-  build-godot:
-    name: Build Godot Project
-    needs: build-extension
-    runs-on: ${{ matrix.build == 'macos' && 'macos' || 'ubuntu' }}-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        build: [macos, windows, linux]
-        include:
-          - build: linux
-            target-bin: 'cusf_launcher.x86_64'
-          - build: macos
-            target-bin: 'cusf_launcher.dmg'
-          - build: windows
-            target-bin: 'cusf_launcher.exe'
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: chickensoft-games/setup-godot@v1
-        with:
-          version: 4.3.0
-          use-dotnet: false
-          include-templates: true
-
-      - name: Restore GDExtension
-        uses: actions/cache@v3
-        with:
-          path: cusf_launcher/addons/cusf_launcher_crypto/bin
-          key: gdextension-${{ matrix.build }}-${{ github.sha }}
-
-      - name: Debug Restored Cache
-        run: |
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            echo "Contents of extension directory after restore:"
-            Get-ChildItem -Force cusf_launcher/addons/cusf_launcher_crypto/bin/
-          else
-            echo "Contents of extension directory after restore:"
-            ls -la cusf_launcher/addons/cusf_launcher_crypto/bin/
-          fi
-        shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
-
-      - name: Debug build output
-        run: |
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            echo "Checking build output files:"
-            Get-ChildItem -Force cusf_launcher/
-            echo "Checking extension files:"
-            Get-ChildItem -Force cusf_launcher/addons/cusf_launcher_crypto/bin/
-          else
-            echo "Checking build output files:"
-            ls -la cusf_launcher/
-            echo "Checking extension files:"
-            ls -la cusf_launcher/addons/cusf_launcher_crypto/bin/
-          fi
-        shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
