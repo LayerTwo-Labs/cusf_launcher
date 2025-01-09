@@ -375,11 +375,11 @@ func start_l1() -> void:
 	var enforcer_bin_path : String = ""
 	match OS.get_name():
 		"Linux":
-			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.1-x86_64-unknown-linux-gnu")
+			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.2-x86_64-unknown-linux-gnu")
 		"Windows":
-			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-pc-windows-gnu.exe/bip300301_enforcer-0.1.1-x86_64-pc-windows-gnu.exe")
+			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-pc-windows-gnu.exe/bip300301_enforcer-0.1.2-x86_64-pc-windows-gnu.exe")
 		"macOS":
-			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.1-x86_64-apple-darwin")
+			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.2-x86_64-apple-darwin")
 
 	# Start bip300-301 enforcer
 	ret = OS.create_process(enforcer_bin_path, ["--node-rpc-addr=localhost:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://localhost:29000", "--enable-wallet"])
