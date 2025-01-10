@@ -234,6 +234,7 @@ func display_resource_status() -> void:
 		if !l1_downloading:
 			$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/TextureButtonSetupL1.visible = true
 			$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/MarginContainer/RichTextLabelInstallL1.visible = true
+			$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/MarginContainer/RichTextLabelUpdateL1.visible = false
 			
 	var l1_status_text : String = ""
 	
