@@ -189,15 +189,15 @@ func have_grpcurl() -> bool:
 func have_enforcer() -> bool:
 	match OS.get_name():
 		"Linux":
-			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.2-x86_64-unknown-linux-gnu"):
+			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.4-x86_64-unknown-linux-gnu"):
 				return false
 		"Windows":
 			# TODO the folder name has .exe which is probably an accident. 
 			# Maybe an issue with the github actions?
-			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-pc-windows-gnu.exe/bip300301_enforcer-0.1.2-x86_64-pc-windows-gnu.exe"):
+			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-pc-windows-gnu.exe/bip300301_enforcer-0.1.4-x86_64-pc-windows-gnu.exe"):
 				return false
 		"macOS":
-			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.2-x86_64-apple-darwin"):
+			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.4-x86_64-apple-darwin"):
 				return false
 	
 	resource_enforcer_ready.emit()
@@ -383,7 +383,7 @@ func extract_enforcer() -> void:
 
 	# Make executable for linux
 	if OS.get_name() == "Linux":
-		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.2-x86_64-unknown-linux-gnu")])
+		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.4-x86_64-unknown-linux-gnu")])
 		if ret != OK:
 			printerr("Failed to mark enforcer executable")
 			return
@@ -391,7 +391,7 @@ func extract_enforcer() -> void:
 	resource_enforcer_ready.emit()
 	
 	if OS.get_name() == "macOS":
-		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.2-x86_64-apple-darwin")])
+		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.4-x86_64-apple-darwin")])
 		if ret != OK:
 			printerr("Failed to mark enforcer executable")
 			return
