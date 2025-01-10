@@ -480,6 +480,7 @@ func _on_delete_everything_confirmation_dialog_confirmed() -> void:
 	remove_l2_thunder()
 	$"/root/GlobalSettings".reset_user_settings()
 	$ResourceDownloader.check_for_updates()
+	_on_resource_downloader_update_available_none()
 
 
 func remove_l1(keep_data_dirs : bool = false) -> void:
@@ -668,6 +669,9 @@ func _on_resource_downloader_update_available_launcher() -> void:
 
 func _on_resource_downloader_update_available_none() -> void:
 	show_settings_update_status("  Up to date!")
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerLauncherUpdate.visible = false
+	$MarginContainer/VBoxContainer/HBoxContainerPageAndPageButtons/PanelContainerPages/OverviewPage/GridContainer/PanelContainerL1/VBoxContainer/HBoxContainerL1Options/MarginContainer/RichTextLabelUpdateL1.visible = false
+
 
 
 func show_settings_update_status(status : String) -> void:
