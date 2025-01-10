@@ -70,9 +70,6 @@ func reset_user_settings() -> void:
 	for key in settings_installed_software_info.keys():
 		settings_installed_software_info[key] = ""
 
-	
-	print("\n\nAfter reset settings: ", settings_installed_software_info["BitWindow-latest-x86_64-apple-darwin.zip"], "\n\n")
-
 
 func save_settings() -> void:
 	var file = FileAccess.open("user://user_settings.dat", FileAccess.WRITE)

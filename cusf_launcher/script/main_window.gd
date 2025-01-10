@@ -713,6 +713,13 @@ func _on_texture_button_setup_l1_pressed() -> void:
 
 func _on_label_launcher_update_meta_clicked(meta: Variant) -> void:
 	OS.shell_open(str(meta))
+	# Trigger sync of launcher version info if user opens download page
+	# TODO write a launcher version number to user_settings file and then
+	# use that to check if a newer version of the launcher was started
+	$"/root/GlobalSettings".settings_installed_software_info["drivechain-launcher-latest-x86_64-apple-darwin.zip"] = ""
+	$"/root/GlobalSettings".settings_installed_software_info["drivechain-launcher-latest-x86_64-unknown-linux-gnu.zip"] = ""
+	$"/root/GlobalSettings".settings_installed_software_info["drivechain-launcher-latest-x86_64-w64.zip"] = ""
+	$ResourceDownloader.check_for_updates()
 
 
 func _on_texture_button_start_l1_pressed() -> void:
