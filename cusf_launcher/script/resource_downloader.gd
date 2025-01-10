@@ -556,10 +556,7 @@ func _on_http_download_bit_window_request_completed(result: int, response_code: 
 
 
 func check_for_updates() -> void:
-	print("Checking for updates!")
-
 	DirAccess.make_dir_absolute("user://downloads/")
-
 	$HTTPRequestDownloadReleasePage.request(URL_RELEASE_INFO)
 
 
