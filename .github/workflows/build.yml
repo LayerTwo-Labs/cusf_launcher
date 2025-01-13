@@ -1,8 +1,6 @@
 name: Build Launcher
 on:
   pull_request:
-    branches:
-      - "master"
   push:
     branches:
       - "starters"
@@ -21,7 +19,7 @@ jobs:
             target: aarch64-apple-darwin
             lib_name: libcusf_launcher_crypto.dylib
           - build: windows
-            os: ubuntu-latest
+            os: windows-latest
             target: x86_64-pc-windows-msvc
             lib_name: cusf_launcher_crypto.dll
           - build: linux
@@ -51,7 +49,18 @@ jobs:
         shell: bash
         run: mkdir -p cusf_launcher/addons/cusf_launcher_crypto/bin
 
-      - name: Build GDExtension library
+      - name: Build GDExtension library (Windows)
+        if: matrix.build == 'windows'
+        shell: cmd
+        run: |
+          cd cusf_launcher_crypto
+          set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+          set PATH=%PATH:C:\Program Files\Git\bin;=%
+          cargo build --release --target ${{ matrix.target }}
+          copy "target\${{ matrix.target }}\release\${{ matrix.lib_name }}" "..\cusf_launcher\addons\cusf_launcher_crypto\bin\"
+
+      - name: Build GDExtension library (Unix)
+        if: matrix.build != 'windows'
         shell: bash
         run: |
           cd cusf_launcher_crypto
@@ -72,17 +81,19 @@ jobs:
   build:
     name: Build Godot Project
     needs: build-extension
-    runs-on: ${{ matrix.build == 'macos' && 'macos' || 'ubuntu' }}-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        build: [macos, windows, linux]
         include:
           - build: linux
+            os: ubuntu-latest
             target-bin: 'cusf_launcher.x86_64'
           - build: macos
+            os: macos-latest
             target-bin: 'cusf_launcher.dmg'
           - build: windows
+            os: windows-latest
             target-bin: 'cusf_launcher.exe'
 
     steps:
@@ -100,7 +111,14 @@ jobs:
           path: cusf_launcher/addons/cusf_launcher_crypto/bin
           key: gdextension-${{ matrix.build }}-${{ github.sha }}
 
-      - name: Verify Setup
+      - name: Verify Setup (Windows)
+        if: matrix.build == 'windows'
+        shell: pwsh
+        run: |
+          & "C:\Users\runneradmin\godot\Godot_v4.3-stable_win64.exe" --version
+
+      - name: Verify Setup (Unix)
+        if: matrix.build != 'windows'
         run: godot --version
 
       - name: Import certificate to Keychain
@@ -123,10 +141,25 @@ jobs:
           echo ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY }} | base64 --decode > notarization_api_key.p8
 
       # MUST be run before build
-      - name: Initialize godot cache
+      - name: Initialize godot cache (Windows)
+        if: matrix.build == 'windows'
+        shell: pwsh
+        run: |
+          python3 .github/scripts/godot_ci_cache.py --godot "C:\Users\runneradmin\godot\Godot_v4.3-stable_win64.exe"
+
+      - name: Initialize godot cache (Unix)
+        if: matrix.build != 'windows'
         run: python3 .github/scripts/godot_ci_cache.py
 
-      - name: Export build
+      - name: Export build (Windows)
+        if: matrix.build == 'windows'
+        shell: pwsh
+        run: |
+          $name = "Windows"
+          & "C:\Users\runneradmin\godot\Godot_v4.3-stable_win64.exe" --path "./cusf_launcher/" --headless --export-release "$name" "${{ matrix.target-bin }}" --verbose 2>&1 | Tee-Object -FilePath build.log
+
+      - name: Export build (Unix)
+        if: matrix.build != 'windows'
         run: |
           name="${{fromJSON('{"windows": "Windows", "macos": "Mac", "linux": "Linux"}')[matrix.build] }}"
           godot --path "./cusf_launcher/" --headless --export-release "$name" "${{ matrix.target-bin }}" --verbose 2>&1 | tee build.log
