@@ -145,7 +145,17 @@ jobs:
         if: matrix.build == 'windows'
         shell: pwsh
         run: |
-          python3 .github/scripts/godot_ci_cache.py --godot "C:\Users\runneradmin\godot\Godot_v4.3-stable_win64.exe"
+          $godotPath = "C:/Users/runneradmin/godot/Godot_v4.3-stable_win64.exe"
+          Write-Host "Checking Godot path: $godotPath"
+          if (Test-Path $godotPath) {
+            Write-Host "Godot executable found"
+            python3 .github/scripts/godot_ci_cache.py --godot "$godotPath"
+          } else {
+            Write-Host "Godot not found at $godotPath"
+            Write-Host "Contents of godot directory:"
+            Get-ChildItem "C:/Users/runneradmin/godot" -Recurse
+            exit 1
+          }
 
       - name: Initialize godot cache (Unix)
         if: matrix.build != 'windows'
@@ -155,8 +165,9 @@ jobs:
         if: matrix.build == 'windows'
         shell: pwsh
         run: |
+          $godotPath = "C:/Users/runneradmin/godot/Godot_v4.3-stable_win64.exe"
           $name = "Windows"
-          & "C:\Users\runneradmin\godot\Godot_v4.3-stable_win64.exe" --path "./cusf_launcher/" --headless --export-release "$name" "${{ matrix.target-bin }}" --verbose 2>&1 | Tee-Object -FilePath build.log
+          & $godotPath --path "./cusf_launcher/" --headless --export-release "$name" "${{ matrix.target-bin }}" --verbose 2>&1 | Tee-Object -FilePath build.log
 
       - name: Export build (Unix)
         if: matrix.build != 'windows'
