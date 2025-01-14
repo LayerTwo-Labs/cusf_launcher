@@ -149,7 +149,7 @@ jobs:
           Write-Host "Checking Godot path: $godotPath"
           if (Test-Path $godotPath) {
             Write-Host "Godot executable found"
-            & $godotPath --headless --editor --quit --path "./cusf_launcher/"
+            & $godotPath --headless --path "./cusf_launcher/" --export-pack "Windows" temp.pck
             python3 .github/scripts/godot_ci_cache.py --godot "$godotPath"
           } else {
             Write-Host "Godot not found at $godotPath"
@@ -161,8 +161,13 @@ jobs:
       - name: Initialize godot cache (Unix)
         if: matrix.build != 'windows'
         run: |
-          godot --headless --editor --quit --path "./cusf_launcher/"
+          name="${{fromJSON('{"windows": "Windows", "macos": "Mac", "linux": "Linux"}')[matrix.build] }}"
+          godot --headless --path "./cusf_launcher/" --export-pack "$name" temp.pck
           python3 .github/scripts/godot_ci_cache.py
+
+      - name: Cleanup temporary files
+        shell: bash
+        run: rm -f temp.pck
 
       - name: Create Windows build dir
         if: matrix.build == 'windows'
