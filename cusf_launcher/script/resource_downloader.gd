@@ -192,9 +192,7 @@ func have_enforcer() -> bool:
 			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.4-x86_64-unknown-linux-gnu"):
 				return false
 		"Windows":
-			# TODO the folder name has .exe which is probably an accident. 
-			# Maybe an issue with the github actions?
-			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-pc-windows-gnu.exe/bip300301_enforcer-0.1.4-x86_64-pc-windows-gnu.exe"):
+			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-pc-windows-gnu/bip300301_enforcer-0.1.4-x86_64-pc-windows-gnu.exe"):
 				return false
 		"macOS":
 			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.4-x86_64-apple-darwin"):
