@@ -7,13 +7,23 @@ import os
 import subprocess
 import time
 import re
+import sys
+import argparse
 from pathlib import Path
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--godot', help='Path to Godot executable')
+    return parser.parse_args()
+
+args = parse_args()
 
 # Set the path to your Godot project and Godot executable
 GODOT_PROJECT_PATH = Path("./cusf_launcher")
-GODOT_EXECUTABLE = "godot"  # or the path to your Godot executable
+GODOT_EXECUTABLE = args.godot if args.godot else "godot"  # Use provided path or default to "godot"
 GODOT_LOG_FILE = Path("artifacts") / "godot_output.log"  # Log file to store Godot output
 
+print(f"Using Godot executable: {GODOT_EXECUTABLE}", flush=True)
 print("Building godot cache...", flush=True)
 start_time = time.time()
 
@@ -33,12 +43,14 @@ GODOT_LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 with GODOT_LOG_FILE.open("w") as log_file:
     try:
         godot_process = subprocess.Popen(
-            [GODOT_EXECUTABLE, "--path", str(GODOT_PROJECT_PATH), "--editor", "--headless"],
+            [GODOT_EXECUTABLE, "--path", str(GODOT_PROJECT_PATH.absolute()), "--editor", "--headless"],
             stdout=log_file,
             stderr=subprocess.STDOUT
         )
     except Exception as e:
         print(f"Failed to start Godot: {e}")
+        print(f"Current directory: {os.getcwd()}")
+        print(f"Godot path exists: {os.path.exists(GODOT_EXECUTABLE)}")
         exit(1)
 
 # Step 3: Continually check if the expected imported files exist
