@@ -167,13 +167,20 @@ jobs:
         run: |
           $godotPath = "C:/Users/runneradmin/godot/Godot_v4.3-stable_win64.exe"
           $name = "Windows"
-          & $godotPath --path "./cusf_launcher/" --headless --export-release "$name" "${{ matrix.target-bin }}" --verbose 2>&1 | Tee-Object -FilePath build.log
+          # Create build directory
+          New-Item -ItemType Directory -Force -Path "cusf_launcher/build/windows"
+          # Run the export
+          & $godotPath --path "./cusf_launcher/" --headless --export-release "$name" --verbose 2>&1 | Tee-Object -FilePath build.log
 
       - name: Export build (Unix)
         if: matrix.build != 'windows'
+        shell: bash
         run: |
           name="${{fromJSON('{"windows": "Windows", "macos": "Mac", "linux": "Linux"}')[matrix.build] }}"
-          godot --path "./cusf_launcher/" --headless --export-release "$name" "${{ matrix.target-bin }}" --verbose 2>&1 | tee build.log
+          # Create build directory
+          mkdir -p cusf_launcher/build/${{ matrix.build }}
+          # Run the export
+          godot --path "./cusf_launcher/" --headless --export-release "$name" --verbose 2>&1 | tee build.log
         env:
           GODOT_MACOS_NOTARIZATION_API_KEY_ID: ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY_ID }}
           GODOT_MACOS_NOTARIZATION_API_KEY: ./notarization_api_key.p8
@@ -184,7 +191,7 @@ jobs:
         with:
           name: cusf_launcher_${{ matrix.build }}
           if-no-files-found: error
-          path: cusf_launcher/${{ matrix.target-bin }}
+          path: cusf_launcher/build/${{ matrix.build }}/${{ matrix.target-bin }}
 
       - name: Wait for notarization to finish
         if: ${{ matrix.build == 'macos' }}
