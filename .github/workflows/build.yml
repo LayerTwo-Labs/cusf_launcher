@@ -178,6 +178,30 @@ jobs:
         if: matrix.build == 'windows'
         shell: pwsh
         run: |
+          # Verify files exist
+          $dllPath = "cusf_launcher/addons/cusf_launcher_crypto/bin/cusf_launcher_crypto.dll"
+          $gdextPath = "cusf_launcher/addons/cusf_launcher_crypto/CusfLauncherCrypto.gdextension"
+          
+          Write-Host "Checking required files..."
+          if (Test-Path $dllPath) {
+            Write-Host "✅ DLL found at $dllPath"
+          } else {
+            Write-Host "❌ DLL not found at $dllPath"
+            Write-Host "Contents of addons directory:"
+            Get-ChildItem "cusf_launcher/addons" -Recurse
+            exit 1
+          }
+          
+          if (Test-Path $gdextPath) {
+            Write-Host "✅ GDExtension file found at $gdextPath"
+            Write-Host "GDExtension contents:"
+            Get-Content $gdextPath
+          } else {
+            Write-Host "❌ GDExtension file not found at $gdextPath"
+            exit 1
+          }
+          
+          # Proceed with export
           & "C:\Users\runneradmin\godot\Godot_v4.3-stable_win64.exe" `
             --path "./cusf_launcher/" `
             --headless `
@@ -187,7 +211,30 @@ jobs:
       - name: Export build (Unix)
         if: matrix.build != 'windows'
         run: |
+          # Verify files exist
           name="${{fromJSON('{"windows": "Windows", "macos": "Mac", "linux": "Linux"}')[matrix.build] }}"
+          lib_name="${{fromJSON('{"windows": "cusf_launcher_crypto.dll", "macos": "libcusf_launcher_crypto.dylib", "linux": "libcusf_launcher_crypto.so"}')[matrix.build] }}"
+          
+          echo "Checking required files..."
+          if [ -f "cusf_launcher/addons/cusf_launcher_crypto/bin/$lib_name" ]; then
+            echo "✅ Library found at cusf_launcher/addons/cusf_launcher_crypto/bin/$lib_name"
+          else
+            echo "❌ Library not found at cusf_launcher/addons/cusf_launcher_crypto/bin/$lib_name"
+            echo "Contents of addons directory:"
+            ls -R cusf_launcher/addons
+            exit 1
+          fi
+          
+          if [ -f "cusf_launcher/addons/cusf_launcher_crypto/CusfLauncherCrypto.gdextension" ]; then
+            echo "✅ GDExtension file found"
+            echo "GDExtension contents:"
+            cat "cusf_launcher/addons/cusf_launcher_crypto/CusfLauncherCrypto.gdextension"
+          else
+            echo "❌ GDExtension file not found"
+            exit 1
+          fi
+          
+          # Proceed with export
           godot --path "./cusf_launcher/" --headless --export-release "$name" "${{ matrix.target-bin }}" --verbose 2>&1 | tee build.log
         env:
           GODOT_MACOS_NOTARIZATION_API_KEY_ID: ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY_ID }}
