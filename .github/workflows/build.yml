@@ -151,7 +151,7 @@ jobs:
             Write-Host "Godot executable found"
             # open editor first
             & $godotPath --headless --editor --quit --path "./cusf_launcher/"
-            # Then initialize cache
+            # Then run your existing cache script
             python3 .github/scripts/godot_ci_cache.py --godot "$godotPath"
           } else {
             Write-Host "Godot not found at $godotPath"
@@ -163,9 +163,9 @@ jobs:
         run: |
           # open editor first
           godot --headless --editor --quit --path "./cusf_launcher/"
+          # Then run your existing cache script
           python3 .github/scripts/godot_ci_cache.py
 
-      # --- Windows Build ---
       - name: Create Windows build dir
         if: matrix.build == 'windows'
         shell: pwsh
@@ -181,33 +181,19 @@ jobs:
             --export-release "Windows" `
             --verbose 2>&1 | Tee-Object -FilePath build.log
 
-      # --- Linux Build ---
-      - name: Create Linux build dir
-        if: matrix.build == 'linux'
-        run: mkdir -p "cusf_launcher/build/linux"
-
-      - name: Export build (Linux)
-        if: matrix.build == 'linux'
+      - name: Export build (Unix)
+        if: matrix.build != 'windows'
         shell: bash
         run: |
-          godot --path "./cusf_launcher/" --headless --export-release "Linux" --verbose 2>&1 | tee build.log
-
-      # --- macOS Build ---
-      - name: Create macOS build dir
-        if: matrix.build == 'macos'
-        run: mkdir -p "cusf_launcher/build/macos"
-
-      - name: Export build (macOS)
-        if: matrix.build == 'macos'
-        shell: bash
-        run: |
-          godot --path "./cusf_launcher/" --headless --export-release "Mac" --verbose 2>&1 | tee build.log
+          name="${{fromJSON('{"windows": "Windows", "macos": "Mac", "linux": "Linux"}')[matrix.build] }}"
+          # Create build directory for macOS or Linux
+          mkdir -p "cusf_launcher/build/${{ matrix.build }}"
+          godot --path "./cusf_launcher/" --headless --export-release "$name" "cusf_launcher/build/${{ matrix.build }}/${{ matrix.target-bin }}" --verbose 2>&1 | tee build.log
         env:
           GODOT_MACOS_NOTARIZATION_API_KEY_ID: ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY_ID }}
           GODOT_MACOS_NOTARIZATION_API_KEY: ./notarization_api_key.p8
           GODOT_MACOS_NOTARIZATION_API_UUID: ${{ secrets.GODOT_MACOS_NOTARIZATION_API_UUID }}
 
-      # --- Upload Steps ---
       - name: Upload build (Windows)
         if: matrix.build == 'windows'
         uses: actions/upload-artifact@v4
@@ -230,10 +216,8 @@ jobs:
         with:
           name: cusf_launcher_macos
           if-no-files-found: error
-          # The .dmg is created at res://build/macos/cusf_launcher.dmg => cusf_launcher/build/macos/cusf_launcher.dmg
           path: cusf_launcher/build/macos/cusf_launcher.dmg
 
-      # --- Wait for Notarization (macOS) ---
       - name: Wait for notarization to finish
         if: ${{ matrix.build == 'macos' }}
         run: |
