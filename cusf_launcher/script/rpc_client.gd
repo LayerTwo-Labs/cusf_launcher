@@ -49,7 +49,6 @@ func cli_thunder_getblockcount() -> void:
 		"Windows":
 			bin_path = str(user_dir, "/downloads/l2/thunder-cli-latest-x86_64-pc-windows-gnu.exe")
 		"macOS":
-			# TODO
 			bin_path = str(user_dir, "/downloads/l2/thunder-cli-latest-x86_64-apple-darwin")
 	
 	var ret : int = OS.execute(bin_path,

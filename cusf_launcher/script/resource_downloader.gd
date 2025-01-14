@@ -23,6 +23,23 @@ const URL_THUNDER_LIN : String = "https://releases.drivechain.info/L2-S9-Thunder
 const URL_THUNDER_WIN : String = "https://releases.drivechain.info/L2-S9-Thunder-latest-x86_64-pc-windows-gnu.zip"
 const URL_THUNDER_OSX : String = "https://releases.drivechain.info/L2-S9-Thunder-latest-x86_64-apple-darwin.zip"
 
+# TODO Still a few places not using these const values that need updating
+const BIN_NAME_ENFORCER_LIN : String = "enforcer-linux"
+const BIN_NAME_ENFORCER_WIN : String = "enforcer-windows.exe"
+const BIN_NAME_ENFORCER_OSX : String = "enforcer-osx"
+
+const BIN_NAME_BITCOIN_LIN : String = "bitcoind"
+const BIN_NAME_BITCOIN_WIN : String = "bitcoind.exe"
+const BIN_NAME_BITCOIN_OSX : String = "bitcoind"
+
+const BIN_NAME_THUNDER_LIN : String = "thunder-latest-x86_64-unknown-linux-gnu"
+const BIN_NAME_THUNDER_WIN : String = "thunder-latest-x86_64-pc-windows-gnu.exe"
+const BIN_NAME_THUNDER_OSX : String = "thunder-latest-x86_64-apple-darwin"
+
+const BIN_NAME_BITWINDOW_LIN : String = "bitwindow"
+const BIN_NAME_BITWINDOW_WIN : String = "bitwindow.exe"
+const BIN_NAME_BITWINDOW_OSX : String = "bitwindow"
+
 const URL_RELEASE_INFO: String = "https://releases.drivechain.info/"
 
 # GRPCURL is released as a .zip for windows and .tar.gz for anything else:
@@ -189,13 +206,13 @@ func have_grpcurl() -> bool:
 func have_enforcer() -> bool:
 	match OS.get_name():
 		"Linux":
-			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.4-x86_64-unknown-linux-gnu"):
+			if !FileAccess.file_exists(str("user://downloads/l1/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/", BIN_NAME_ENFORCER_LIN)):
 				return false
 		"Windows":
-			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-pc-windows-gnu/bip300301_enforcer-0.1.4-x86_64-pc-windows-gnu.exe"):
+			if !FileAccess.file_exists(str("user://downloads/l1/bip300301-enforcer-latest-x86_64-pc-windows-gnu/", BIN_NAME_ENFORCER_WIN)):
 				return false
 		"macOS":
-			if !FileAccess.file_exists("user://downloads/l1/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.4-x86_64-apple-darwin"):
+			if !FileAccess.file_exists(str("user://downloads/l1/bip300301-enforcer-latest-x86_64-apple-darwin/", BIN_NAME_ENFORCER_OSX)):
 				return false
 	
 	resource_enforcer_ready.emit()
@@ -206,13 +223,13 @@ func have_enforcer() -> bool:
 func have_bitcoin() -> bool:
 	match OS.get_name():
 		"Linux":
-			if !FileAccess.file_exists("user://downloads/l1/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/bitcoind"):
+			if !FileAccess.file_exists(str("user://downloads/l1/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/", BIN_NAME_BITCOIN_LIN)):
 				return false
 		"Windows":
-			if !FileAccess.file_exists("user://downloads/l1/L1-bitcoin-patched-latest-x86_64-w64-msvc/Release/bitcoind.exe"):
+			if !FileAccess.file_exists(str("user://downloads/l1/L1-bitcoin-patched-latest-x86_64-w64-msvc/Release/", BIN_NAME_BITCOIN_WIN)):
 				return false
 		"macOS":
-			if !FileAccess.file_exists("user://downloads/l1/L1-bitcoin-patched-latest-x86_64-apple-darwin/bitcoind"):
+			if !FileAccess.file_exists(str("user://downloads/l1/L1-bitcoin-patched-latest-x86_64-apple-darwin/", BIN_NAME_BITCOIN_OSX)):
 				return false
 
 	resource_bitcoin_ready.emit()
@@ -223,13 +240,13 @@ func have_bitcoin() -> bool:
 func have_bitwindow() -> bool:
 	match OS.get_name():
 		"Linux":
-			if !FileAccess.file_exists("user://downloads/l1/bitwindow/bitwindow"):
+			if !FileAccess.file_exists(str("user://downloads/l1/bitwindow/", BIN_NAME_BITWINDOW_LIN)):
 				return false
 		"Windows":
-			if !FileAccess.file_exists("user://downloads/l1/bitwindow.exe"):
+			if !FileAccess.file_exists(str("user://downloads/l1/", BIN_NAME_BITWINDOW_WIN)):
 				return false
 		"macOS":
-			if !FileAccess.file_exists("user://downloads/l1/bitwindow/bitwindow.app/Contents/MacOS/bitwindow"):
+			if !FileAccess.file_exists(str("user://downloads/l1/bitwindow/bitwindow.app/Contents/MacOS/", BIN_NAME_BITWINDOW_OSX)):
 				return false
 
 	resource_bitwindow_ready.emit()
@@ -239,13 +256,13 @@ func have_bitwindow() -> bool:
 func have_thunder() -> bool:
 	match OS.get_name():
 		"Linux":
-			if !FileAccess.file_exists("user://downloads/l2/thunder-latest-x86_64-unknown-linux-gnu"):
+			if !FileAccess.file_exists(str("user://downloads/l2/", BIN_NAME_THUNDER_LIN)):
 				return false
 		"Windows":
-			if !FileAccess.file_exists("user://downloads/l2/thunder-latest-x86_64-pc-windows-gnu.exe"):
+			if !FileAccess.file_exists(str("user://downloads/l2/", BIN_NAME_THUNDER_WIN)):
 				return false
 		"macOS":
-			if !FileAccess.file_exists("user://downloads/l2/thunder-latest-x86_64-apple-darwin"):
+			if !FileAccess.file_exists(str("user://downloads/l2/", BIN_NAME_BITCOIN_OSX)):
 				return false
 
 	return true
@@ -379,20 +396,66 @@ func extract_enforcer() -> void:
 		printerr("Failed to extract enforcer")
 		return
 
-	# Make executable for linux
+	# Rename extracted bin to remove version number
 	if OS.get_name() == "Linux":
-		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.4-x86_64-unknown-linux-gnu")])
+		var dir_files = DirAccess.get_files_at(str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu"))
+		
+		if dir_files.size() != 1:
+			printerr("Failed to locate enforcer binary")
+			return
+		
+		var rename_error = DirAccess.rename_absolute(str(downloads_dir, 
+			"/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/", 
+			dir_files[0]), str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/",
+			BIN_NAME_ENFORCER_LIN))
+			
+		if rename_error != OK:
+			printerr("Failed to rename enforcer")
+			return
+	elif OS.get_name() == "macOS":
+		var dir_files = DirAccess.get_files_at(str(downloads_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin"))
+		
+		if dir_files.size() != 1:
+			printerr("Failed to locate enforcer binary")
+			return
+		
+		var rename_error = DirAccess.rename_absolute(str(downloads_dir, 
+			"/bip300301-enforcer-latest-x86_64-apple-darwin/", 
+			dir_files[0]), str(downloads_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin/",
+			BIN_NAME_ENFORCER_OSX))
+			
+		if rename_error != OK:
+			printerr("Failed to rename enforcer")
+			return
+	elif OS.get_name() == "Windows":
+		var dir_files = DirAccess.get_files_at(str(downloads_dir, "/bip300301-enforcer-latest-x86_64-pc-windows-gnu"))
+		
+		if dir_files.size() != 1:
+			printerr("Failed to locate enforcer binary")
+			return
+		
+		var rename_error = DirAccess.rename_absolute(str(downloads_dir, 
+			"/bip300301-enforcer-latest-x86_64-pc-windows-gnu/", 
+			dir_files[0]), str(downloads_dir, "/bip300301-enforcer-latest-x86_64-pc-windows-gnu/",
+			BIN_NAME_ENFORCER_WIN))
+			
+		if rename_error != OK:
+			printerr("Failed to rename enforcer")
+			return
+
+	# Make executable for linux and mac
+	if OS.get_name() == "Linux":
+		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/", BIN_NAME_ENFORCER_LIN)])
+		if ret != OK:
+			printerr("Failed to mark enforcer executable")
+			return
+	elif OS.get_name() == "macOS":
+		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin/", BIN_NAME_ENFORCER_OSX)])
 		if ret != OK:
 			printerr("Failed to mark enforcer executable")
 			return
 
 	resource_enforcer_ready.emit()
-	
-	if OS.get_name() == "macOS":
-		ret = OS.execute("chmod", ["+x", str(downloads_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.4-x86_64-apple-darwin")])
-		if ret != OK:
-			printerr("Failed to mark enforcer executable")
-			return
 
 
 func extract_bitcoin() -> void:

@@ -345,11 +345,11 @@ func start_l1() -> void:
 	var btc_bin_path : String = ""
 	match OS.get_name():
 		"Linux":
-			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/bitcoind")
+			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-unknown-linux-gnu/", $ResourceDownloader.BIN_NAME_BITCOIN_LIN)
 		"Windows":
-			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-w64-msvc/Release/bitcoind.exe")
+			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-w64-msvc/Release/", $ResourceDownloader.BIN_NAME_BITCOIN_WIN)
 		"macOS":
-			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-apple-darwin//bitcoind")
+			btc_bin_path = str(downloads_dir, "/L1-bitcoin-patched-latest-x86_64-apple-darwin/", $ResourceDownloader.BIN_NAME_BITCOIN_OSX)
 
 	# Start bitcoin
 	var ret : int = OS.create_process(btc_bin_path, [])
@@ -376,11 +376,11 @@ func start_l1() -> void:
 	var enforcer_bin_path : String = ""
 	match OS.get_name():
 		"Linux":
-			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/bip300301_enforcer-0.1.4-x86_64-unknown-linux-gnu")
+			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-unknown-linux-gnu/", $ResourceDownloader.BIN_NAME_ENFORCER_LIN)
 		"Windows":
-			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-pc-windows-gnu/bip300301_enforcer-0.1.4-x86_64-pc-windows-gnu.exe")
+			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-pc-windows-gnu/", $ResourceDownloader.BIN_NAME_ENFORCER_WIN)
 		"macOS":
-			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin/bip300301_enforcer-0.1.4-x86_64-apple-darwin")
+			enforcer_bin_path = str(downloads_dir, "/bip300301-enforcer-latest-x86_64-apple-darwin/", $ResourceDownloader.BIN_NAME_ENFORCER_OSX)
 
 	# Start bip300-301 enforcer
 	ret = OS.create_process(enforcer_bin_path, ["--node-rpc-addr=localhost:38332", "--node-rpc-user=user", "--node-rpc-pass=password", "--node-zmq-addr-sequence=tcp://localhost:29000", "--enable-wallet"])
@@ -399,11 +399,11 @@ func start_l1() -> void:
 	var bitwindow_bin_path : String = ""
 	match OS.get_name():
 		"Linux":
-			bitwindow_bin_path = str(downloads_dir, "/bitwindow/bitwindow")
+			bitwindow_bin_path = str(downloads_dir, "/bitwindow/", $ResourceDownloader.BIN_NAME_BITWINDOW_LIN)
 		"Windows":
-			bitwindow_bin_path = str(downloads_dir, "/bitwindow.exe")
+			bitwindow_bin_path = str(downloads_dir, "/", $ResourceDownloader.BIN_NAME_BITWINDOW_WIN)
 		"macOS":
-			bitwindow_bin_path = str(downloads_dir, "/bitwindow/bitwindow.app/Contents/MacOS/bitwindow")
+			bitwindow_bin_path = str(downloads_dir, "/bitwindow/bitwindow.app/Contents/MacOS/", $ResourceDownloader.BIN_NAME_BITWINDOW_OSX)
 
 	# Start BitWindow
 	ret = OS.create_process(bitwindow_bin_path, [])
