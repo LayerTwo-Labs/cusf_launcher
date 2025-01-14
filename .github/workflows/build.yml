@@ -161,12 +161,20 @@ jobs:
         if: matrix.build != 'windows'
         run: python3 .github/scripts/godot_ci_cache.py
 
+      - name: Create Windows build dir
+        if: matrix.build == 'windows'
+        shell: pwsh
+        run: New-Item -ItemType Directory -Force -Path "cusf_launcher/build/windows"
+      
       - name: Export build (Windows)
         if: matrix.build == 'windows'
         shell: pwsh
         run: |
-          $name = "Windows"
-          & "C:\Users\runneradmin\godot\Godot_v4.3-stable_win64.exe" --path "./cusf_launcher/" --headless --export-release "$name" "${{ matrix.target-bin }}" --verbose 2>&1 | Tee-Object -FilePath build.log
+          & "C:\Users\runneradmin\godot\Godot_v4.3-stable_win64.exe" `
+            --path "./cusf_launcher/" `
+            --headless `
+            --export-release "Windows" `
+            --verbose 2>&1 | Tee-Object -FilePath build.log
 
       - name: Export build (Unix)
         if: matrix.build != 'windows'
