@@ -186,10 +186,30 @@ jobs:
           GODOT_MACOS_NOTARIZATION_API_KEY: ./notarization_api_key.p8
           GODOT_MACOS_NOTARIZATION_API_UUID: ${{ secrets.GODOT_MACOS_NOTARIZATION_API_UUID }}
 
-      - name: Upload build
+      #
+      # ---- Separate upload steps for each OS ----
+      #
+      - name: Upload build (Windows)
+        if: matrix.build == 'windows'
         uses: actions/upload-artifact@v4
         with:
-          name: cusf_launcher_${{ matrix.build }}
+          name: cusf_launcher_windows
+          if-no-files-found: error
+          path: cusf_launcher/build/windows/cusf_launcher.exe
+
+      - name: Upload build (Linux)
+        if: matrix.build == 'linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cusf_launcher_linux
+          if-no-files-found: error
+          path: cusf_launcher/${{ matrix.target-bin }}
+
+      - name: Upload build (macOS)
+        if: matrix.build == 'macos'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cusf_launcher_macos
           if-no-files-found: error
           path: cusf_launcher/${{ matrix.target-bin }}
 
