@@ -174,13 +174,12 @@ jobs:
 
       - name: Export build (Unix)
         if: matrix.build != 'windows'
-        shell: bash
         run: |
           name="${{fromJSON('{"windows": "Windows", "macos": "Mac", "linux": "Linux"}')[matrix.build] }}"
           # Create build directory
           mkdir -p cusf_launcher/build/${{ matrix.build }}
           # Run the export
-          godot --path "./cusf_launcher/" --headless --export-release "$name" --verbose 2>&1 | tee build.log
+          godot --path "./cusf_launcher/" --headless --export-release "$name" "${{ matrix.target-bin }}" --verbose 2>&1 | tee build.log
         env:
           GODOT_MACOS_NOTARIZATION_API_KEY_ID: ${{ secrets.GODOT_MACOS_NOTARIZATION_API_KEY_ID }}
           GODOT_MACOS_NOTARIZATION_API_KEY: ./notarization_api_key.p8
